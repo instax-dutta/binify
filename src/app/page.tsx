@@ -85,7 +85,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Content */}
-      <div className="container mx-auto px-6 pt-32 pb-20 flex-1 flex flex-col items-center">
+      <div className="container mx-auto px-6 pt-24 pb-12 flex-1 flex flex-col items-center">
         {createdPaste ? (
           <PasteCreated
             pasteId={createdPaste.pasteId}
@@ -100,8 +100,8 @@ export default function HomePage() {
             className="flex flex-col items-center w-full"
           >
             {/* Hero Header */}
-            <div className="text-center space-y-8 mb-24 max-w-4xl">
-              <motion.div variants={cardVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/10 text-accent text-[10px] font-black tracking-widest uppercase">
+            <div className="text-center space-y-5 mb-24 max-w-3xl">
+              <motion.div variants={cardVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-accent text-[10px] font-black tracking-widest uppercase">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
@@ -109,36 +109,36 @@ export default function HomePage() {
                 Secure Transmission Nexus
               </motion.div>
 
-              <motion.h2 variants={titleVariants} className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] text-white">
-                Share <span className="luxury-text-gradient">Secrets</span> <br />
-                <span className="text-white/20">Without Trace.</span>
+              <motion.h2 variants={cardVariants} className="text-4xl md:text-6xl font-bold tracking-tighter leading-[1.1]">
+                Your Secrets, <br />
+                <span className="text-accent">Truly Anonymous.</span>
               </motion.h2>
 
-              <motion.p variants={cardVariants} className="text-lg md:text-xl text-white/40 font-medium leading-relaxed max-w-2xl mx-auto">
-                End-to-end encrypted pastebin with no server-side keys.
-                Encrypted in-browser, delivered in-silence.
+              <motion.p variants={cardVariants} className="text-base md:text-lg text-white/40 font-medium leading-relaxed max-w-2xl mx-auto">
+                End-to-end encrypted pastebin with no server-side persistence of keys.
+                Built for the privacy-first generation.
               </motion.p>
             </div>
 
             {/* Features Staggered */}
             <motion.div
               variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32 w-full max-w-5xl"
+              className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-40 w-full max-w-5xl"
             >
               <FeatureCard
-                icon={<Shield size={24} className="text-accent" />}
+                icon={<Shield size={20} className="text-accent" />}
                 title="E2E Protection"
                 description="AES-256-GCM encryption entirely in your browser. Server only sees noise."
                 delay={0}
               />
               <FeatureCard
-                icon={<Flame size={24} className="text-orange-500" />}
+                icon={<Flame size={20} className="text-orange-500" />}
                 title="Auto-Purge"
                 description="Self-destruct logic wipes data from both Redis and DB after threshold."
                 delay={1}
               />
               <FeatureCard
-                icon={<Lock size={24} className="text-blue-500" />}
+                icon={<Lock size={20} className="text-blue-500" />}
                 title="Zero-Knowledge"
                 description="No keys touch our server. Even if we wanted to, we can't see your data."
                 delay={2}
@@ -186,19 +186,19 @@ function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNod
   return (
     <motion.div
       variants={cardVariants}
-      whileHover={{ y: -8, backgroundColor: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.15)" }}
-      className="luxury-card flex flex-col gap-6 text-left p-8 border border-white/5 transition-colors group cursor-default"
+      whileHover={{ y: -6, backgroundColor: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.15)" }}
+      className="luxury-card flex flex-col gap-4 text-left p-6 border border-white/5 transition-colors group cursor-default"
     >
       <motion.div
         animate={{ y: [0, -4, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: delay * 0.5 }}
-        className="w-14 h-14 rounded-2xl bg-white/[0.03] flex items-center justify-center border border-white/5 relative overflow-hidden group-hover:border-accent/30 transition-colors"
+        className="w-11 h-11 rounded-xl bg-white/[0.03] flex items-center justify-center border border-white/5 relative overflow-hidden group-hover:border-accent/30 transition-colors"
       >
         <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
         {icon}
       </motion.div>
-      <div className="space-y-3">
-        <h3 className="text-xl font-bold text-white tracking-tight group-hover:text-accent transition-colors">{title}</h3>
+      <div className="space-y-2">
+        <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-accent transition-colors">{title}</h3>
         <p className="text-sm text-white/40 leading-relaxed font-medium">{description}</p>
       </div>
     </motion.div>

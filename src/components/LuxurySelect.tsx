@@ -101,8 +101,10 @@ export default function LuxurySelect({
                         )}
 
                         <div
-                            className="max-h-[320px] overflow-y-auto overflow-x-hidden p-1.5 scrollbar-hide scroll-smooth"
+                            className="max-h-[240px] overflow-y-auto overflow-x-hidden p-1.5 scrollbar-hide scroll-smooth"
                             data-lenis-prevent
+                            onWheel={(e) => e.stopPropagation()}
+                            style={{ overscrollBehavior: 'contain' }}
                         >
                             {filteredOptions.length > 0 ? (
                                 filteredOptions.map((option) => {
