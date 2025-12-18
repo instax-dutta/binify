@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 import { motion } from 'framer-motion';
 import {
     Copy,
@@ -204,7 +205,7 @@ export default function PasteViewer({
                         </pre>
                     ) : language === 'markdown' ? (
                         <div className="prose prose-invert max-w-none p-8 text-white/80">
-                            <ReactMarkdown>{content}</ReactMarkdown>
+                            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content}</ReactMarkdown>
                         </div>
                     ) : language && language !== 'plaintext' ? (
                         <SyntaxHighlighter
