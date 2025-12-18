@@ -10,7 +10,6 @@ import {
     Lock,
     FileCode,
     ChevronDown,
-    Sparkles,
     Loader2
 } from 'lucide-react';
 import { generateKey, encryptContent } from '@/lib/crypto';
@@ -155,9 +154,6 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                         maxLength={200}
                         autoComplete="off"
                     />
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-accent/50 transition-colors">
-                        <Sparkles size={20} />
-                    </div>
                 </motion.div>
 
                 {/* Content Editor */}
