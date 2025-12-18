@@ -108,6 +108,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                         onChange={(e) => setTitle(e.target.value)}
                         className="luxury-input text-lg font-medium py-4 px-6 border-white/10 group-focus-within:border-accent/30 transition-all"
                         maxLength={200}
+                        autoComplete="off"
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-accent/50 transition-colors">
                         <Sparkles size={20} />

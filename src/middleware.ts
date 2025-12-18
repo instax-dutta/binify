@@ -9,11 +9,11 @@ export function middleware(request: NextRequest) {
         'Content-Security-Policy',
         [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "script-src 'self' 'unsafe-eval' 'unsafe-inline' blob: https://www.googletagmanager.com",
+            "style-src 'self' 'unsafe-inline' blob: https://fonts.googleapis.com https://cdn.jsdelivr.net",
             "font-src 'self' https://fonts.gstatic.com",
-            "img-src 'self' data: blob:",
-            "connect-src 'self' https://*.upstash.io https://*.turso.io", // Allow connections to infrastructure
+            "img-src 'self' data: blob: https://www.google-analytics.com",
+            "connect-src 'self' blob: https://*.upstash.io https://*.turso.io https://www.google-analytics.com https://stats.g.doubleclick.net",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
