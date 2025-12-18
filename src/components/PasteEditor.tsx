@@ -1,12 +1,42 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { generateKey, encryptContent, generatePasteId } from '@/lib/crypto';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    ShieldCheck,
+    Clock,
+    Eye,
+    Flame,
+    Lock,
+    FileCode,
+    ChevronDown,
+    Sparkles,
+    Loader2
+} from 'lucide-react';
+import { generateKey, encryptContent } from '@/lib/crypto';
 import type { ExpirationType } from '@/lib/validation';
+import { cn } from '@/lib/utils';
 
 interface PasteEditorProps {
     onPasteCreated: (pasteId: string, key: string) => void;
 }
+
+const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.6,
+            staggerChildren: 0.1
+        }
+    }
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0 }
+};
 
 export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
     const [content, setContent] = useState('');
@@ -17,7 +47,6 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
     const [language, setLanguage] = useState('plaintext');
     const [isCreating, setIsCreating] = useState(false);
     const [error, setError] = useState('');
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     const handleCreate = async () => {
         if (!content.trim()) {
@@ -29,17 +58,9 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
         setError('');
 
         try {
-            // Generate encryption key
             const key = await generateKey();
+            const encrypted = await encryptContent(content, key, password || undefined);
 
-            // Encrypt content
-            const encrypted = await encryptContent(
-                content,
-                key,
-                password || undefined
-            );
-
-            // Send to API
             const response = await fetch('/api/paste', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -62,16 +83,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
             }
 
             const data = await response.json();
-
-            // Call callback with paste ID and key
             onPasteCreated(data.pasteId, key);
-
-            // Reset form
-            setContent('');
-            setTitle('');
-            setPassword('');
-            setExpirationType('1day');
-            setLanguage('plaintext');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create paste');
         } finally {
@@ -80,60 +92,80 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto space-y-4">
-            {/* Title */}
-            <input
-                type="text"
-                placeholder="Title (optional)"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="input"
-                maxLength={200}
-            />
+        <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="w-full max-w-5xl mx-auto space-y-8"
+        >
+            {/* Title Input */}
+            <motion.div variants={itemVariants} className="relative group">
+                <input
+                    type="text"
+                    placeholder="Give your paste a title..."
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="luxury-input text-lg font-medium py-4 px-6 border-white/10 group-focus-within:border-accent/30 transition-all"
+                    maxLength={200}
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-accent/50 transition-colors">
+                    <Sparkles size={20} />
+                </div>
+            </motion.div>
 
-            {/* Content */}
-            <div className="relative">
+            {/* Content Editor */}
+            <motion.div variants={itemVariants} className="relative rounded-2xl luxury-glass overflow-hidden group border-white/10 focus-within:border-accent/20 transition-all">
+                <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5">
+                    <div className="flex items-center gap-2 text-xs font-medium text-white/40">
+                        <FileCode size={14} />
+                        <span>EDITOR</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-[10px] text-white/30 uppercase tracking-widest font-bold">
+                        <span>{content.length.toLocaleString()} CHARS</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                    </div>
+                </div>
+
                 <textarea
-                    ref={textareaRef}
-                    placeholder="Paste your content here..."
+                    placeholder="Paste your code or text here..."
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
-                    className="textarea min-h-[400px]"
+                    className="luxury-textarea custom-scrollbar w-full min-h-[500px] border-none bg-transparent px-6 py-6 focus:ring-0 text-white/90 selection:bg-accent/20"
                     spellCheck={false}
                 />
-                <div className="absolute bottom-3 right-3 text-xs text-text-tertiary">
-                    {content.length.toLocaleString()} characters
-                </div>
-            </div>
+            </motion.div>
 
             {/* Options Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {/* Expiration */}
-                <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                        Expiration
+                <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                        <Clock size={12} /> Expiration
                     </label>
-                    <select
-                        value={expirationType}
-                        onChange={(e) => setExpirationType(e.target.value as ExpirationType)}
-                        className="input"
-                    >
-                        <option value="5min">5 minutes</option>
-                        <option value="1hour">1 hour</option>
-                        <option value="1day">1 day</option>
-                        <option value="7days">7 days</option>
-                        <option value="30days">30 days</option>
-                        <option value="never">Never</option>
-                        <option value="views">After X views</option>
-                        <option value="burn">Burn after reading</option>
-                    </select>
+                    <div className="relative">
+                        <select
+                            value={expirationType}
+                            onChange={(e) => setExpirationType(e.target.value as ExpirationType)}
+                            className="luxury-input appearance-none pr-10 cursor-pointer"
+                        >
+                            <option value="5min">5 minutes</option>
+                            <option value="1hour">1 hour</option>
+                            <option value="1day">1 day</option>
+                            <option value="7days">7 days</option>
+                            <option value="30days">30 days</option>
+                            <option value="never">Never</option>
+                            <option value="views">After X views</option>
+                            <option value="burn">Burn after reading</option>
+                        </select>
+                        <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
+                    </div>
                 </div>
 
-                {/* Max Views (conditional) */}
-                {expirationType === 'views' && (
-                    <div>
-                        <label className="block text-sm font-medium text-text-secondary mb-2">
-                            Max Views
+                {/* Dynamic Max Views / Language */}
+                {expirationType === 'views' ? (
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                            <Eye size={12} /> Max Views
                         </label>
                         <input
                             type="number"
@@ -141,113 +173,88 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                             max={1000}
                             value={maxViews}
                             onChange={(e) => setMaxViews(parseInt(e.target.value) || 1)}
-                            className="input"
+                            className="luxury-input"
                         />
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                            <FileCode size={12} /> Language
+                        </label>
+                        <div className="relative">
+                            <select
+                                value={language}
+                                onChange={(e) => setLanguage(e.target.value)}
+                                className="luxury-input appearance-none pr-10 cursor-pointer"
+                            >
+                                <option value="plaintext">Plain Text</option>
+                                <option value="javascript">JavaScript</option>
+                                <option value="typescript">TypeScript</option>
+                                <option value="python">Python</option>
+                                <option value="markdown">Markdown</option>
+                                <option value="json">JSON</option>
+                                <option value="html">HTML</option>
+                                <option value="css">CSS</option>
+                                <option value="sql">SQL</option>
+                                <option value="bash">Bash</option>
+                            </select>
+                            <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
+                        </div>
                     </div>
                 )}
 
-                {/* Language */}
-                <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                        Language
-                    </label>
-                    <select
-                        value={language}
-                        onChange={(e) => setLanguage(e.target.value)}
-                        className="input"
-                    >
-                        <option value="plaintext">Plain Text</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="typescript">TypeScript</option>
-                        <option value="python">Python</option>
-                        <option value="java">Java</option>
-                        <option value="go">Go</option>
-                        <option value="rust">Rust</option>
-                        <option value="c">C</option>
-                        <option value="cpp">C++</option>
-                        <option value="csharp">C#</option>
-                        <option value="php">PHP</option>
-                        <option value="ruby">Ruby</option>
-                        <option value="swift">Swift</option>
-                        <option value="kotlin">Kotlin</option>
-                        <option value="sql">SQL</option>
-                        <option value="html">HTML</option>
-                        <option value="css">CSS</option>
-                        <option value="json">JSON</option>
-                        <option value="yaml">YAML</option>
-                        <option value="markdown">Markdown</option>
-                        <option value="bash">Bash</option>
-                    </select>
-                </div>
-
                 {/* Password */}
-                <div>
-                    <label className="block text-sm font-medium text-text-secondary mb-2">
-                        Password (optional)
+                <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                        <Lock size={12} /> Encryption Key/Password
                     </label>
                     <input
                         type="password"
-                        placeholder="Extra protection"
+                        placeholder="Extra layer of security..."
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="input"
+                        className="luxury-input"
                         autoComplete="new-password"
                     />
                 </div>
-            </div>
+            </motion.div>
 
-            {/* Error */}
-            {error && (
-                <div className="bg-accent-red/10 border border-accent-red/20 text-accent-red px-4 py-3 rounded-lg text-sm">
-                    {error}
-                </div>
-            )}
-
-            {/* Create Button */}
-            <button
-                onClick={handleCreate}
-                disabled={isCreating || !content.trim()}
-                className="btn-primary w-full md:w-auto px-8 py-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                {isCreating ? (
-                    <span className="flex items-center justify-center gap-2">
-                        <span className="spinner" />
-                        Creating...
-                    </span>
-                ) : (
-                    'Create Encrypted Paste'
-                )}
-            </button>
-
-            {/* Security Notice */}
-            <div className="bg-surface-secondary border border-border rounded-lg p-4 text-sm text-text-secondary">
-                <div className="flex items-start gap-3">
-                    <svg
-                        className="w-5 h-5 text-accent-blue flex-shrink-0 mt-0.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+            {/* Error State */}
+            <AnimatePresence>
+                {error && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm text-center"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                        />
-                    </svg>
-                    <div>
-                        <p className="font-medium text-text-primary mb-1">
-                            Zero-Knowledge Encryption
-                        </p>
-                        <p>
-                            Your content is encrypted in your browser before being sent to the
-                            server. The encryption key is stored only in the URL and never
-                            transmitted to the server. Without the key, your paste cannot be
-                            decrypted.
-                        </p>
-                    </div>
+                        {error}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Footer / Create Button */}
+            <motion.div variants={itemVariants} className="pt-4 flex flex-col md:flex-row items-center gap-6">
+                <button
+                    onClick={handleCreate}
+                    disabled={isCreating || !content.trim()}
+                    className="btn-luxury-primary group w-full md:w-auto min-w-[240px] py-4 disabled:opacity-30 disabled:cursor-not-allowed overflow-visible"
+                >
+                    {isCreating ? (
+                        <Loader2 size={24} className="animate-spin" />
+                    ) : (
+                        <>
+                            <Flame size={20} className="text-orange-500 group-hover:scale-125 transition-transform" />
+                            <span>Initialize Binify Paste</span>
+                        </>
+                    )}
+                </button>
+
+                <div className="flex items-center gap-3 text-white/30 text-xs">
+                    <ShieldCheck size={18} className="text-accent" />
+                    <span className="flex-1">Encryption happens locally. No keys reach the server.</span>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

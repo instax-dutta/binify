@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import ClientLayout from '@/components/ClientLayout';
 
 export const metadata: Metadata = {
   title: 'Binify - Zero-Knowledge Encrypted Pastebin',
@@ -40,11 +41,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon.ico" />
-      </head>
-      <body>{children}</body>
+    <html lang="en" className="dark">
+      <body className="antialiased">
+        <ClientLayout>{children}</ClientLayout>
+      </body>
     </html>
   );
 }

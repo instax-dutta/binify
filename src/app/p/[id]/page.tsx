@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Terminal, Lock, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
 import { decryptContent } from '@/lib/crypto';
 import PasteViewer from '@/components/PasteViewer';
 
@@ -25,28 +27,21 @@ export default function ViewPastePage() {
         setError('');
 
         try {
-            // Get encryption key from URL fragment
             const hash = window.location.hash.slice(1);
             if (!hash) {
-                throw new Error('Encryption key not found in URL');
+                throw new Error('Encryption key not found in URL fragment. Decryption is impossible.');
             }
 
-            // Fetch encrypted paste
             const response = await fetch(`/api/paste/${pasteId}`);
 
             if (!response.ok) {
-                if (response.status === 404) {
-                    throw new Error('Paste not found');
-                } else if (response.status === 410) {
-                    throw new Error('This paste has expired or been deleted');
-                } else {
-                    throw new Error('Failed to load paste');
-                }
+                if (response.status === 404) throw new Error('Data segment not found.');
+                if (response.status === 410) throw new Error('This session has already been purged or expired.');
+                throw new Error('Failed to synchronize with server.');
             }
 
             const data = await response.json();
 
-            // Check if password is required
             if (data.hasPassword && !passwordAttempt) {
                 setNeedsPassword(true);
                 setMetadata(data);
@@ -54,7 +49,6 @@ export default function ViewPastePage() {
                 return;
             }
 
-            // Decrypt content
             const decrypted = await decryptContent(
                 {
                     ciphertext: data.ciphertext,
@@ -70,7 +64,7 @@ export default function ViewPastePage() {
             setMetadata(data);
             setNeedsPassword(false);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load paste');
+            setError(err instanceof Error ? err.message : 'Cryptographic failure.');
         } finally {
             setIsLoading(false);
         }
@@ -78,17 +72,18 @@ export default function ViewPastePage() {
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (password) {
-            loadPaste(password);
-        }
+        if (password) loadPaste(password);
     };
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="text-center space-y-4">
-                    <div className="spinner w-12 h-12 mx-auto" />
-                    <p className="text-text-secondary">Decrypting paste...</p>
+            <div className="min-h-screen flex items-center justify-center p-6">
+                <div className="text-center space-y-6">
+                    <div className="relative">
+                        <Loader2 size={48} className="text-accent animate-spin mx-auto" />
+                        <div className="absolute inset-0 blur-xl bg-accent/20 animate-pulse" />
+                    </div>
+                    <p className="text-xs font-black uppercase tracking-[0.3em] text-white/30">Decrypting Logic...</p>
                 </div>
             </div>
         );
@@ -96,98 +91,84 @@ export default function ViewPastePage() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center px-4">
-                <div className="max-w-md w-full">
-                    <div className="card text-center space-y-4">
-                        <div className="w-16 h-16 bg-accent-red/10 rounded-full flex items-center justify-center mx-auto">
-                            <svg
-                                className="w-8 h-8 text-accent-red"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </div>
-                        <h2 className="text-2xl font-bold text-text-primary">Error</h2>
-                        <p className="text-text-secondary">{error}</p>
-                        <a href="/" className="btn-primary inline-block">
-                            Create New Paste
-                        </a>
+            <div className="min-h-screen flex items-center justify-center p-6">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="max-w-md w-full luxury-card text-center space-y-8 border-red-500/20"
+                >
+                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
+                        <ShieldAlert size={40} className="text-red-500" />
                     </div>
-                </div>
+                    <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-white tracking-tighter">Access Denied</h2>
+                        <p className="text-sm text-white/40 font-medium leading-relaxed">{error}</p>
+                    </div>
+                    <a href="/" className="btn-luxury-primary w-full">
+                        Return to Matrix
+                    </a>
+                </motion.div>
             </div>
         );
     }
 
     if (needsPassword) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center px-4">
-                <div className="max-w-md w-full">
-                    <div className="card space-y-6">
-                        <div className="text-center">
-                            <div className="w-16 h-16 bg-accent-blue/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg
-                                    className="w-8 h-8 text-accent-blue"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                                    />
-                                </svg>
-                            </div>
-                            <h2 className="text-2xl font-bold text-text-primary mb-2">
-                                Password Required
-                            </h2>
-                            <p className="text-text-secondary">
-                                This paste is password-protected. Enter the password to decrypt
-                                and view the content.
-                            </p>
+            <div className="min-h-screen flex items-center justify-center p-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="max-w-md w-full luxury-card space-y-10"
+                >
+                    <div className="text-center space-y-4">
+                        <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto border border-accent/20">
+                            <Lock size={30} className="text-accent" />
                         </div>
+                        <div className="space-y-1">
+                            <h2 className="text-2xl font-bold text-white tracking-tight">Secondary Key Required</h2>
+                            <p className="text-sm text-white/30 font-medium tracking-tight">This session is double-locked via PBKDF2.</p>
+                        </div>
+                    </div>
 
-                        <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                    <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-1">Session Password</label>
                             <input
                                 type="password"
-                                placeholder="Enter password"
+                                placeholder="Enter bypass code"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="input"
+                                className="luxury-input text-center tracking-widest"
                                 autoFocus
                                 autoComplete="off"
                             />
-                            <button type="submit" className="btn-primary w-full">
-                                Decrypt Paste
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                        </div>
+                        <button type="submit" className="btn-luxury-primary w-full py-4 text-sm font-bold uppercase tracking-widest">
+                            Unlock Binary
+                        </button>
+                    </form>
+                </motion.div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            {/* Header */}
-            <header className="border-b border-border">
-                <div className="container mx-auto px-4 py-6">
-                    <a href="/" className="inline-block">
-                        <h1 className="text-2xl font-bold text-gradient">Binify</h1>
+        <div className="min-h-screen">
+            <nav className="border-b border-white/5 bg-black/50 backdrop-blur-xl">
+                <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+                    <a href="/" className="flex items-center gap-3 group">
+                        <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:border-accent/40 transition-all">
+                            <Terminal size={20} className="text-white group-hover:text-accent transition-colors" />
+                        </div>
+                        <span className="text-xl font-bold tracking-tight text-white">Binify</span>
                     </a>
+                    <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
+                        Secure Payload Terminal
+                    </div>
                 </div>
-            </header>
+            </nav>
 
-            {/* Content */}
-            <div className="container mx-auto px-4 py-12">
+            <div className="container mx-auto px-6 pt-16">
                 <PasteViewer
                     content={content}
                     language={metadata?.language}
