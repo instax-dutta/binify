@@ -21,11 +21,17 @@ export async function GET(
         const { id } = await params;
 
         // Get metadata from database
-        const metadata = await getPasteMetadata(id);
+        let metadata;
+        try {
+            metadata = await getPasteMetadata(id);
+        } catch (dbError) {
+            console.error('[DB_ERROR] Failed to fetch metadata:', dbError);
+            throw new Error(`Database nexus unreachable: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
+        }
 
         if (!metadata) {
             return NextResponse.json(
-                { error: 'Paste not found' },
+                { error: 'Paste session not found. It may have been purged or never existed.' },
                 { status: 404 }
             );
         }
@@ -33,21 +39,31 @@ export async function GET(
         // Check if paste has expired
         if (isPasteExpired(metadata)) {
             // Clean up
-            await deletePaste(id);
-            await deletePasteMetadata(id);
+            try {
+                await deletePaste(id);
+                await deletePasteMetadata(id);
+            } catch (cleanupError) {
+                console.error('[CLEANUP_ERROR] Failed to purge expired paste:', cleanupError);
+            }
 
             return NextResponse.json(
-                { error: 'Paste has expired or been deleted' },
+                { error: 'Transmission expired. The content has been securely purged.' },
                 { status: 410 } // 410 Gone
             );
         }
 
         // Get encrypted payload from Redis
-        const payload = await getPaste(id);
+        let payload;
+        try {
+            payload = await getPaste(id);
+        } catch (redisError) {
+            console.error('[REDIS_ERROR] Failed to fetch payload:', redisError);
+            throw new Error('Storage nexus out of sync.');
+        }
 
-        if (!payload) {
+        if (!payload || !payload.ciphertext) {
             return NextResponse.json(
-                { error: 'Paste content not found' },
+                { error: 'Encrypted payload missing or corrupted.' },
                 { status: 404 }
             );
         }
@@ -57,13 +73,17 @@ export async function GET(
             metadata.maxViews !== undefined &&
             metadata.viewCount + 1 >= metadata.maxViews;
 
-        // If burn-after-read, delete immediately
-        if (willBurn) {
-            await deletePaste(id);
-            await markPasteAsBurned(id);
-        } else {
-            // Increment view count
-            await incrementViewCount(id);
+        // Secure state updates
+        try {
+            if (willBurn) {
+                await deletePaste(id);
+                await markPasteAsBurned(id);
+            } else {
+                await incrementViewCount(id);
+            }
+        } catch (updateError) {
+            console.error('[SYNC_ERROR] Failed to update paste state:', updateError);
+            // We continue anyway so the user can at least view the paste once
         }
 
         // Return encrypted payload and metadata
@@ -79,14 +99,13 @@ export async function GET(
             hasPassword: metadata.hasPassword,
             language: metadata.metadata?.language,
             title: metadata.metadata?.title,
-            tags: metadata.metadata?.tags,
             willBurn,
         });
     } catch (error) {
-        console.error('Error retrieving paste:', error);
+        console.error('[API_ERROR] Retrieval failure:', error);
 
         return NextResponse.json(
-            { error: 'Failed to retrieve paste' },
+            { error: error instanceof Error ? error.message : 'Internal Systems Failure during retrieval.' },
             { status: 500 }
         );
     }

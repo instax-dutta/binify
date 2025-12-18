@@ -50,12 +50,11 @@ export async function storePaste(
 ): Promise<void> {
     const redis = getRedis();
     const key = `paste:${pasteId}`;
-    const value = JSON.stringify(payload);
 
     if (ttlSeconds) {
-        await redis.setex(key, ttlSeconds, value);
+        await redis.setex(key, ttlSeconds, payload);
     } else {
-        await redis.set(key, value);
+        await redis.set(key, payload);
     }
 }
 
@@ -68,13 +67,12 @@ export async function getPaste(pasteId: string): Promise<EncryptedPayload | null
     const redis = getRedis();
     const key = `paste:${pasteId}`;
 
-    const value = await redis.get<string>(key);
-
-    if (!value) {
-        return null;
+    try {
+        return await redis.get<EncryptedPayload>(key);
+    } catch (err) {
+        console.error('[REDIS_GET_ERROR] Failed to parse payload:', err);
+        return null; // Treat corrupted data as not found
     }
-
-    return JSON.parse(value);
 }
 
 /**
@@ -86,14 +84,17 @@ export async function deletePaste(pasteId: string): Promise<EncryptedPayload | n
     const redis = getRedis();
     const key = `paste:${pasteId}`;
 
-    // Get and delete atomically
-    const value = await redis.get<string>(key);
-    if (value) {
-        await redis.del(key);
-        return JSON.parse(value);
+    try {
+        // We fetch first to return the value
+        const value = await redis.get<EncryptedPayload>(key);
+        if (value) {
+            await redis.del(key);
+        }
+        return value;
+    } catch (err) {
+        console.error('[REDIS_DEL_ERROR] Failed to fetch before delete:', err);
+        return null;
     }
-
-    return null;
 }
 
 /**
