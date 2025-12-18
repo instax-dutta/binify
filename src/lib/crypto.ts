@@ -223,10 +223,10 @@ function base64UrlToArrayBuffer(base64Url: string): ArrayBuffer {
 
 /**
  * Generate a cryptographically secure paste ID
- * @returns URL-safe paste ID (22 characters for 128-bit security)
+ * @returns URL-safe paste ID (~14 characters for 80-bit security)
  */
 export function generatePasteId(): string {
-    const buffer = new Uint8Array(16); // 128 bits
+    const buffer = new Uint8Array(10); // 80 bits - still cryptographically secure
     crypto.getRandomValues(buffer);
     return arrayBufferToBase64Url(buffer);
 }
