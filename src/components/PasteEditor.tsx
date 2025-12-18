@@ -17,9 +17,35 @@ import { generateKey, encryptContent } from '@/lib/crypto';
 import type { ExpirationType } from '@/lib/validation';
 import { cn } from '@/lib/utils';
 
+import LuxurySelect from './LuxurySelect';
+
 interface PasteEditorProps {
     onPasteCreated: (pasteId: string, key: string) => void;
 }
+
+const expirationOptions = [
+    { label: '5 minutes', value: '5min' },
+    { label: '1 hour', value: '1hour' },
+    { label: '1 day', value: '1day' },
+    { label: '7 days', value: '7days' },
+    { label: '30 days', value: '30days' },
+    { label: 'Never', value: 'never' },
+    { label: 'After X views', value: 'views' },
+    { label: 'Burn after reading', value: 'burn' },
+];
+
+const languageOptions = [
+    { label: 'Plain Text', value: 'plaintext' },
+    { label: 'JavaScript', value: 'javascript' },
+    { label: 'TypeScript', value: 'typescript' },
+    { label: 'Python', value: 'python' },
+    { label: 'Markdown', value: 'markdown' },
+    { label: 'JSON', value: 'json' },
+    { label: 'HTML', value: 'html' },
+    { label: 'CSS', value: 'css' },
+    { label: 'SQL', value: 'sql' },
+    { label: 'Bash', value: 'bash' },
+];
 
 const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -144,23 +170,11 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                         <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
                             <Clock size={12} /> Expiration
                         </label>
-                        <div className="relative">
-                            <select
-                                value={expirationType}
-                                onChange={(e) => setExpirationType(e.target.value as ExpirationType)}
-                                className="luxury-input appearance-none pr-10 cursor-pointer"
-                            >
-                                <option value="5min">5 minutes</option>
-                                <option value="1hour">1 hour</option>
-                                <option value="1day">1 day</option>
-                                <option value="7days">7 days</option>
-                                <option value="30days">30 days</option>
-                                <option value="never">Never</option>
-                                <option value="views">After X views</option>
-                                <option value="burn">Burn after reading</option>
-                            </select>
-                            <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
-                        </div>
+                        <LuxurySelect
+                            options={expirationOptions}
+                            value={expirationType}
+                            onChange={(val) => setExpirationType(val as ExpirationType)}
+                        />
                     </div>
 
                     {/* Dynamic Max Views / Language */}
@@ -183,25 +197,11 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                             <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
                                 <FileCode size={12} /> Language
                             </label>
-                            <div className="relative">
-                                <select
-                                    value={language}
-                                    onChange={(e) => setLanguage(e.target.value)}
-                                    className="luxury-input appearance-none pr-10 cursor-pointer"
-                                >
-                                    <option value="plaintext">Plain Text</option>
-                                    <option value="javascript">JavaScript</option>
-                                    <option value="typescript">TypeScript</option>
-                                    <option value="python">Python</option>
-                                    <option value="markdown">Markdown</option>
-                                    <option value="json">JSON</option>
-                                    <option value="html">HTML</option>
-                                    <option value="css">CSS</option>
-                                    <option value="sql">SQL</option>
-                                    <option value="bash">Bash</option>
-                                </select>
-                                <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" />
-                            </div>
+                            <LuxurySelect
+                                options={languageOptions}
+                                value={language}
+                                onChange={(val) => setLanguage(val)}
+                            />
                         </div>
                     )}
 

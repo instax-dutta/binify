@@ -13,6 +13,8 @@
   --accent-secondary: #3b82f6;
   --border: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.15);
+  color-scheme: dark;
+  /* Force native UI elements (like dropdowns) to use dark theme */
 }
 
 @layer base {
@@ -40,6 +42,11 @@
 
   .luxury-input {
     @apply w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 outline-none transition-all duration-300 hover:bg-white/[0.05] focus:bg-white/[0.07] focus:border-accent/40 focus:ring-1 focus:ring-accent/20 text-white placeholder:text-gray-500 font-sans;
+  }
+
+  /* Force dark theme on native select dropdowns */
+  select.luxury-input option {
+    @apply bg-[#0a0a0a] text-white;
   }
 
   .luxury-textarea {
