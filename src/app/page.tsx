@@ -142,7 +142,7 @@ export default function HomePage() {
               <Terminal size={18} />
               <span className="text-sm font-bold tracking-tighter">BINIFY</span>
             </div>
-            <p className="text-sm text-white/20 font-medium">© 2025 sdad.pro. Open Source.</p>
+            <p className="text-sm text-white/20 font-medium">© 2025 sdad.pro. All Rights Reserved.</p>
           </div>
           <div className="flex items-center gap-8 text-xs font-bold text-white/20 uppercase tracking-widest">
             <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>

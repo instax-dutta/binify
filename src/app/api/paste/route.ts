@@ -94,10 +94,11 @@ export async function POST(request: NextRequest) {
                 },
             });
         } catch (dbError) {
-            console.error('[DB_ERROR] Failed to store metadata:', dbError);
+            console.error('[DB_ERROR] Full failure detail:', dbError);
+            const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown Database Error';
             // Attempt to clean up Redis if DB fails
             try { await storePaste(pasteId, { ciphertext: '', iv: '', authTag: '' }, 1); } catch (e) { }
-            throw new Error('Database synchronization failed.');
+            throw new Error(`Database synchronization failed: ${errorMessage}`);
         }
 
         // Return paste ID and metadata
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Internal Systems Failure. Operation aborted.' },
+            { error: error instanceof Error ? error.message : 'Critical Internal Systems Failure.' },
             { status: 500 }
         );
     }

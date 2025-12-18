@@ -86,8 +86,8 @@ export default function DocsPage() {
                                     <p className="text-white/40 text-sm font-medium">We temporarily hash IP addresses for rate limiting purposes to prevent spam and abuse. These hashes are purged regularly.</p>
                                 </div>
                                 <div>
-                                    <h4 className="text-white font-bold mb-1">Is Binify open source?</h4>
-                                    <p className="text-white/40 text-sm font-medium">Yes, Binify is built as an open-source project under sdad.pro.</p>
+                                    <h4 className="text-white font-bold mb-1">Is Binify freely hostable?</h4>
+                                    <p className="text-white/40 text-sm font-medium">Yes, Binify is designed to be easily self-hosted on platforms like Vercel.</p>
                                 </div>
                             </div>
                         </section>

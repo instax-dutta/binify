@@ -24,8 +24,13 @@ export const metadata: Metadata = {
   creator: 'sdad.pro',
   metadataBase: new URL('https://bin.sdad.pro'),
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/favicon.png', type: 'image/png', sizes: '32x32' },
+    ],
+    apple: [
+      { url: '/favicon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   openGraph: {
     title: 'Binify - Zero-Knowledge Encrypted Pastebin',
@@ -48,19 +53,19 @@ export const metadata: Metadata = {
     title: 'Binify - Zero-Knowledge Encrypted Pastebin',
     description: 'Share secrets securely with end-to-end encryption. No keys ever touch the server.',
     creator: '@sdad_pro',
-    images: ['/og-image.png'],
+    images: ['https://bin.sdad.pro/og-image.png'],
   },
+  manifest: '/manifest.json',
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
+};
+
+export const viewport = {
+  themeColor: '#10b981',
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
