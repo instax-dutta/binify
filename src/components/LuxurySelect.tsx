@@ -101,7 +101,7 @@ export default function LuxurySelect({
                         )}
 
                         <div
-                            className="max-h-[320px] overflow-y-auto overflow-x-hidden p-1.5 custom-scrollbar scroll-smooth"
+                            className="max-h-[320px] overflow-y-auto overflow-x-hidden p-1.5 scrollbar-hide scroll-smooth"
                             data-lenis-prevent
                         >
                             {filteredOptions.length > 0 ? (

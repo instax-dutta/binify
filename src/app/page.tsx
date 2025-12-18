@@ -17,18 +17,31 @@ const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.15 }
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+  }
+};
+
+const titleVariants: Variants = {
+  hidden: { opacity: 0, y: 40, filter: 'blur(10px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 1,
+      ease: [0.16, 1, 0.3, 1]
+    }
   }
 };
 
 const cardVariants: Variants = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
       duration: 0.8,
-      ease: [0.16, 1, 0.3, 1] as any
+      ease: [0.16, 1, 0.3, 1]
     }
   }
 };
@@ -44,23 +57,26 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen selection:bg-accent/30">
+    <main className="min-h-screen selection:bg-accent/30 flex flex-col">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-2xl">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-secondary flex items-center justify-center shadow-lg shadow-accent/20">
+          <div className="flex items-center gap-3 group cursor-pointer">
+            <motion.div
+              whileHover={{ rotate: 90, scale: 1.1 }}
+              className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-secondary flex items-center justify-center shadow-lg shadow-accent/20 transition-all duration-500"
+            >
               <Terminal size={22} className="text-black" strokeWidth={2.5} />
-            </div>
+            </motion.div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight text-white">Binify</h1>
+              <h1 className="text-xl font-bold tracking-tight text-white group-hover:text-accent transition-colors">Binify</h1>
               <p className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black leading-none mt-0.5">Zero Knowledge</p>
             </div>
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <a href="/docs" className="text-sm font-medium text-white/50 hover:text-white transition-colors">Documentation</a>
+            <a href="/docs" className="text-sm font-medium text-white/50 hover:text-white hover:translate-y-[-1px] transition-all">Documentation</a>
             <div className="h-4 w-px bg-white/10" />
-            <a href="https://sdad.pro" className="text-sm font-semibold text-accent flex items-center gap-2">
+            <a href="https://sdad.pro" className="text-sm font-semibold text-accent flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/5 border border-accent/10 hover:bg-accent hover:text-black transition-all">
               <Globe size={14} />
               sdad.pro
             </a>
@@ -69,7 +85,7 @@ export default function HomePage() {
       </nav>
 
       {/* Hero Content */}
-      <div className="container mx-auto px-6 pt-32 pb-20">
+      <div className="container mx-auto px-6 pt-32 pb-20 flex-1 flex flex-col items-center">
         {createdPaste ? (
           <PasteCreated
             pasteId={createdPaste.pasteId}
@@ -81,70 +97,81 @@ export default function HomePage() {
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="flex flex-col items-center"
+            className="flex flex-col items-center w-full"
           >
             {/* Hero Header */}
-            <motion.div variants={cardVariants} className="text-center space-y-6 mb-20 max-w-3xl">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-accent text-xs font-bold tracking-widest uppercase">
-                <ShieldCheck size={14} className="animate-pulse" />
-                Secure Architecture
-              </div>
-              <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-[1.1]">
-                Your Secrets, <br />
-                <span className="text-accent">Truly Anonymous.</span>
-              </h2>
-              <p className="text-lg md:text-xl text-white/40 font-medium leading-relaxed">
-                End-to-end encrypted pastebin with no server-side persistence of keys.
-                Built for the privacy-first generation.
-              </p>
-            </motion.div>
+            <div className="text-center space-y-8 mb-24 max-w-4xl">
+              <motion.div variants={cardVariants} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/10 text-accent text-[10px] font-black tracking-widest uppercase">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+                </span>
+                Secure Transmission Nexus
+              </motion.div>
+
+              <motion.h2 variants={titleVariants} className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] text-white">
+                Share <span className="luxury-text-gradient">Secrets</span> <br />
+                <span className="text-white/20">Without Trace.</span>
+              </motion.h2>
+
+              <motion.p variants={cardVariants} className="text-lg md:text-xl text-white/40 font-medium leading-relaxed max-w-2xl mx-auto">
+                End-to-end encrypted pastebin with no server-side keys.
+                Encrypted in-browser, delivered in-silence.
+              </motion.p>
+            </div>
 
             {/* Features Staggered */}
             <motion.div
               variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20 w-full max-w-5xl"
+              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-32 w-full max-w-5xl"
             >
               <FeatureCard
-                icon={<Shield className="text-accent" />}
-                title="E2E Encryption"
-                description="AES-256-GCM encryption entirely in your browser. Server only sees static noise."
+                icon={<Shield size={24} className="text-accent" />}
+                title="E2E Protection"
+                description="AES-256-GCM encryption entirely in your browser. Server only sees noise."
+                delay={0}
               />
               <FeatureCard
-                icon={<Flame className="text-orange-500" />}
-                title="Burn After Read"
-                description="Self-destruct logic that wipes data from both Redis and DB after first access."
+                icon={<Flame size={24} className="text-orange-500" />}
+                title="Auto-Purge"
+                description="Self-destruct logic wipes data from both Redis and DB after threshold."
+                delay={1}
               />
               <FeatureCard
-                icon={<Lock className="text-blue-500" />}
-                title="Double Locked"
-                description="Optional PBKDF2 password derivation for secondary layer security."
+                icon={<Lock size={24} className="text-blue-500" />}
+                title="Zero-Knowledge"
+                description="No keys touch our server. Even if we wanted to, we can't see your data."
+                delay={2}
               />
             </motion.div>
 
             {/* Editor Area */}
-            <motion.div variants={cardVariants} className="w-full">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white/20">Paste Workspace</span>
-                <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+            <motion.div variants={cardVariants} className="w-full relative group">
+              <div className="absolute inset-0 bg-accent/5 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+              <div className="relative">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Binary Workspace</span>
+                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
+                </div>
+                <PasteEditor onPasteCreated={handlePasteCreated} />
               </div>
-              <PasteEditor onPasteCreated={handlePasteCreated} />
             </motion.div>
           </motion.div>
         )}
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-12">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-10">
-            <div className="flex items-center gap-3 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-              <Terminal size={18} />
-              <span className="text-sm font-bold tracking-tighter">BINIFY</span>
+      <footer className="border-t border-white/5 py-16 mt-auto">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12 text-center md:text-left">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex items-center gap-3 grayscale opacity-30 hover:grayscale-0 hover:opacity-100 transition-all duration-700 cursor-pointer">
+              <Terminal size={20} />
+              <span className="text-lg font-black tracking-tighter">BINIFY</span>
             </div>
-            <p className="text-sm text-white/20 font-medium">© 2025 sdad.pro. All Rights Reserved.</p>
+            <p className="text-sm text-white/20 font-medium">© 2025 sdad.pro. Powered by pure cryptography.</p>
           </div>
-          <div className="flex items-center gap-8 text-xs font-bold text-white/20 uppercase tracking-widest">
+          <div className="flex items-center gap-10 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
             <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
             <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
             <a href="/security" className="hover:text-accent transition-colors">Security</a>
@@ -155,18 +182,23 @@ export default function HomePage() {
   );
 }
 
-function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: number }) {
   return (
     <motion.div
       variants={cardVariants}
-      whileHover={{ y: -5, backgroundColor: "rgba(255,255,255,0.05)" }}
-      className="luxury-card flex flex-col gap-4 text-left"
+      whileHover={{ y: -8, backgroundColor: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.15)" }}
+      className="luxury-card flex flex-col gap-6 text-left p-8 border border-white/5 transition-colors group cursor-default"
     >
-      <div className="w-12 h-12 rounded-xl bg-white/[0.03] flex items-center justify-center border border-white/5">
+      <motion.div
+        animate={{ y: [0, -4, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: delay * 0.5 }}
+        className="w-14 h-14 rounded-2xl bg-white/[0.03] flex items-center justify-center border border-white/5 relative overflow-hidden group-hover:border-accent/30 transition-colors"
+      >
+        <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
         {icon}
-      </div>
-      <div>
-        <h3 className="font-bold text-white mb-2">{title}</h3>
+      </motion.div>
+      <div className="space-y-3">
+        <h3 className="text-xl font-bold text-white tracking-tight group-hover:text-accent transition-colors">{title}</h3>
         <p className="text-sm text-white/40 leading-relaxed font-medium">{description}</p>
       </div>
     </motion.div>

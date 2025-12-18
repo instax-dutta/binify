@@ -84,6 +84,11 @@
     @apply bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent-secondary;
   }
 
+  .luxury-text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/20;
+    text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+  }
+
   /* Custom Scrollbar */
   .custom-scrollbar {
     scrollbar-width: thin;
@@ -100,6 +105,18 @@
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
     @apply bg-white/20 rounded-full hover:bg-accent/40 transition-colors;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
   }
 }
 
@@ -128,20 +145,21 @@ html.lenis body {
 /* Background Gradients */
 .bg-mesh {
   background-image:
-    radial-gradient(at 0% 0%, hsla(161, 71%, 48%, 0.15) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(217, 91%, 60%, 0.1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(161, 71%, 48%, 0.05) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, hsla(217, 91%, 60%, 0.1) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(161, 80%, 50%, 0.18) 0px, transparent 55%),
+    radial-gradient(at 100% 0%, hsla(217, 95%, 65%, 0.12) 0px, transparent 55%),
+    radial-gradient(at 100% 100%, hsla(161, 80%, 50%, 0.08) 0px, transparent 55%),
+    radial-gradient(at 0% 100%, hsla(220, 95%, 65%, 0.12) 0px, transparent 55%),
+    radial-gradient(at 50% 50%, hsla(161, 80%, 50%, 0.05) 0px, transparent 50%);
 }
 
 .glow-mesh {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  top: -20%;
+  left: -20%;
+  width: 140vw;
+  height: 140vh;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.4;
-  filter: blur(100px);
+  opacity: 0.6;
+  filter: blur(120px);
 }
