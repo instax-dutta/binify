@@ -92,27 +92,5 @@ export async function GET(
     }
 }
 
-export async function DELETE(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    try {
-        const { id } = await params;
-
-        // Delete from both Redis and database
-        await deletePaste(id);
-        await deletePasteMetadata(id);
-
-        return NextResponse.json(
-            { message: 'Paste deleted successfully' },
-            { status: 200 }
-        );
-    } catch (error) {
-        console.error('Error deleting paste:', error);
-
-        return NextResponse.json(
-            { error: 'Failed to delete paste' },
-            { status: 500 }
-        );
-    }
-}
+// DELETE /api/paste/[id] is removed for security reasons. 
+// Revocation is currently managed by the burn-after-read logic.

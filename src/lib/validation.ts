@@ -145,7 +145,7 @@ export function validatePasteSize(ciphertext: string): boolean {
 }
 
 /**
- * Get client IP from request headers (Vercel-compatible)
+ * Get client IP from request headers
  */
 export function getClientIp(headers: Headers): string {
     return (

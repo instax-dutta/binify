@@ -64,30 +64,41 @@ export async function POST(request: NextRequest) {
         }
 
         // Store encrypted payload in Redis
-        await storePaste(
-            pasteId,
-            {
-                ciphertext: validatedData.ciphertext,
-                iv: validatedData.iv,
-                authTag: validatedData.authTag,
-                salt: validatedData.salt,
-            },
-            ttl
-        );
+        try {
+            await storePaste(
+                pasteId,
+                {
+                    ciphertext: validatedData.ciphertext,
+                    iv: validatedData.iv,
+                    authTag: validatedData.authTag,
+                    salt: validatedData.salt,
+                },
+                ttl
+            );
+        } catch (redisError) {
+            console.error('[REDIS_ERROR] Failed to store payload:', redisError);
+            throw new Error('Storage nexus unavailable. Check infrastructure status.');
+        }
 
         // Store metadata in TursoDB
-        await createPasteMetadata({
-            id: pasteId,
-            createdAt: Date.now(),
-            expiresAt,
-            maxViews,
-            hasPassword: validatedData.hasPassword,
-            metadata: {
-                language: validatedData.language,
-                title: validatedData.title,
-                tags: validatedData.tags,
-            },
-        });
+        try {
+            await createPasteMetadata({
+                id: pasteId,
+                createdAt: Date.now(),
+                expiresAt,
+                maxViews,
+                hasPassword: validatedData.hasPassword,
+                metadata: {
+                    language: validatedData.language,
+                    title: validatedData.title,
+                },
+            });
+        } catch (dbError) {
+            console.error('[DB_ERROR] Failed to store metadata:', dbError);
+            // Attempt to clean up Redis if DB fails
+            try { await storePaste(pasteId, { ciphertext: '', iv: '', authTag: '' }, 1); } catch (e) { }
+            throw new Error('Database synchronization failed.');
+        }
 
         // Return paste ID and metadata
         return NextResponse.json(
@@ -99,17 +110,17 @@ export async function POST(request: NextRequest) {
             { status: 201 }
         );
     } catch (error) {
-        console.error('Error creating paste:', error);
+        console.error('[API_ERROR] Critical failure in /api/paste:', error);
 
         if (error instanceof Error && error.name === 'ZodError') {
             return NextResponse.json(
-                { error: 'Invalid request data', details: error.message },
+                { error: 'Invalid request payload structure.', details: error.message },
                 { status: 400 }
             );
         }
 
         return NextResponse.json(
-            { error: 'Failed to create paste' },
+            { error: error instanceof Error ? error.message : 'Internal Systems Failure. Operation aborted.' },
             { status: 500 }
         );
     }

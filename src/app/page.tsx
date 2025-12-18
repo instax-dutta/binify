@@ -7,7 +7,7 @@ import {
   Flame,
   Terminal,
   Lock,
-  Zap,
+  ShieldCheck,
   Globe
 } from 'lucide-react';
 import PasteEditor from '@/components/PasteEditor';
@@ -58,8 +58,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-sm font-medium text-white/50 hover:text-white transition-colors">Documentation</a>
-            <a href="#" className="text-sm font-medium text-white/50 hover:text-white transition-colors">API</a>
+            <a href="/docs" className="text-sm font-medium text-white/50 hover:text-white transition-colors">Documentation</a>
             <div className="h-4 w-px bg-white/10" />
             <a href="https://sdad.pro" className="text-sm font-semibold text-accent flex items-center gap-2">
               <Globe size={14} />
@@ -87,8 +86,8 @@ export default function HomePage() {
             {/* Hero Header */}
             <motion.div variants={cardVariants} className="text-center space-y-6 mb-20 max-w-3xl">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-accent text-xs font-bold tracking-widest uppercase">
-                <Zap size={14} className="animate-pulse" />
-                Vercel Serverless Ready
+                <ShieldCheck size={14} className="animate-pulse" />
+                Secure Architecture
               </div>
               <h2 className="text-5xl md:text-7xl font-bold tracking-tighter leading-[1.1]">
                 Your Secrets, <br />
@@ -146,9 +145,9 @@ export default function HomePage() {
             <p className="text-sm text-white/20 font-medium">© 2025 sdad.pro. Open Source.</p>
           </div>
           <div className="flex items-center gap-8 text-xs font-bold text-white/20 uppercase tracking-widest">
-            <a href="#" className="hover:text-accent transition-colors">Privacy</a>
-            <a href="#" className="hover:text-accent transition-colors">Terms</a>
-            <a href="#" className="hover:text-accent transition-colors">Security</a>
+            <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
+            <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
+            <a href="/security" className="hover:text-accent transition-colors">Security</a>
           </div>
         </div>
       </footer>
@@ -168,7 +167,7 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode, titl
       </div>
       <div>
         <h3 className="font-bold text-white mb-2">{title}</h3>
-        <p className="text-sm text-white/40 leading-relaxed leading-relaxed">{description}</p>
+        <p className="text-sm text-white/40 leading-relaxed font-medium">{description}</p>
       </div>
     </motion.div>
   );
