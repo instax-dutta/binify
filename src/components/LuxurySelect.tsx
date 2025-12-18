@@ -100,7 +100,10 @@ export default function LuxurySelect({
                             </div>
                         )}
 
-                        <div className="max-h-[280px] overflow-y-auto overflow-x-hidden p-1.5 custom-scrollbar scroll-smooth">
+                        <div
+                            className="max-h-[320px] overflow-y-auto overflow-x-hidden p-1.5 custom-scrollbar scroll-smooth"
+                            data-lenis-prevent
+                        >
                             {filteredOptions.length > 0 ? (
                                 filteredOptions.map((option) => {
                                     const isSelected = option.value === value;
