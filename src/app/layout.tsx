@@ -25,11 +25,11 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://bin.sdad.pro'),
   icons: {
     icon: [
-      { url: '/favicon.png', type: 'image/png' },
-      { url: '/favicon.png', type: 'image/png', sizes: '32x32' },
+      { url: 'https://bin.sdad.pro/favicon.png', type: 'image/png' },
+      { url: 'https://bin.sdad.pro/favicon.png', type: 'image/png', sizes: '32x32' },
     ],
     apple: [
-      { url: '/favicon.png', sizes: '180x180', type: 'image/png' },
+      { url: 'https://bin.sdad.pro/favicon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: 'Binify',
     images: [
       {
-        url: '/og-image.png',
+        url: 'https://bin.sdad.pro/og-image.png',
         width: 1200,
         height: 630,
         alt: 'Binify - Secure Encrypted Pastebin',
