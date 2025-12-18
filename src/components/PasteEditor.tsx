@@ -19,6 +19,11 @@ import { cn } from '@/lib/utils';
 
 import LuxurySelect from './LuxurySelect';
 
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
+
 interface PasteEditorProps {
     onPasteCreated: (pasteId: string, key: string) => void;
 }
@@ -85,6 +90,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
     const [maxViews, setMaxViews] = useState(10);
     const [language, setLanguage] = useState('plaintext');
     const [isCreating, setIsCreating] = useState(false);
+    const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
     const [error, setError] = useState('');
 
     const handleCreate = async () => {
@@ -157,23 +163,81 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                 {/* Content Editor */}
                 <motion.div variants={itemVariants} className="relative rounded-2xl luxury-glass overflow-hidden group border-white/10 focus-within:border-accent/20 transition-all">
                     <div className="flex items-center justify-between px-4 py-2 bg-white/[0.03] border-b border-white/5">
-                        <div className="flex items-center gap-2 text-xs font-medium text-white/40">
-                            <FileCode size={14} />
-                            <span>EDITOR</span>
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2 text-xs font-medium text-white/40">
+                                <FileCode size={14} />
+                                <span>{viewMode === 'edit' ? 'EDITOR' : 'PREVIEW'}</span>
+                            </div>
+
+                            <div className="flex bg-black/40 rounded-lg p-1 border border-white/5">
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode('edit')}
+                                    className={cn(
+                                        "px-3 py-1 text-[10px] font-bold rounded-md transition-all",
+                                        viewMode === 'edit' ? "bg-white/10 text-white" : "text-white/20 hover:text-white/40"
+                                    )}
+                                >
+                                    EDIT
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode('preview')}
+                                    className={cn(
+                                        "px-3 py-1 text-[10px] font-bold rounded-md transition-all",
+                                        viewMode === 'preview' ? "bg-white/10 text-white" : "text-white/20 hover:text-white/40"
+                                    )}
+                                >
+                                    PREVIEW
+                                </button>
+                            </div>
                         </div>
+
                         <div className="flex items-center gap-4 text-[10px] text-white/30 uppercase tracking-widest font-bold">
                             <span>{content.length.toLocaleString()} CHARS</span>
                             <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                         </div>
                     </div>
 
-                    <textarea
-                        placeholder="Paste your code or text here..."
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="luxury-textarea custom-scrollbar w-full min-h-[500px] border-none bg-transparent px-6 py-6 focus:ring-0 text-white/90 selection:bg-accent/20"
-                        spellCheck={false}
-                    />
+                    <div className="relative min-h-[500px]">
+                        {viewMode === 'edit' ? (
+                            <textarea
+                                placeholder="Paste your code or text here..."
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                                className="luxury-textarea custom-scrollbar w-full min-h-[500px] border-none bg-transparent px-6 py-6 focus:ring-0 text-white/90 selection:bg-accent/20"
+                                spellCheck={false}
+                            />
+                        ) : (
+                            <div className="p-0 overflow-x-auto selection:bg-accent/20 custom-scrollbar min-h-[500px]">
+                                {language === 'markdown' ? (
+                                    <div className="prose prose-invert max-w-none p-8 text-white/80">
+                                        <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{content || '*Nothing to preview...*'}</ReactMarkdown>
+                                    </div>
+                                ) : language && language !== 'plaintext' ? (
+                                    <SyntaxHighlighter
+                                        language={language.toLowerCase()}
+                                        style={vscDarkPlus}
+                                        customStyle={{
+                                            margin: 0,
+                                            padding: '2rem',
+                                            background: 'transparent',
+                                            fontSize: '0.875rem',
+                                            lineHeight: '1.7',
+                                        }}
+                                        showLineNumbers
+                                        lineNumberStyle={{ minWidth: '3em', paddingRight: '1.5em', color: 'rgba(255,255,255,0.05)', textAlign: 'right' }}
+                                    >
+                                        {content || '// Nothing to preview...'}
+                                    </SyntaxHighlighter>
+                                ) : (
+                                    <pre className="p-8 text-sm font-mono text-white/70 whitespace-pre-wrap break-words leading-relaxed">
+                                        {content || 'Nothing to preview...'}
+                                    </pre>
+                                )}
+                            </div>
+                        )}
+                    </div>
                 </motion.div>
 
                 {/* Options Grid */}
