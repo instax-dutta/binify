@@ -202,13 +202,13 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 placeholder="Paste your code or text here..."
                                 value={content}
                                 onChange={(e) => setContent(e.target.value)}
-                                className="luxury-textarea custom-scrollbar w-full h-[600px] overflow-y-auto border-none bg-transparent px-6 py-6 focus:ring-0 text-white/90 selection:bg-accent/20"
+                                className="luxury-textarea custom-scrollbar w-full h-[650px] overflow-y-auto border-none bg-transparent px-6 py-6 focus:ring-0 text-white/90 selection:bg-accent/20"
                                 spellCheck={false}
                                 data-lenis-prevent="true"
                             />
                         ) : (
                             <div
-                                className="p-0 overflow-y-auto overflow-x-auto selection:bg-accent/20 custom-scrollbar h-[600px]"
+                                className="p-0 overflow-y-auto overflow-x-auto selection:bg-accent/20 custom-scrollbar h-[650px]"
                                 data-lenis-prevent="true"
                             >
                                 {language === 'markdown' ? (

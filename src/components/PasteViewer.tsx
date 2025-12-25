@@ -200,7 +200,7 @@ export default function PasteViewer({
                 </div>
 
                 <div
-                    className="mt-10 p-0 overflow-y-auto overflow-x-auto selection:bg-accent/20 custom-scrollbar max-h-[800px]"
+                    className="mt-10 p-0 overflow-y-auto overflow-x-auto selection:bg-accent/20 custom-scrollbar h-[650px]"
                     data-lenis-prevent="true"
                 >
                     {viewMode === 'raw' ? (
