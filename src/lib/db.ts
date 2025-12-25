@@ -59,6 +59,15 @@ export async function initializeDatabase() {
   `);
 
     console.log('Database initialized successfully');
+
+    // Migration: Add deletion_token if it doesn't exist
+    try {
+        await db.execute(`ALTER TABLE pastes ADD COLUMN deletion_token TEXT`);
+        console.log('Migration: Added deletion_token column');
+    } catch (e) {
+        // Ignore if column already exists
+        console.log('Migration: deletion_token column already exists or could not be added');
+    }
 }
 
 /**
