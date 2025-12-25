@@ -78,7 +78,7 @@ export default function HomePage() {
           <div className="hidden md:flex items-center gap-6">
             <a href="/docs" className="text-sm font-medium text-white/50 hover:text-white hover:translate-y-[-1px] transition-all">Documentation</a>
             <div className="h-4 w-px bg-white/10" />
-            <a href="https://github.com/saiduttaabhishekdash/binify" target="_blank" rel="noopener noreferrer" className="p-2 text-white/30 hover:text-white transition-colors">
+            <a href="https://github.com/instax-dutta/binify" target="_blank" rel="noopener noreferrer" className="p-2 text-white/30 hover:text-white transition-colors">
               <Github size={20} />
             </a>
             <a href="https://sdad.pro" className="text-sm font-semibold text-accent flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/5 border border-accent/10 hover:bg-accent hover:text-black transition-all">
@@ -178,7 +178,7 @@ export default function HomePage() {
             <p className="text-sm text-white/20 font-medium">© 2025 sdad.pro. Powered by pure cryptography.</p>
           </div>
           <div className="flex items-center gap-10 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
-            <a href="https://github.com/saiduttaabhishekdash/binify" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors flex items-center gap-2">
+            <a href="https://github.com/instax-dutta/binify" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors flex items-center gap-2">
               <Github size={12} />
               GitHub
             </a>

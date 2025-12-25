@@ -1,8 +1,8 @@
 # 🌌 Binify — Zero-Knowledge Encrypted Pastebin
 
-[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/saiduttaabhishekdash/binify)
+[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/instax-dutta/binify)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaiduttaabhishekdash%2Fbinify&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN,NEXT_PUBLIC_APP_URL&project-name=binify&repository-name=binify)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Finstax-dutta%2Fbinify&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN,NEXT_PUBLIC_APP_URL&project-name=binify&repository-name=binify)
 
 **Binify** is a sovereign, production-ready, privacy-first pastebin application. Built for the modern web with a **zero-knowledge architecture**, ensuring that your secrets remain yours — even from the server hosting them.
 
@@ -64,7 +64,7 @@ In an era of mass surveillance and data breaches, Binify provides a secure haven
 ### 2. Installation
 
 ```bash
-git clone https://github.com/saiduttaabhishekdash/binify.git
+git clone https://github.com/instax-dutta/binify.git
 cd binify
 npm install
 ```
