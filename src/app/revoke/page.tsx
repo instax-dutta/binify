@@ -39,14 +39,18 @@ export default function RevokePage() {
         setMessage('');
 
         try {
-            const response = await fetch(`/api/paste/${pasteId}?token=${token}`, {
+            const response = await fetch(`/api/paste/${encodeURIComponent(pasteId)}?token=${encodeURIComponent(token)}`, {
                 method: 'DELETE',
             });
 
-            const data = await response.json();
+            let data: any = {};
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            }
 
             if (!response.ok) {
-                throw new Error(data.error || 'Revocation failed.');
+                throw new Error(data.error || 'Revocation sequence failed. Verify your ID and token.');
             }
 
             setStatus('success');
@@ -71,16 +75,20 @@ export default function RevokePage() {
         setMessage('');
 
         try {
-            const response = await fetch(`/api/paste/${pasteId}/rotate`, {
+            const response = await fetch(`/api/paste/${encodeURIComponent(pasteId)}/rotate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token }),
             });
 
-            const data = await response.json();
+            let data: any = {};
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                data = await response.json();
+            }
 
             if (!response.ok) {
-                throw new Error(data.error || 'Rotation failed.');
+                throw new Error(data.error || 'Rotation sequence failed. Verify your ID and token.');
             }
 
             setRotatedId(data.newId);
