@@ -134,9 +134,9 @@ export function calculateTTL(expiresAt?: number): number | undefined {
 }
 
 /**
- * Validate paste size (1MB limit)
+ * Validate paste size (4MB limit)
  */
-export const MAX_PASTE_SIZE = 1024 * 1024; // 1MB
+export const MAX_PASTE_SIZE = 4 * 1024 * 1024; // 4MB
 
 export function validatePasteSize(ciphertext: string): boolean {
     // Estimate size (base64 encoded data is ~1.33x original size)

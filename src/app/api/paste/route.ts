@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         // Validate paste size
         if (!validatePasteSize(validatedData.ciphertext)) {
             return NextResponse.json(
-                { error: 'Paste size exceeds 1MB limit' },
+                { error: 'Paste size exceeds 4MB limit' },
                 { status: 413 }
             );
         }

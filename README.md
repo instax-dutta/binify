@@ -1,99 +1,149 @@
-# Binify - Zero-Knowledge Encrypted Pastebin
+# 🌌 Binify — Zero-Knowledge Encrypted Pastebin
 
-**Production-ready, privacy-first, zero-knowledge pastebin application.**
-
+[![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/saiduttaabhishekdash/binify)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fsaiduttaabhishekdash%2Fbinify&env=TURSO_DATABASE_URL,TURSO_AUTH_TOKEN,UPSTASH_REDIS_REST_URL,UPSTASH_REDIS_REST_TOKEN,NEXT_PUBLIC_APP_URL&project-name=binify&repository-name=binify)
 
-🔒 **Zero-Knowledge**: All encryption happens client-side. The server never sees your plaintext.  
-⚡ **Fast**: Built with Next.js 15 and tailormade for maximum performance.  
-🔥 **Burn After Read**: Self-destructing secrets with cryptographic certainty.  
-🛡️ **Military Grade**: AES-256-GCM encryption with argon2-level PBKDF2 key derivation.
+**Binify** is a sovereign, production-ready, privacy-first pastebin application. Built for the modern web with a **zero-knowledge architecture**, ensuring that your secrets remain yours — even from the server hosting them.
 
 ---
 
-## 🚀 Quick Deploy
+## ✨ Why Binify?
 
-You can host your own instance of Binify in minutes:
+In an era of mass surveillance and data breaches, Binify provides a secure haven for your code, notes, and secrets.
 
-1. Click the **Deploy to Vercel** button above.
-2. Connect your GitHub account.
-3. Provide the required environment variables (see [Setup](#-setup)).
-4. Initialize your database.
+- 🔒 **Zero-Knowledge Architecture**: All encryption and decryption happen in your browser. The server never sees your plaintext content or your encryption keys.
+- ⚡ **High Performance**: Built with **Next.js 15**, **Turso (libSQL)**, and **Upstash Redis** for sub-millisecond metadata lookups.
+- 🛡️ **Military Grade Security**: Implements **AES-256-GCM** encryption with optional **PBKDF2** key derivation (100,000 iterations).
+- 🔓 **Fully Open Source**: audit the code, host it yourself, and contribute to a more private web.
 
 ---
 
-## ✨ Features
+## 🚀 Key Features
 
 ### 🔐 Security & Privacy
 
-- **Client-Side Encryption**: AES-256-GCM encryption performed locally.
-- **Zero-Knowledge**: Keys are stored in the URL fragment (`#`), which browsers never send to the server.
-- **Password Protection**: Optional second layer of security using PBKDF2 (100,000 iterations).
-- **Ephemeral Storage**: Redis-backed storage with strict TTL policies.
-- **Burn After Read**: One-time-use links that purge data immediately upon retrieval.
+- **Client-Side Encryption**: AES-256-GCM performed locally.
+- **Key Isolation**: Encryption keys are stored in the URL fragment (`#`), which browsers never send to the server.
+- **Self-Destruct (Burn-after-read)**: Cryptographically purge data immediately after the first view.
+- **Granular Expiration**: Set pastes to expire after 5 minutes, 30 days, or a specific number of views.
+- **Password Protection**: An extra layer of derivation to protect ultra-sensitive content.
 
-### 🛠 Technical Excellence
+### 🎨 Developer Experience
 
-- **Syntax Highlighting**: Beautiful code rendering for 20+ languages.
-- **Markdown Support**: Render documents with rich formatting.
-- **QR Codes**: Instant mobile sharing with secure scan.
-- **Rate Limiting**: Intelligent abuse prevention.
-- **Privacy First**: No tracking, no cookies, no logs.
+- **Rich Syntax Highlighting**: Support for 20+ programming languages.
+- **Live Markdown Preview**: Render documents with beautiful, sanitized formatting.
+- **Large Content Support**: Now supports up to **4MB** per paste for large codebases or documents.
+- **QR Code Sharing**: Instant mobile integration with secure scan links.
+- **Responsive & Dark Mode**: A premium, terminal-inspired aesthetic for developers.
 
 ---
 
 ## 🛠 Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
-- **Database**: [Turso](https://turso.tech/) (SQLite via libSQL)
-- **Cache**: [Upstash Redis](https://upstash.com/)
+- **Database**: [Turso](https://turso.tech/) (Edge SQLite)
+- **Cache/Storage**: [Upstash Redis](https://upstash.com/)
 - **Styling**: Tailwind CSS + Framer Motion
+- **Cryptography**: Web Crypto API (Browser Native)
 - **Icons**: Lucide React
-- **Cryptography**: Web Crypto API
 
 ---
 
-## 📋 Setup
+## 📖 Getting Started (Local Development)
 
-### Prerequisites
+### 1. Prerequisites
 
-- Node.js 18+
-- Accounts for Turso and Upstash (both have generous free tiers).
+- Node.js 18+ & npm
+- [Turso CLI](https://get.tur.so/install.sh)
+- [Upstash](https://console.upstash.com) Account
 
-### Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `TURSO_DATABASE_URL` | Your Turso DB connection URL. |
-| `TURSO_AUTH_TOKEN` | Your Turso DB authentication token. |
-| `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint. |
-| `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token. |
-| `NEXT_PUBLIC_APP_URL` | The public URL of your deployment (e.g., `https://bin.sdad.pro`). |
-| `INIT_SECRET` | (Optional) Secret key to protect the database initialization endpoint. |
-
-### Initialization
-
-Once deployed, you must initialize the database schema:
+### 2. Installation
 
 ```bash
-curl -X POST https://your-domain.com/api/init \
-  -H "Authorization: Bearer YOUR_INIT_SECRET"
+git clone https://github.com/saiduttaabhishekdash/binify.git
+cd binify
+npm install
+```
+
+### 3. Configuration
+
+Create a `.env.local` file:
+
+```env
+TURSO_DATABASE_URL=libsql://...
+TURSO_AUTH_TOKEN=...
+UPSTASH_REDIS_REST_URL=...
+UPSTASH_REDIS_REST_TOKEN=...
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+### 4. Initialization
+
+Start the server and initialize the schema:
+
+```bash
+npm run dev
+curl -X POST http://localhost:3000/api/init
 ```
 
 ---
 
-## 📄 Documentation
+## 🚢 Production Deployment
 
-For detailed guides, architecture diagrams, and security protocols, visit the [Documentation Page](https://bin.sdad.pro/docs).
+### Step 1: Services Setup
+
+1. **TursoDB**: `turso db create binify` → Get URL and Token.
+2. **Upstash Redis**: Create a database → Copy REST credentials.
+
+### Step 2: Vercel Deployment
+
+1. Connect your repo to Vercel.
+2. Add the environment variables listed in the configuration section.
+3. Deploy!
+4. Initialize the prod DB: `curl -X POST https://your-domain.com/api/init`
 
 ---
 
-## 🛡️ Security Policy
+## 🛡️ Security Architecture
 
-We take security seriously. If you discover a vulnerability, please report it via [security.sdad.pro](https://sdad.pro/security).
+### How the "Zero-Knowledge" Flow Works
+
+1. **Creation**: Browser generates a random 256-bit key → Encrypts data → Sends blob to server.
+2. **Key Storage**: The key is appended to the URL as a fragment: `https://binify.io/p/abc#KEY`.
+3. **Retrieval**: Browser parses the `#KEY` from the URL → Fetches the blob → Decrypts locally.
+4. **Server Knowledge**: The server only sees the encrypted blob and metadata (ID, timestamp).
+
+### Threat Model
+
+- ✅ **Server Compromise**: Attacker gets encrypted blobs but no keys.
+- ✅ **Network Interception**: TLS handles transport; keys never leave the client.
+- ✅ **Database Breach**: Only metadata is exposed.
 
 ---
 
-## 🤝 Credits
+## 🔧 Troubleshooting
 
-Built with ❤️ by [sdad.pro](https://sdad.pro)
+- **Styles not loading?** Ensure you are using Tailwind v3 configuration.
+- **Database Connection Error?** Verify your Turso credentials and that you've run `/api/init`.
+- **Paste not found?** Check Upstash Redis TTL or if the paste was set to "Burn after read".
+
+---
+
+## 🤝 Contributing & Open Source
+
+Binify is proud to be **Open Source**. We believe that security software must be transparent and community-driven.
+
+1. **Fork** the repository.
+2. Create a **feature branch**: `git checkout -b feature/amazing-thing`
+3. **Commit** your changes: `git commit -m 'Add some amazing thing'`
+4. **Push** to the branch: `git push origin feature/amazing-thing`
+5. Open a **Pull Request**.
+
+### License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+Built with ❤️ by [sdad.pro](https://sdad.pro) — *Securing the web, one paste at a time.*
