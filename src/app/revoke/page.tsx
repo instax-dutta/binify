@@ -20,17 +20,36 @@ import {
 import { cn } from '@/lib/utils';
 
 export default function RevokePage() {
-    const [pasteId, setPasteId] = useState('');
+    const [inputValue, setInputValue] = useState(''); // Can be full URL or ID
     const [token, setToken] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [message, setMessage] = useState('');
     const [rotatedId, setRotatedId] = useState('');
 
+    // Utility to extract ID from URL or return raw ID
+    const extractPasteId = (input: string) => {
+        const trimmed = input.trim();
+        try {
+            // Match pattern like .../p/ID#key
+            const url = new URL(trimmed);
+            const pathParts = url.pathname.split('/');
+            const pIndex = pathParts.indexOf('p');
+            if (pIndex !== -1 && pathParts[pIndex + 1]) {
+                return pathParts[pIndex + 1];
+            }
+            return trimmed;
+        } catch (e) {
+            // Not a valid URL, treat as raw ID
+            return trimmed;
+        }
+    };
+
     const handleRevoke = async () => {
-        if (!pasteId || !token) {
+        const id = extractPasteId(inputValue);
+        if (!id || !token) {
             setStatus('error');
-            setMessage('Paste ID and Authorization Token are required.');
+            setMessage('Paste ID/URL and Authorization Token are required.');
             return;
         }
 
@@ -39,7 +58,7 @@ export default function RevokePage() {
         setMessage('');
 
         try {
-            const response = await fetch(`/api/paste/${encodeURIComponent(pasteId)}?token=${encodeURIComponent(token)}`, {
+            const response = await fetch(`/api/paste/${encodeURIComponent(id)}?token=${encodeURIComponent(token)}`, {
                 method: 'DELETE',
             });
 
@@ -64,9 +83,10 @@ export default function RevokePage() {
     };
 
     const handleRotate = async () => {
-        if (!pasteId || !token) {
+        const id = extractPasteId(inputValue);
+        if (!id || !token) {
             setStatus('error');
-            setMessage('Paste ID and Authorization Token are required.');
+            setMessage('Paste ID/URL and Authorization Token are required.');
             return;
         }
 
@@ -75,7 +95,7 @@ export default function RevokePage() {
         setMessage('');
 
         try {
-            const response = await fetch(`/api/paste/${encodeURIComponent(pasteId)}/rotate`, {
+            const response = await fetch(`/api/paste/${encodeURIComponent(id)}/rotate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token }),
@@ -185,7 +205,7 @@ export default function RevokePage() {
 
                             {!rotatedId && (
                                 <button
-                                    onClick={() => { setStatus('idle'); setPasteId(''); setToken(''); }}
+                                    onClick={() => { setStatus('idle'); setInputValue(''); setToken(''); }}
                                     className="btn-luxury-secondary text-[10px] font-black tracking-widest uppercase mt-4"
                                 >
                                     Initialize New Operation
@@ -203,13 +223,13 @@ export default function RevokePage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
                                         <label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">
-                                            <LinkIcon size={12} /> Paste identifier / ID
+                                            <LinkIcon size={12} /> Paste Link or ID
                                         </label>
                                         <input
                                             type="text"
-                                            placeholder="Ex: abc-123-xyz"
-                                            value={pasteId}
-                                            onChange={(e) => setPasteId(e.target.value)}
+                                            placeholder="Paste the full URL or just the ID"
+                                            value={inputValue}
+                                            onChange={(e) => setInputValue(e.target.value)}
                                             className="luxury-input text-sm font-mono tracking-tight"
                                             autoComplete="off"
                                         />
@@ -244,7 +264,7 @@ export default function RevokePage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
                                     <button
                                         onClick={handleRevoke}
-                                        disabled={isProcessing || !pasteId || !token}
+                                        disabled={isProcessing || !inputValue || !token}
                                         className="btn-luxury-secondary flex flex-col items-center gap-2 py-8 group relative overflow-hidden border-orange-500/20 hover:border-orange-500/40 bg-orange-500/[0.01] hover:bg-orange-500/[0.03] active:scale-[0.98] transition-all"
                                     >
                                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -259,7 +279,7 @@ export default function RevokePage() {
 
                                     <button
                                         onClick={handleRotate}
-                                        disabled={isProcessing || !pasteId || !token}
+                                        disabled={isProcessing || !inputValue || !token}
                                         className="btn-luxury-secondary flex flex-col items-center gap-2 py-8 group relative overflow-hidden border-accent/20 hover:border-accent/40 bg-accent/[0.01] hover:bg-accent/[0.03] active:scale-[0.98] transition-all"
                                     >
                                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
