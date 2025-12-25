@@ -15,7 +15,7 @@ In an era of mass surveillance and data breaches, Binify provides a secure haven
 - 🔒 **Zero-Knowledge Architecture**: All encryption and decryption happen in your browser. The server never sees your plaintext content or your encryption keys.
 - ⚡ **High Performance**: Built with **Next.js 15**, **Turso (libSQL)**, and **Upstash Redis** for sub-millisecond metadata lookups.
 - 🛡️ **Military Grade Security**: Implements **AES-256-GCM** encryption with optional **PBKDF2** key derivation (100,000 iterations).
-- 🔓 **Fully Open Source**: audit the code, host it yourself, and contribute to a more private web.
+- 🔓 **Fully Open Source**: Audit the code, host it yourself, and contribute to a more private web.
 
 ---
 
@@ -23,22 +23,22 @@ In an era of mass surveillance and data breaches, Binify provides a secure haven
 
 ### 🔐 Security & Privacy
 
-- **Client-Side Encryption**: AES-256-GCM performed locally.
+- **Client-Side Encryption**: AES-256-GCM performed locally before transmission.
 - **Key Isolation**: Encryption keys are stored in the URL fragment (`#`), which browsers never send to the server.
 - **Self-Destruct (Burn-after-read)**: Cryptographically purge data immediately after the first view.
 - **Granular Expiration**: Set pastes to expire after 5 minutes, 30 days, or a specific number of views.
 - **Password Protection**: An extra layer of derivation to protect ultra-sensitive content.
-- **Link Revocation**: Manually purge your content at any time using a private administrative token.
-- **Link Rotation**: Change the public URL of your paste instantly while keeping the content secure.
+- **Manual Revocation**: Purge your content at any time using a private administrative token.
+- **Link Rotation**: Instantly change the public URL of your paste while keeping the underlying data intact.
 
 ### 🎨 Developer Experience
 
-- **Rich Syntax Highlighting**: Support for 20+ programming languages.
-- **Live Markdown Preview**: Render documents with beautiful, sanitized formatting.
-- **Large Content Support**: Now supports up to **4MB** per paste for large codebases or documents.
-- **QR Code Sharing**: Instant mobile integration with secure scan links.
-- **Link Management Terminal**: Dedicated `/revoke` interface for granular control over active pastes.
-- **Responsive & Dark Mode**: A premium, terminal-inspired aesthetic for developers.
+- **High-Fidelity Markdown**: Full GFM support including tables, task lists, and sanitized HTML.
+- **Rich Syntax Highlighting**: Industry-standard highlighting for 20+ programming languages.
+- **Infinite Payload Support**: Optimized for large pastes up to **4MB** with smooth internal scrolling.
+- **Link Management Terminal**: Dedicated `/revoke` interface that accepts both raw IDs and full sharing URLs.
+- **QR Code Sharing**: Securely share pastes to mobile devices via instant QR generation.
+- **Premium Aesthetic**: A glassmorphic, terminal-inspired UI designed for modern developers.
 
 ---
 
@@ -49,29 +49,42 @@ In an era of mass surveillance and data breaches, Binify provides a secure haven
 - **Cache/Storage**: [Upstash Redis](https://upstash.com/)
 - **Styling**: Tailwind CSS + Framer Motion
 - **Cryptography**: Web Crypto API (Browser Native)
+- **Smooth Scrolling**: [Lenis](https://lenis.darkroom.engineering/)
 - **Icons**: Lucide React
 
 ---
 
-## 📖 Getting Started (Local Development)
+## 🛡️ Security Architecture
 
-### 1. Prerequisites
+### How the "Zero-Knowledge" Flow Works
 
-- Node.js 18+ & npm
-- [Turso CLI](https://get.tur.so/install.sh)
-- [Upstash](https://console.upstash.com) Account
+1. **Creation**: Browser generates a random 256-bit key → Encrypts data → Sends blob to server.
+2. **Key Storage**: The access key is appended to the URL as a fragment: `https://binify.io/p/abc#KEY`.
+3. **Retrieval**: Browser parses the `#KEY` locally → Fetches the blob → Decrypts inside the client.
+4. **Administrative Controls**: Upon creation, the user receives a unique **Deletion Token** for life-cycle management.
 
-### 2. Installation
+### The Dual-Key Security Model
+
+Binify separates **Access** from **Control** to maximize sovereignty:
+
+- **The #Fragment (Access)**: Used only for decryption. It is never transmitted to the network.
+- **The Deletion Token (Control)**: used to verify authority during revocation or rotation. It resides in the database metadata layer but grants no access to the content.
+
+---
+
+## 📖 Installation & Deployment
+
+### 1. Local Development
 
 ```bash
 git clone https://github.com/instax-dutta/binify.git
-cd binify
 npm install
+npm run dev
 ```
 
-### 3. Configuration
+### 2. Environment Configuration
 
-Create a `.env.local` file:
+Create a `.env.local` file with the following:
 
 ```env
 TURSO_DATABASE_URL=libsql://...
@@ -81,79 +94,22 @@ UPSTASH_REDIS_REST_TOKEN=...
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-### 4. Initialization
-
-Start the server and initialize the schema:
+### 3. Database Initialization
 
 ```bash
-npm run dev
 curl -X POST http://localhost:3000/api/init
 ```
 
 ---
 
-## 🚢 Production Deployment
+## 🤝 Contributing
 
-### Step 1: Services Setup
-
-1. **TursoDB**: `turso db create binify` → Get URL and Token.
-2. **Upstash Redis**: Create a database → Copy REST credentials.
-
-### Step 2: Vercel Deployment
-
-1. Connect your repo to Vercel.
-2. Add the environment variables listed in the configuration section.
-3. Deploy!
-4. Initialize the prod DB: `curl -X POST https://your-domain.com/api/init`
-
----
-
-## 🛡️ Security Architecture
-
-### How the "Zero-Knowledge" Flow Works
-
-1. **Creation**: Browser generates a random 256-bit key → Encrypts data → Sends blob to server.
-2. **Key Storage**: The key is appended to the URL as a fragment: `https://binify.io/p/abc#KEY`.
-3. **Retrieval**: Browser parses the `#KEY` from the URL → Fetches the blob → Decrypts locally.
-4. **Server Knowledge**: The server only sees the encrypted blob and metadata (ID, timestamp).
-5. **Administrative Controls**: Upon creation, you also receive a **Deletion Token**. This is an administrative secret used to manually revoke or rotate the link at `/revoke`.
-
-### The Dual-Key System
-
-Binify separates **Access** from **Control**:
-
-- **Encryption Key (#fragment)**: Needed to *read* the data. The server never sees this.
-- **Deletion Token**: Needed to *delete or change* the URL. The server stores this in the metadata layer to verify your authority.
-
-### Threat Model
-
-- ✅ **Server Compromise**: Attacker gets encrypted blobs but no keys.
-- ✅ **Network Interception**: TLS handles transport; keys never leave the client.
-- ✅ **Database Breach**: Only metadata is exposed.
-
----
-
-## 🔧 Troubleshooting
-
-- **Styles not loading?** Ensure you are using Tailwind v3 configuration.
-- **Database Connection Error?** Verify your Turso credentials and that you've run `/api/init`.
-- **Paste not found?** Check Upstash Redis TTL or if the paste was set to "Burn after read".
-
----
-
-## 🤝 Contributing & Open Source
-
-Binify is proud to be **Open Source**. We believe that security software must be transparent and community-driven.
+We welcome contributions from the community! Whether it's a bug fix, new feature, or documentation improvement, please feel free to open a Pull Request.
 
 1. **Fork** the repository.
-2. Create a **feature branch**: `git checkout -b feature/amazing-thing`
-3. **Commit** your changes: `git commit -m 'Add some amazing thing'`
-4. **Push** to the branch: `git push origin feature/amazing-thing`
-5. Open a **Pull Request**.
-
-### License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
+2. Create a **feature branch**: `git checkout -b feature/name`
+3. **Commit** your changes: `git commit -m 'Add some feature'`
+4. **Push** to the branch and open a **PR**.
 
 ---
 
