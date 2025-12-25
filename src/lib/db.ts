@@ -43,6 +43,7 @@ export async function initializeDatabase() {
       burned INTEGER DEFAULT 0,
       has_password INTEGER DEFAULT 0,
       metadata TEXT,
+      deletion_token TEXT,
       updated_at INTEGER NOT NULL
     )
   `);
@@ -71,6 +72,7 @@ export interface PasteMetadata {
     viewCount: number;
     burned: boolean;
     hasPassword: boolean;
+    deletionToken?: string;
     metadata?: {
         tags?: string[];
         language?: string;
@@ -91,8 +93,8 @@ export async function createPasteMetadata(
         sql: `
       INSERT INTO pastes (
         id, created_at, expires_at, max_views, view_count, 
-        burned, has_password, metadata, updated_at
-      ) VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?)
+        burned, has_password, metadata, deletion_token, updated_at
+      ) VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?)
     `,
         args: [
             paste.id,
@@ -101,6 +103,7 @@ export async function createPasteMetadata(
             paste.maxViews ?? null,
             paste.hasPassword ? 1 : 0,
             paste.metadata ? JSON.stringify(paste.metadata) : null,
+            paste.deletionToken ?? null,
             now,
         ],
     });
@@ -131,6 +134,7 @@ export async function getPasteMetadata(id: string): Promise<PasteMetadata | null
         viewCount: row.view_count as number,
         burned: Boolean(row.burned),
         hasPassword: Boolean(row.has_password),
+        deletionToken: row.deletion_token as string || undefined,
         metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
     };
 }

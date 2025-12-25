@@ -17,15 +17,18 @@ import { cn } from '@/lib/utils';
 interface PasteCreatedProps {
     pasteId: string;
     encryptionKey: string;
+    deletionToken?: string;
     onCreateAnother: () => void;
 }
 
 export default function PasteCreated({
     pasteId,
     encryptionKey,
+    deletionToken,
     onCreateAnother,
 }: PasteCreatedProps) {
-    const [copied, setCopied] = useState(false);
+    const [copiedUrl, setCopiedUrl] = useState(false);
+    const [copiedToken, setCopiedToken] = useState(false);
     const [qrCodeUrl, setQrCodeUrl] = useState('');
     const [showQR, setShowQR] = useState(false);
 
@@ -48,13 +51,23 @@ export default function PasteCreated({
         }
     }, [pasteUrl]);
 
-    const copyToClipboard = async () => {
+    const copyUrl = async () => {
         try {
             await navigator.clipboard.writeText(pasteUrl);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
+            setCopiedUrl(true);
+            setTimeout(() => setCopiedUrl(false), 2000);
         } catch (err) {
-            console.error('Failed to copy:', err);
+            console.error('Failed to copy URL:', err);
+        }
+    };
+
+    const copyToken = async () => {
+        try {
+            await navigator.clipboard.writeText(deletionToken || '');
+            setCopiedToken(true);
+            setTimeout(() => setCopiedToken(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy token:', err);
         }
     };
 
@@ -94,13 +107,13 @@ export default function PasteCreated({
                         onClick={(e) => e.currentTarget.select()}
                     />
                     <button
-                        onClick={copyToClipboard}
+                        onClick={copyUrl}
                         className={cn(
                             "btn-luxury-primary md:min-w-[140px] transition-all",
-                            copied && "bg-accent text-black border-accent"
+                            copiedUrl && "bg-accent text-black border-accent"
                         )}
                     >
-                        {copied ? (
+                        {copiedUrl ? (
                             <span className="flex items-center gap-2">
                                 <CheckCircle2 size={18} />
                                 COPIED
@@ -108,12 +121,55 @@ export default function PasteCreated({
                         ) : (
                             <span className="flex items-center gap-2">
                                 <Copy size={18} />
-                                COPY
+                                COPY URL
                             </span>
                         )}
                     </button>
                 </div>
             </div>
+
+            {/* Deletion Token Display */}
+            {deletionToken && (
+                <div className="luxury-card space-y-4 border-white/5 bg-white/[0.01]">
+                    <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-accent ml-1">
+                            Administrative Deletion Token
+                        </label>
+                        <span className="text-[10px] font-bold text-accent/40 bg-accent/5 px-2 py-0.5 rounded">Required for Revocation</span>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <input
+                            type="text"
+                            value={deletionToken}
+                            readOnly
+                            className="flex-1 luxury-input font-mono text-xs py-4 px-6 border-accent/10 bg-accent/[0.02] text-accent/80"
+                            onClick={(e) => e.currentTarget.select()}
+                        />
+                        <button
+                            onClick={copyToken}
+                            className={cn(
+                                "btn-luxury-secondary md:min-w-[140px] border-accent/20 hover:border-accent/40 transition-all",
+                                copiedToken && "text-accent bg-accent/5 border-accent/40"
+                            )}
+                        >
+                            {copiedToken ? (
+                                <span className="flex items-center gap-2 text-accent">
+                                    <CheckCircle2 size={16} />
+                                    COPIED
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-2">
+                                    <Copy size={16} />
+                                    COPY TOKEN
+                                </span>
+                            )}
+                        </button>
+                    </div>
+                    <p className="text-[10px] text-white/20 font-medium px-1">
+                        Save this token to manually revoke (delete) or rotate this link later at <a href="/revoke" className="underline hover:text-accent transition-colors">/revoke</a>.
+                    </p>
+                </div>
+            )}
 
             {/* Actions Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

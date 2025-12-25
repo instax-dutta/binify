@@ -17,7 +17,8 @@ import {
     CheckCircle2,
     Code2,
     FileText,
-    ChevronRight
+    ChevronRight,
+    AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -183,6 +184,13 @@ export default function PasteViewer({
                         </div>
                     </div>
                 )}
+            </div>
+
+            <div className="flex justify-end pr-2">
+                <a href="/revoke" className="text-[9px] font-bold text-white/10 hover:text-orange-500/50 transition-colors uppercase tracking-[0.2em] flex items-center gap-1.5">
+                    <AlertTriangle size={10} />
+                    Revoke Access Link
+                </a>
             </div>
 
             {/* Content Canvas */}

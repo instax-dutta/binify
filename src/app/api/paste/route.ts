@@ -3,6 +3,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { nanoid } from 'nanoid';
 import { generatePasteId } from '@/lib/crypto';
 import { createPasteMetadata } from '@/lib/db';
 import { storePaste } from '@/lib/redis';
@@ -48,8 +49,9 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Generate paste ID
+        // Generate paste ID and deletion token
         const pasteId = generatePasteId();
+        const deletionToken = nanoid(32);
 
         // Calculate expiration
         const expiresAt = calculateExpiration(validatedData.expirationType);
@@ -88,6 +90,7 @@ export async function POST(request: NextRequest) {
                 expiresAt,
                 maxViews,
                 hasPassword: validatedData.hasPassword,
+                deletionToken,
                 metadata: {
                     language: validatedData.language,
                     title: validatedData.title,
@@ -105,6 +108,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             {
                 pasteId,
+                deletionToken,
                 expiresAt,
                 maxViews,
             },

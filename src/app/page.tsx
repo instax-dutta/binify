@@ -51,10 +51,11 @@ export default function HomePage() {
   const [createdPaste, setCreatedPaste] = useState<{
     pasteId: string;
     key: string;
+    deletionToken?: string;
   } | null>(null);
 
-  const handlePasteCreated = (pasteId: string, key: string) => {
-    setCreatedPaste({ pasteId, key });
+  const handlePasteCreated = (pasteId: string, key: string, deletionToken?: string) => {
+    setCreatedPaste({ pasteId, key, deletionToken });
   };
 
   return (
@@ -94,6 +95,7 @@ export default function HomePage() {
           <PasteCreated
             pasteId={createdPaste.pasteId}
             encryptionKey={createdPaste.key}
+            deletionToken={createdPaste.deletionToken}
             onCreateAnother={() => setCreatedPaste(null)}
           />
         ) : (
@@ -180,6 +182,7 @@ export default function HomePage() {
               <Github size={12} />
               GitHub
             </a>
+            <a href="/revoke" className="hover:text-accent transition-colors">Revoke Link</a>
             <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
             <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
             <a href="/security" className="hover:text-accent transition-colors">Security</a>

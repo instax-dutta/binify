@@ -1,6 +1,6 @@
 /**
  * GET /api/paste/[id] - Retrieve encrypted paste
- * DELETE /api/paste/[id] - Delete paste (revoke)
+ * DELETE /api/paste/[id] - Securely revoke (delete) paste
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -13,6 +13,9 @@ import {
 } from '@/lib/db';
 import { getPaste, deletePaste } from '@/lib/redis';
 
+/**
+ * GET - Retrieve paste and update view state
+ */
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
@@ -26,12 +29,12 @@ export async function GET(
             metadata = await getPasteMetadata(id);
         } catch (dbError) {
             console.error('[DB_ERROR] Failed to fetch metadata:', dbError);
-            throw new Error(`Database nexus unreachable: ${dbError instanceof Error ? dbError.message : 'Unknown error'}`);
+            throw new Error(`Database nexus unreachable`);
         }
 
         if (!metadata) {
             return NextResponse.json(
-                { error: 'Paste session not found. It may have been purged or never existed.' },
+                { error: 'Paste session not found.' },
                 { status: 404 }
             );
         }
@@ -47,8 +50,8 @@ export async function GET(
             }
 
             return NextResponse.json(
-                { error: 'Transmission expired. The content has been securely purged.' },
-                { status: 410 } // 410 Gone
+                { error: 'Transmission expired.' },
+                { status: 410 }
             );
         }
 
@@ -63,12 +66,12 @@ export async function GET(
 
         if (!payload || !payload.ciphertext) {
             return NextResponse.json(
-                { error: 'Encrypted payload missing or corrupted.' },
+                { error: 'Encrypted payload missing.' },
                 { status: 404 }
             );
         }
 
-        // Determine if this will be the last view (burn-after-read)
+        // Determine if this will be the last view
         const willBurn =
             metadata.maxViews !== undefined &&
             metadata.viewCount + 1 >= metadata.maxViews;
@@ -83,10 +86,9 @@ export async function GET(
             }
         } catch (updateError) {
             console.error('[SYNC_ERROR] Failed to update paste state:', updateError);
-            // We continue anyway so the user can at least view the paste once
         }
 
-        // Return encrypted payload and metadata
+        // Return encrypted payload and metadata (EXCEPT deletion token)
         return NextResponse.json({
             ciphertext: payload.ciphertext,
             iv: payload.iv,
@@ -103,13 +105,58 @@ export async function GET(
         });
     } catch (error) {
         console.error('[API_ERROR] Retrieval failure:', error);
-
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Internal Systems Failure during retrieval.' },
+            { error: error instanceof Error ? error.message : 'Internal Systems Failure.' },
             { status: 500 }
         );
     }
 }
 
-// DELETE /api/paste/[id] is removed for security reasons. 
-// Revocation is currently managed by the burn-after-read logic.
+/**
+ * DELETE - Securely revoke a paste using deletion token
+ */
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+        const { searchParams } = new URL(request.url);
+        const token = searchParams.get('token');
+
+        if (!token) {
+            return NextResponse.json(
+                { error: 'Authorization token required for revocation.' },
+                { status: 401 }
+            );
+        }
+
+        const metadata = await getPasteMetadata(id);
+
+        if (!metadata) {
+            return NextResponse.json(
+                { error: 'Paste session not found.' },
+                { status: 404 }
+            );
+        }
+
+        if (metadata.deletionToken !== token) {
+            return NextResponse.json(
+                { error: 'Invalid authorization token. Revocation denied.' },
+                { status: 403 }
+            );
+        }
+
+        // Securely purge from both layers
+        await deletePaste(id);
+        await deletePasteMetadata(id);
+
+        return NextResponse.json({ success: true, message: 'Paste securely revoked.' });
+    } catch (error) {
+        console.error('[API_ERROR] Revocation failure:', error);
+        return NextResponse.json(
+            { error: 'Revocation sequence failed.' },
+            { status: 500 }
+        );
+    }
+}

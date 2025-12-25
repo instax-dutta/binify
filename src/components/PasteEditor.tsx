@@ -25,7 +25,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
 
 interface PasteEditorProps {
-    onPasteCreated: (pasteId: string, key: string) => void;
+    onPasteCreated: (pasteId: string, key: string, deletionToken?: string) => void;
 }
 
 const expirationOptions = [
@@ -128,7 +128,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
             }
 
             const data = await response.json();
-            onPasteCreated(data.pasteId, key);
+            onPasteCreated(data.pasteId, key, data.deletionToken);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create paste');
         } finally {
