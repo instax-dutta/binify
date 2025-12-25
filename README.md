@@ -28,6 +28,8 @@ In an era of mass surveillance and data breaches, Binify provides a secure haven
 - **Self-Destruct (Burn-after-read)**: Cryptographically purge data immediately after the first view.
 - **Granular Expiration**: Set pastes to expire after 5 minutes, 30 days, or a specific number of views.
 - **Password Protection**: An extra layer of derivation to protect ultra-sensitive content.
+- **Link Revocation**: Manually purge your content at any time using a private administrative token.
+- **Link Rotation**: Change the public URL of your paste instantly while keeping the content secure.
 
 ### 🎨 Developer Experience
 
@@ -35,6 +37,7 @@ In an era of mass surveillance and data breaches, Binify provides a secure haven
 - **Live Markdown Preview**: Render documents with beautiful, sanitized formatting.
 - **Large Content Support**: Now supports up to **4MB** per paste for large codebases or documents.
 - **QR Code Sharing**: Instant mobile integration with secure scan links.
+- **Link Management Terminal**: Dedicated `/revoke` interface for granular control over active pastes.
 - **Responsive & Dark Mode**: A premium, terminal-inspired aesthetic for developers.
 
 ---
@@ -113,6 +116,14 @@ curl -X POST http://localhost:3000/api/init
 2. **Key Storage**: The key is appended to the URL as a fragment: `https://binify.io/p/abc#KEY`.
 3. **Retrieval**: Browser parses the `#KEY` from the URL → Fetches the blob → Decrypts locally.
 4. **Server Knowledge**: The server only sees the encrypted blob and metadata (ID, timestamp).
+5. **Administrative Controls**: Upon creation, you also receive a **Deletion Token**. This is an administrative secret used to manually revoke or rotate the link at `/revoke`.
+
+### The Dual-Key System
+
+Binify separates **Access** from **Control**:
+
+- **Encryption Key (#fragment)**: Needed to *read* the data. The server never sees this.
+- **Deletion Token**: Needed to *delete or change* the URL. The server stores this in the metadata layer to verify your authority.
 
 ### Threat Model
 
