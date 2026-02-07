@@ -3,6 +3,7 @@
  */
 
 import { Redis } from '@upstash/redis';
+import { sanitizeError } from './logging';
 
 let redisClient: Redis | null = null;
 
@@ -70,7 +71,7 @@ export async function getPaste(pasteId: string): Promise<EncryptedPayload | null
     try {
         return await redis.get<EncryptedPayload>(key);
     } catch (err) {
-        console.error('[REDIS_GET_ERROR] Failed to parse payload:', err);
+        console.error('[REDIS_GET_ERROR] Failed to parse payload:', sanitizeError(err));
         return null; // Treat corrupted data as not found
     }
 }
@@ -92,7 +93,7 @@ export async function deletePaste(pasteId: string): Promise<EncryptedPayload | n
         }
         return value;
     } catch (err) {
-        console.error('[REDIS_DEL_ERROR] Failed to fetch before delete:', err);
+        console.error('[REDIS_DEL_ERROR] Failed to fetch before delete:', sanitizeError(err));
         return null;
     }
 }
