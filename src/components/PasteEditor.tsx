@@ -154,6 +154,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                         className="luxury-input text-lg font-medium py-4 px-6 border-white/10 group-focus-within:border-accent/30 transition-all"
                         maxLength={200}
                         autoComplete="off"
+                        aria-label="Paste Title"
                     />
                 </motion.div>
 
@@ -170,6 +171,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 <button
                                     type="button"
                                     onClick={() => setViewMode('edit')}
+                                    aria-pressed={viewMode === 'edit'}
                                     className={cn(
                                         "px-3 py-1 text-[10px] font-bold rounded-md transition-all",
                                         viewMode === 'edit' ? "bg-white/10 text-white" : "text-white/20 hover:text-white/40"
@@ -180,6 +182,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 <button
                                     type="button"
                                     onClick={() => setViewMode('preview')}
+                                    aria-pressed={viewMode === 'preview'}
                                     className={cn(
                                         "px-3 py-1 text-[10px] font-bold rounded-md transition-all",
                                         viewMode === 'preview' ? "bg-white/10 text-white" : "text-white/20 hover:text-white/40"
@@ -205,6 +208,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 className="luxury-textarea custom-scrollbar w-full h-[650px] overflow-y-auto border-none bg-transparent px-6 py-6 focus:ring-0 text-white/90 selection:bg-accent/20"
                                 spellCheck={false}
                                 data-lenis-prevent="true"
+                                aria-label="Editor Content"
                             />
                         ) : (
                             <div
@@ -297,10 +301,11 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                 <motion.div variants={itemVariants} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Expiration */}
                     <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                        <label htmlFor="expiration-select" className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
                             <Clock size={12} /> Expiration
                         </label>
                         <LuxurySelect
+                            id="expiration-select"
                             options={expirationOptions}
                             value={expirationType}
                             onChange={(val) => setExpirationType(val as ExpirationType)}
@@ -310,10 +315,11 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                     {/* Dynamic Max Views / Language */}
                     {expirationType === 'views' ? (
                         <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                            <label htmlFor="max-views-input" className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
                                 <Eye size={12} /> Max Views
                             </label>
                             <input
+                                id="max-views-input"
                                 type="number"
                                 min={1}
                                 max={1000}
@@ -324,10 +330,11 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                         </div>
                     ) : (
                         <div className="space-y-2">
-                            <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                            <label htmlFor="language-select" className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
                                 <FileCode size={12} /> Language
                             </label>
                             <LuxurySelect
+                                id="language-select"
                                 options={languageOptions}
                                 value={language}
                                 onChange={(val) => setLanguage(val)}
@@ -337,10 +344,11 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
 
                     {/* Password */}
                     <div className="space-y-2">
-                        <label className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
+                        <label htmlFor="password-input" className="flex items-center gap-2 text-xs font-semibold text-white/40 uppercase tracking-wider ml-1">
                             <Lock size={12} /> Encryption Key/Password
                         </label>
                         <input
+                            id="password-input"
                             type="password"
                             placeholder="Extra layer of security..."
                             value={password}

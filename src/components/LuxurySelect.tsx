@@ -16,6 +16,8 @@ interface LuxurySelectProps {
     onChange: (value: string) => void;
     placeholder?: string;
     className?: string;
+    id?: string;
+    'aria-label'?: string;
 }
 
 export default function LuxurySelect({
@@ -23,7 +25,9 @@ export default function LuxurySelect({
     value,
     onChange,
     placeholder = 'Select option...',
-    className
+    className,
+    id,
+    'aria-label': ariaLabel
 }: LuxurySelectProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -60,6 +64,10 @@ export default function LuxurySelect({
         <div className={cn("relative", className)} ref={containerRef}>
             <button
                 type="button"
+                id={id}
+                aria-label={ariaLabel}
+                aria-haspopup="listbox"
+                aria-expanded={isOpen}
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
                     "luxury-input flex items-center justify-between gap-3 text-left transition-all group",
