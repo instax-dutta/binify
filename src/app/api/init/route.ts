@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { initializeDatabase } from '@/lib/db';
+import { sanitizeError } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
     try {
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
             { status: 200 }
         );
     } catch (error) {
-        console.error('Error initializing database:', error);
+        console.error('Error initializing database:', sanitizeError(error));
 
         return NextResponse.json(
             { error: 'Failed to initialize database' },
