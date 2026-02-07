@@ -134,12 +134,19 @@ export async function isRateLimited(
     const redis = getRedis();
     const key = `ratelimit:${identifier}`;
 
-    const current = await redis.incr(key);
-
-    if (current === 1) {
-        // First request in window, set expiry
-        await redis.expire(key, windowSeconds);
-    }
+    // Use a Lua script to increment and set expiry if it's the first request
+    // This ensures atomicity and reduces round-trips to Redis.
+    const current = await redis.eval<number>(
+        `
+        local current = redis.call("INCR", KEYS[1])
+        if current == 1 then
+            redis.call("EXPIRE", KEYS[1], ARGV[1])
+        end
+        return current
+        `,
+        [key],
+        [windowSeconds]
+    );
 
     return current > maxRequests;
 }
