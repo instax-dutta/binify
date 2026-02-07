@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ComponentPropsWithoutRef } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ReactMarkdown from 'react-markdown';
@@ -221,7 +221,7 @@ export default function PasteViewer({
                                 remarkPlugins={[remarkGfm]}
                                 rehypePlugins={[rehypeSanitize]}
                                 components={{
-                                    code({ node, inline, className, children, ...props }: any) {
+                                    code({ node, inline, className, children, ...props }: ComponentPropsWithoutRef<'code'> & { inline?: boolean; node?: any }) {
                                         const match = /language-(\w+)/.exec(className || '');
                                         return !inline && match ? (
                                             <SyntaxHighlighter
@@ -245,7 +245,7 @@ export default function PasteViewer({
                                             </code>
                                         );
                                     },
-                                    table({ children }) {
+                                    table({ children }: ComponentPropsWithoutRef<'table'>) {
                                         return (
                                             <div className="overflow-x-auto my-8 luxury-glass rounded-xl border border-white/10">
                                                 <table className="min-w-full divide-y divide-white/10">
@@ -254,16 +254,16 @@ export default function PasteViewer({
                                             </div>
                                         );
                                     },
-                                    thead({ children }) {
+                                    thead({ children }: ComponentPropsWithoutRef<'thead'>) {
                                         return <thead className="bg-white/[0.03] uppercase tracking-wider text-[10px] font-bold text-white/40">{children}</thead>;
                                     },
-                                    th({ children }) {
+                                    th({ children }: ComponentPropsWithoutRef<'th'>) {
                                         return <th className="px-6 py-4 text-left font-bold border-b border-white/5">{children}</th>;
                                     },
-                                    td({ children }) {
+                                    td({ children }: ComponentPropsWithoutRef<'td'>) {
                                         return <td className="px-6 py-4 text-sm border-b border-white/5 text-white/60">{children}</td>;
                                     },
-                                    tr({ children }) {
+                                    tr({ children }: ComponentPropsWithoutRef<'tr'>) {
                                         return <tr className="hover:bg-white/[0.01] transition-colors">{children}</tr>;
                                     },
                                 }}
