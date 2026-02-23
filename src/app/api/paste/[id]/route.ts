@@ -44,8 +44,7 @@ export async function GET(
         if (isPasteExpired(metadata)) {
             // Clean up
             try {
-                await deletePaste(id);
-                await deletePasteMetadata(id);
+                await Promise.all([deletePaste(id), deletePasteMetadata(id)]);
             } catch (cleanupError) {
                 console.error('[CLEANUP_ERROR] Failed to purge expired paste:', sanitizeError(cleanupError));
             }
@@ -80,8 +79,7 @@ export async function GET(
         // Secure state updates
         try {
             if (willBurn) {
-                await deletePaste(id);
-                await markPasteAsBurned(id);
+                await Promise.all([deletePaste(id), markPasteAsBurned(id)]);
             } else {
                 await incrementViewCount(id);
             }
@@ -149,8 +147,7 @@ export async function DELETE(
         }
 
         // Securely purge from both layers
-        await deletePaste(id);
-        await deletePasteMetadata(id);
+        await Promise.all([deletePaste(id), deletePasteMetadata(id)]);
 
         return NextResponse.json({ success: true, message: 'Paste securely revoked.' });
     } catch (error) {
