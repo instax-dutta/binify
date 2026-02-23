@@ -75,6 +75,7 @@ export async function POST(request: NextRequest) {
                     iv: validatedData.iv,
                     authTag: validatedData.authTag,
                     salt: validatedData.salt,
+                    iterations: validatedData.iterations,
                 },
                 ttl
             );

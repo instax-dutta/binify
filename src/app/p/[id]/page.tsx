@@ -55,6 +55,7 @@ export default function ViewPastePage() {
                     iv: data.iv,
                     authTag: data.authTag,
                     salt: data.salt,
+                    iterations: data.iterations,
                 },
                 hash,
                 passwordAttempt
