@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 /**
  * Client-side cryptography utilities for zero-knowledge encryption
  * Uses Web Crypto API with AES-256-GCM
@@ -234,12 +236,18 @@ function base64UrlToArrayBuffer(base64Url: string): ArrayBuffer {
 
 /**
  * Generate a cryptographically secure paste ID
- * @returns URL-safe paste ID (~14 characters for 80-bit security)
+ * @returns URL-safe paste ID (14 characters)
  */
 export function generatePasteId(): string {
-    const buffer = new Uint8Array(10); // 80 bits - still cryptographically secure
-    crypto.getRandomValues(buffer);
-    return arrayBufferToBase64Url(buffer);
+    return nanoid(14);
+}
+
+/**
+ * Generate a cryptographically secure deletion token
+ * @returns URL-safe deletion token (32 characters)
+ */
+export function generateDeletionToken(): string {
+    return nanoid(32);
 }
 
 /**
