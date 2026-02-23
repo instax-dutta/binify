@@ -114,6 +114,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                     iv: encrypted.iv,
                     authTag: encrypted.authTag,
                     salt: encrypted.salt,
+                    iterations: encrypted.iterations,
                     expirationType,
                     maxViews: expirationType === 'views' ? maxViews : undefined,
                     hasPassword: !!password,

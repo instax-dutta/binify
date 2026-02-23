@@ -14,7 +14,7 @@ In an era of mass surveillance and data breaches, Binify provides a secure haven
 
 - 🔒 **Zero-Knowledge Architecture**: All encryption and decryption happen in your browser. The server never sees your plaintext content or your encryption keys.
 - ⚡ **High Performance**: Built with **Next.js 15**, **Turso (libSQL)**, and **Upstash Redis** for sub-millisecond metadata lookups.
-- 🛡️ **Military Grade Security**: Implements **AES-256-GCM** encryption with optional **PBKDF2** key derivation (100,000 iterations).
+- 🛡️ **Military Grade Security**: Implements **AES-256-GCM** encryption with optional **PBKDF2** key derivation (600,000 iterations).
 - 🔓 **Fully Open Source**: Audit the code, host it yourself, and contribute to a more private web.
 
 ---

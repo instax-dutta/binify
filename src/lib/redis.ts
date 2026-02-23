@@ -36,6 +36,7 @@ export interface EncryptedPayload {
     iv: string;
     salt?: string;
     authTag: string;
+    iterations?: number;
 }
 
 /**

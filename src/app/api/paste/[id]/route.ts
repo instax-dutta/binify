@@ -93,6 +93,7 @@ export async function GET(
             iv: payload.iv,
             authTag: payload.authTag,
             salt: payload.salt,
+            iterations: payload.iterations,
             createdAt: metadata.createdAt,
             expiresAt: metadata.expiresAt,
             viewCount: metadata.viewCount + 1,

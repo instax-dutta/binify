@@ -9,7 +9,8 @@ const ALGORITHM = 'AES-GCM';
 const KEY_LENGTH = 256;
 const IV_LENGTH = 12; // 96 bits recommended for GCM
 const SALT_LENGTH = 16;
-const PBKDF2_ITERATIONS = 100000;
+const PBKDF2_ITERATIONS = 600000;
+const PBKDF2_ITERATIONS_LEGACY = 100000;
 
 /**
  * Generate a random encryption key
@@ -25,11 +26,13 @@ export async function generateKey(): Promise<string> {
  * Derive a key from a password using PBKDF2
  * @param password User password
  * @param salt Salt for key derivation
+ * @param iterations Number of PBKDF2 iterations
  * @returns Derived key
  */
 async function deriveKeyFromPassword(
     password: string,
-    salt: Uint8Array
+    salt: Uint8Array,
+    iterations: number = PBKDF2_ITERATIONS
 ): Promise<CryptoKey> {
     const encoder = new TextEncoder();
     const passwordBuffer = encoder.encode(password);
@@ -46,7 +49,7 @@ async function deriveKeyFromPassword(
         {
             name: 'PBKDF2',
             salt: salt.buffer as ArrayBuffer,
-            iterations: PBKDF2_ITERATIONS,
+            iterations: iterations,
             hash: 'SHA-256',
         },
         importedKey,
@@ -72,6 +75,7 @@ export async function encryptContent(
     iv: string;
     salt?: string;
     authTag: string;
+    iterations: number;
 }> {
     const encoder = new TextEncoder();
     const data = encoder.encode(content);
@@ -120,6 +124,7 @@ export async function encryptContent(
         iv: arrayBufferToBase64Url(iv),
         salt: salt ? arrayBufferToBase64Url(salt) : undefined,
         authTag: arrayBufferToBase64Url(authTag),
+        iterations: PBKDF2_ITERATIONS,
     };
 }
 
@@ -136,6 +141,7 @@ export async function decryptContent(
         iv: string;
         salt?: string;
         authTag: string;
+        iterations?: number;
     },
     baseKey: string,
     password?: string
@@ -147,7 +153,12 @@ export async function decryptContent(
     if (password && salt) {
         // Use password-derived key
         const saltBuffer = base64UrlToArrayBuffer(salt);
-        cryptoKey = await deriveKeyFromPassword(password, new Uint8Array(saltBuffer));
+        const iterations = encryptedData.iterations || PBKDF2_ITERATIONS_LEGACY;
+        cryptoKey = await deriveKeyFromPassword(
+            password,
+            new Uint8Array(saltBuffer),
+            iterations
+        );
     } else {
         // Use base key directly
         const keyBuffer = base64UrlToArrayBuffer(baseKey);

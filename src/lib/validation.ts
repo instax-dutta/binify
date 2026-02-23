@@ -29,6 +29,7 @@ export const CreatePasteSchema = z.object({
     iv: z.string().min(1, 'IV is required'),
     authTag: z.string().min(1, 'Auth tag is required'),
     salt: z.string().optional(),
+    iterations: z.number().optional(),
 
     // Expiration settings
     expirationType: ExpirationTypeSchema,
@@ -63,6 +64,7 @@ export const GetPasteResponseSchema = z.object({
     iv: z.string(),
     authTag: z.string(),
     salt: z.string().optional(),
+    iterations: z.number().optional(),
 
     // Metadata
     createdAt: z.number(),
