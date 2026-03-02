@@ -147,12 +147,6 @@ export function validatePasteSize(ciphertext: string): boolean {
 }
 
 /**
- * Get client IP from request headers
+ * Re-export getClientIp from the dedicated IP utility module.
  */
-export function getClientIp(headers: Headers): string {
-    return (
-        headers.get('x-forwarded-for')?.split(',')[0] ||
-        headers.get('x-real-ip') ||
-        'unknown'
-    );
-}
+export { getClientIp } from './ip';
