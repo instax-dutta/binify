@@ -65,45 +65,56 @@ export async function POST(request: NextRequest) {
             maxViews = validatedData.maxViews;
         }
 
-        // Store encrypted payload in Redis
-        try {
-            await storePaste(
-                pasteId,
-                {
-                    ciphertext: validatedData.ciphertext,
-                    iv: validatedData.iv,
-                    authTag: validatedData.authTag,
-                    salt: validatedData.salt,
-                    iterations: validatedData.iterations,
-                },
-                ttl
-            );
-        } catch (redisError) {
-            console.error('[REDIS_ERROR] Failed to store payload:', sanitizeError(redisError));
-            throw new Error('Storage nexus unavailable. Check infrastructure status.');
-        }
+        // Store payload and metadata in parallel for improved performance
+        await Promise.all([
+            // Store encrypted payload in Redis
+            (async () => {
+                try {
+                    await storePaste(
+                        pasteId,
+                        {
+                            ciphertext: validatedData.ciphertext,
+                            iv: validatedData.iv,
+                            authTag: validatedData.authTag,
+                            salt: validatedData.salt,
+                            iterations: validatedData.iterations,
+                        },
+                        ttl
+                    );
+                } catch (redisError) {
+                    console.error('[REDIS_ERROR] Failed to store payload:', sanitizeError(redisError));
+                    throw new Error('Storage nexus unavailable. Check infrastructure status.');
+                }
+            })(),
 
-        // Store metadata in TursoDB
-        try {
-            await createPasteMetadata({
-                id: pasteId,
-                createdAt: Date.now(),
-                expiresAt,
-                maxViews,
-                hasPassword: validatedData.hasPassword,
-                deletionToken,
-                metadata: {
-                    language: validatedData.language,
-                    title: validatedData.title,
-                },
-            });
-        } catch (dbError) {
-            console.error('[DB_ERROR] Full failure detail:', sanitizeError(dbError));
-            const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown Database Error';
-            // Attempt to clean up Redis if DB fails
-            try { await storePaste(pasteId, { ciphertext: '', iv: '', authTag: '' }, 1); } catch (e) { }
-            throw new Error(`Database synchronization failed: ${errorMessage}`);
-        }
+            // Store metadata in TursoDB
+            (async () => {
+                try {
+                    await createPasteMetadata({
+                        id: pasteId,
+                        createdAt: Date.now(),
+                        expiresAt,
+                        maxViews,
+                        hasPassword: validatedData.hasPassword,
+                        deletionToken,
+                        metadata: {
+                            language: validatedData.language,
+                            title: validatedData.title,
+                        },
+                    });
+                } catch (dbError) {
+                    console.error('[DB_ERROR] Full failure detail:', sanitizeError(dbError));
+                    const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown Database Error';
+                    // Attempt to clean up Redis if DB fails
+                    try {
+                        await storePaste(pasteId, { ciphertext: '', iv: '', authTag: '' }, 1);
+                    } catch (e) {
+                        // Silent catch for cleanup failure
+                    }
+                    throw new Error(`Database synchronization failed: ${errorMessage}`);
+                }
+            })(),
+        ]);
 
         // Return paste ID and metadata
         return NextResponse.json(
