@@ -1,6 +1,41 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { encryptContent, decryptContent, generateKey } from './crypto.ts';
+import {
+    encryptContent,
+    decryptContent,
+    generateKey,
+    generatePasteId,
+    generateDeletionToken,
+} from './crypto.ts';
+
+test('ID and Token generation', async (t) => {
+    await t.test('generatePasteId should return 14 characters', () => {
+        const id = generatePasteId();
+        assert.strictEqual(id.length, 14);
+        // URL-safe characters: A-Z, a-z, 0-9, -, _
+        assert.match(id, /^[A-Za-z0-9_-]+$/);
+    });
+
+    await t.test('generateDeletionToken should return 32 characters', () => {
+        const token = generateDeletionToken();
+        assert.strictEqual(token.length, 32);
+        assert.match(token, /^[A-Za-z0-9_-]+$/);
+    });
+
+    await t.test('IDs and tokens should be unique', () => {
+        const ids = new Set();
+        for (let i = 0; i < 100; i++) {
+            ids.add(generatePasteId());
+        }
+        assert.strictEqual(ids.size, 100);
+
+        const tokens = new Set();
+        for (let i = 0; i < 100; i++) {
+            tokens.add(generateDeletionToken());
+        }
+        assert.strictEqual(tokens.size, 100);
+    });
+});
 
 test('PBKDF2 iteration count and backward compatibility', async (t) => {
     const key = await generateKey();
