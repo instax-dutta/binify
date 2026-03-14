@@ -14,8 +14,8 @@ import {
     calculateExpiration,
     calculateTTL,
     validatePasteSize,
-    getClientIp,
 } from '@/lib/validation';
+import { getClientIp } from '@/lib/ip';
 
 // Rate limiting: 10 pastes per hour per IP
 const RATE_LIMIT_MAX = 10;
