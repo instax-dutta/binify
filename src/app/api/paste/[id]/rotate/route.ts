@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPasteMetadata, getDb } from '@/lib/db';
 import { getPaste, storePaste, getPasteTTL, deletePaste } from '@/lib/redis';
-import { sanitizeError } from '@/lib/logging';
+import { logger, sanitizeError } from '@/lib/logging';
 import { generatePasteId } from '@/lib/crypto';
 
 export async function POST(
@@ -66,7 +66,7 @@ export async function POST(
                 args: [newId, Date.now(), oldId],
             });
         } catch (dbError) {
-            console.error('[DB_ERROR] Failed to rotate ID:', sanitizeError(dbError));
+            logger.error('[DB_ERROR] Failed to rotate ID:', sanitizeError(dbError));
             // Cleanup new redis entry if DB fails
             await deletePaste(newId);
             throw new Error('Database synchronization failed during rotation.');
@@ -81,7 +81,7 @@ export async function POST(
             message: 'Paste ID rotated successfully.',
         });
     } catch (error) {
-        console.error('[API_ERROR] Rotation failure:', sanitizeError(error));
+        logger.error('[API_ERROR] Rotation failure:', sanitizeError(error));
         return NextResponse.json(
             { error: error instanceof Error ? error.message : 'Rotation sequence failed.' },
             { status: 500 }

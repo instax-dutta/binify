@@ -23,3 +23,19 @@ export function sanitizeError(error: unknown): string {
         return String(error);
     }
 }
+
+/**
+ * Standard logger utility to provide a consistent interface for logging
+ * and facilitate future enhancements (e.g., external logging services).
+ */
+export const logger = {
+    info: (...args: unknown[]) => {
+        console.log(...args);
+    },
+    warn: (...args: unknown[]) => {
+        console.warn(...args);
+    },
+    error: (...args: unknown[]) => {
+        console.error(...args);
+    },
+};

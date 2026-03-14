@@ -21,6 +21,7 @@ import {
     AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logging';
 
 interface PasteViewerProps {
     content: string;
@@ -81,7 +82,7 @@ export default function PasteViewer({
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
-            console.error('Failed to copy:', err);
+            logger.error('Failed to copy:', err);
         }
     };
 
