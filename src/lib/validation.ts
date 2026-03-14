@@ -136,17 +136,11 @@ export function calculateTTL(expiresAt?: number): number | undefined {
 }
 
 /**
- * Validate paste size (4MB limit)
- */
-export const MAX_PASTE_SIZE = 4 * 1024 * 1024; // 4MB
-
-export function validatePasteSize(ciphertext: string): boolean {
-    // Estimate size (base64 encoded data is ~1.33x original size)
-    const estimatedSize = (ciphertext.length * 3) / 4;
-    return estimatedSize <= MAX_PASTE_SIZE;
-}
-
-/**
  * Re-export getClientIp from the dedicated IP utility module.
  */
 export { getClientIp } from './ip';
+
+/**
+ * Re-export paste size validation logic from the dedicated module.
+ */
+export { MAX_PASTE_SIZE, validatePasteSize } from './paste-size';
