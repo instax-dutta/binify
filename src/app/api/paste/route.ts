@@ -23,7 +23,7 @@ const RATE_LIMIT_WINDOW = 3600; // 1 hour in seconds
 export async function POST(request: NextRequest) {
     try {
         // Rate limiting
-        const clientIp = getClientIp(request.headers);
+        const clientIp = getClientIp(request);
         const rateLimited = await isRateLimited(
             clientIp,
             RATE_LIMIT_MAX,
