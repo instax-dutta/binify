@@ -12,7 +12,7 @@ import {
     isPasteExpired,
 } from '@/lib/db';
 import { getPaste, deletePaste } from '@/lib/redis';
-import { sanitizeError } from '@/lib/logging';
+import { logger, sanitizeError } from '@/lib/logging';
 
 /**
  * GET - Retrieve paste and update view state
@@ -29,7 +29,7 @@ export async function GET(
         try {
             metadata = await getPasteMetadata(id);
         } catch (dbError) {
-            console.error('[DB_ERROR] Failed to fetch metadata:', sanitizeError(dbError));
+            logger.error('[DB_ERROR] Failed to fetch metadata:', sanitizeError(dbError));
             throw new Error(`Database nexus unreachable`);
         }
 
@@ -46,7 +46,7 @@ export async function GET(
             try {
                 await Promise.all([deletePaste(id), deletePasteMetadata(id)]);
             } catch (cleanupError) {
-                console.error('[CLEANUP_ERROR] Failed to purge expired paste:', sanitizeError(cleanupError));
+                logger.error('[CLEANUP_ERROR] Failed to purge expired paste:', sanitizeError(cleanupError));
             }
 
             return NextResponse.json(
@@ -60,7 +60,7 @@ export async function GET(
         try {
             payload = await getPaste(id);
         } catch (redisError) {
-            console.error('[REDIS_ERROR] Failed to fetch payload:', sanitizeError(redisError));
+            logger.error('[REDIS_ERROR] Failed to fetch payload:', sanitizeError(redisError));
             throw new Error('Storage nexus out of sync.');
         }
 
@@ -84,7 +84,7 @@ export async function GET(
                 await incrementViewCount(id);
             }
         } catch (updateError) {
-            console.error('[SYNC_ERROR] Failed to update paste state:', sanitizeError(updateError));
+            logger.error('[SYNC_ERROR] Failed to update paste state:', sanitizeError(updateError));
         }
 
         // Return encrypted payload and metadata (EXCEPT deletion token)
@@ -104,7 +104,7 @@ export async function GET(
             willBurn,
         });
     } catch (error) {
-        console.error('[API_ERROR] Retrieval failure:', sanitizeError(error));
+        logger.error('[API_ERROR] Retrieval failure:', sanitizeError(error));
         return NextResponse.json(
             { error: error instanceof Error ? error.message : 'Internal Systems Failure.' },
             { status: 500 }
@@ -152,7 +152,7 @@ export async function DELETE(
 
         return NextResponse.json({ success: true, message: 'Paste securely revoked.' });
     } catch (error) {
-        console.error('[API_ERROR] Revocation failure:', sanitizeError(error));
+        logger.error('[API_ERROR] Revocation failure:', sanitizeError(error));
         return NextResponse.json(
             { error: 'Revocation sequence failed.' },
             { status: 500 }

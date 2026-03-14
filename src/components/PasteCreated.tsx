@@ -13,6 +13,7 @@ import {
     ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { logger } from '@/lib/logging';
 
 interface PasteCreatedProps {
     pasteId: string;
@@ -47,7 +48,7 @@ export default function PasteCreated({
                 },
             })
                 .then(setQrCodeUrl)
-                .catch(console.error);
+                .catch(logger.error);
         }
     }, [pasteUrl]);
 
@@ -57,7 +58,7 @@ export default function PasteCreated({
             setCopiedUrl(true);
             setTimeout(() => setCopiedUrl(false), 2000);
         } catch (err) {
-            console.error('Failed to copy URL:', err);
+            logger.error('Failed to copy URL:', err);
         }
     };
 
@@ -67,7 +68,7 @@ export default function PasteCreated({
             setCopiedToken(true);
             setTimeout(() => setCopiedToken(false), 2000);
         } catch (err) {
-            console.error('Failed to copy token:', err);
+            logger.error('Failed to copy token:', err);
         }
     };
 

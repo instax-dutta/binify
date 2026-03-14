@@ -7,7 +7,7 @@ import { generatePasteId, generateDeletionToken } from '@/lib/crypto';
 import { createPasteMetadata } from '@/lib/db';
 import { storePaste } from '@/lib/redis';
 import { isRateLimited } from '@/lib/redis';
-import { sanitizeError } from '@/lib/logging';
+import { logger, sanitizeError } from '@/lib/logging';
 import {
     CreatePasteSchema,
     calculateExpiration,
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
                         ttl
                     );
                 } catch (redisError) {
-                    console.error('[REDIS_ERROR] Failed to store payload:', sanitizeError(redisError));
+                    logger.error('[REDIS_ERROR] Failed to store payload:', sanitizeError(redisError));
                     throw new Error('Storage nexus unavailable. Check infrastructure status.');
                 }
             })(),
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
                         },
                     });
                 } catch (dbError) {
-                    console.error('[DB_ERROR] Full failure detail:', sanitizeError(dbError));
+                    logger.error('[DB_ERROR] Full failure detail:', sanitizeError(dbError));
                     const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown Database Error';
                     // Attempt to clean up Redis if DB fails
                     try {
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
             { status: 201 }
         );
     } catch (error) {
-        console.error('[API_ERROR] Critical failure in /api/paste:', sanitizeError(error));
+        logger.error('[API_ERROR] Critical failure in /api/paste:', sanitizeError(error));
 
         if (error instanceof Error && error.name === 'ZodError') {
             return NextResponse.json(
