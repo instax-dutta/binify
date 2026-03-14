@@ -44,15 +44,17 @@ export async function POST(
         const newId = generatePasteId();
 
         // 2. Translocate payload in Redis
-        const payload = await getPaste(oldId);
+        const [payload, ttl] = await Promise.all([
+            getPaste(oldId),
+            getPasteTTL(oldId),
+        ]);
+
         if (!payload) {
             return NextResponse.json(
                 { error: 'Encrypted payload missing or already purged.' },
                 { status: 404 }
             );
         }
-
-        const ttl = await getPasteTTL(oldId);
 
         // TTL from Redis: -1 (no expiry), -2 (doesn't exist)
         // storePaste expects seconds
