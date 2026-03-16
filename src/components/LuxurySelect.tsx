@@ -35,8 +35,9 @@ export default function LuxurySelect({
     const inputRef = useRef<HTMLInputElement>(null);
     const selectedOption = options.find(opt => opt.value === value);
 
+    const lowercaseSearchTerm = searchTerm.toLowerCase();
     const filteredOptions = options.filter(opt =>
-        opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+        opt.label.toLowerCase().includes(lowercaseSearchTerm)
     );
 
     useEffect(() => {
