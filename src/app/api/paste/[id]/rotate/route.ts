@@ -7,6 +7,7 @@ import { getPasteMetadata, getDb } from '@/lib/db';
 import { getPaste, storePaste, getPasteTTL, deletePaste } from '@/lib/redis';
 import { logger, sanitizeError } from '@/lib/logging';
 import { generatePasteId } from '@/lib/crypto';
+import { safeCompare } from '@/lib/security';
 
 export async function POST(
     request: NextRequest,
@@ -33,7 +34,7 @@ export async function POST(
             );
         }
 
-        if (metadata.deletionToken !== token) {
+        if (!metadata.deletionToken || !safeCompare(metadata.deletionToken, token)) {
             return NextResponse.json(
                 { error: 'Invalid authorization token. Rotation denied.' },
                 { status: 403 }
