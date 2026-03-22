@@ -17,7 +17,7 @@ import {
     Copy,
     ExternalLink
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, handleResponse } from '@/lib/utils';
 
 export default function RevokePage() {
     const [inputValue, setInputValue] = useState(''); // Can be full URL or ID
@@ -62,15 +62,7 @@ export default function RevokePage() {
                 method: 'DELETE',
             });
 
-            let data: any = {};
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                data = await response.json();
-            }
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Revocation sequence failed. Verify your ID and token.');
-            }
+            await handleResponse(response, 'Revocation sequence failed. Verify your ID and token.');
 
             setStatus('success');
             setMessage('Your paste has been securely purged from the nexus. All references have been destroyed.');
@@ -101,15 +93,7 @@ export default function RevokePage() {
                 body: JSON.stringify({ token }),
             });
 
-            let data: any = {};
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                data = await response.json();
-            }
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Rotation sequence failed. Verify your ID and token.');
-            }
+            const data = await handleResponse<{ newId: string }>(response, 'Rotation sequence failed. Verify your ID and token.');
 
             setRotatedId(data.newId);
             setStatus('success');

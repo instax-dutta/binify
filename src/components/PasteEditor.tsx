@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { generateKey, encryptContent } from '@/lib/crypto';
 import type { ExpirationType } from '@/lib/validation';
-import { cn } from '@/lib/utils';
+import { cn, handleResponse } from '@/lib/utils';
 
 import LuxurySelect from './LuxurySelect';
 
@@ -123,12 +123,11 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                 }),
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create paste');
-            }
+            const data = await handleResponse<{ pasteId: string; deletionToken?: string }>(
+                response,
+                'Failed to create paste'
+            );
 
-            const data = await response.json();
             onPasteCreated(data.pasteId, key, data.deletionToken);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to create paste');
