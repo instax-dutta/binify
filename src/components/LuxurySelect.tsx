@@ -70,18 +70,18 @@ export default function LuxurySelect({
                 aria-expanded={isOpen}
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "luxury-input flex items-center justify-between gap-3 text-left transition-all group",
-                    isOpen && "border-accent/40 ring-1 ring-accent/20 bg-white/[0.07]"
+                    "input-spotify flex items-center justify-between gap-3 text-left cursor-pointer",
+                    isOpen && "!bg-[#252525]"
                 )}
             >
-                <span className={cn("truncate flex-1 font-medium", !selectedOption && "text-white/20")}>
+                <span className={cn("truncate flex-1", !selectedOption && "text-white/20")}>
                     {selectedOption ? selectedOption.label : placeholder}
                 </span>
                 <ChevronDown
-                    size={16}
+                    size={14}
                     className={cn(
-                        "text-white/20 transition-transform duration-500",
-                        isOpen && "rotate-180 text-accent"
+                        "text-white/20 transition-transform duration-300",
+                        isOpen && "rotate-180 text-[#1ed760]"
                     )}
                 />
             </button>
@@ -89,11 +89,11 @@ export default function LuxurySelect({
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                        transition={{ duration: 0.2, ease: "circOut" }}
-                        className="absolute z-[100] mt-2 w-full luxury-glass rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border-white/10 backdrop-blur-3xl bg-black/90 flex flex-col"
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 8 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute z-[100] mt-2 w-full bg-[#181818] rounded-lg overflow-hidden shadow-[rgba(0,0,0,0.5)_0px_8px_24px] border border-white/5"
                     >
                         {options.length > 5 && (
                             <div className="p-2 border-b border-white/5">
@@ -103,13 +103,13 @@ export default function LuxurySelect({
                                     placeholder="Search..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-xs outline-none focus:border-accent/30 transition-colors placeholder:text-white/10"
+                                    className="w-full bg-[#1f1f1f] border-none rounded-[9999px] px-3 py-2 text-xs outline-none text-white placeholder:text-white/20"
                                 />
                             </div>
                         )}
 
                         <div
-                            className="max-h-[240px] overflow-y-auto overflow-x-hidden p-1.5 scrollbar-hide scroll-smooth"
+                            className="max-h-[240px] overflow-y-auto overflow-x-hidden p-1 scrollbar-hide scroll-smooth"
                             data-lenis-prevent
                             onWheel={(e) => e.stopPropagation()}
                             style={{ overscrollBehavior: 'contain' }}
@@ -121,34 +121,23 @@ export default function LuxurySelect({
                                         <button
                                             key={option.value}
                                             type="button"
+                                            role="option"
+                                            aria-selected={isSelected}
                                             onClick={() => handleSelect(option.value)}
                                             className={cn(
-                                                "w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-300 group relative mb-0.5 last:mb-0",
+                                                "w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors duration-150 rounded-[9999px]",
                                                 isSelected
-                                                    ? "bg-accent/10 text-accent font-bold"
-                                                    : "text-white/40 hover:bg-white/[0.04] hover:text-white"
+                                                    ? "bg-[#1ed760]/10 text-[#1ed760] font-bold"
+                                                    : "text-[#b3b3b3] hover:bg-white/5 hover:text-white"
                                             )}
                                         >
-                                            <span className="relative z-10">{option.label}</span>
-                                            {isSelected ? (
-                                                <motion.div
-                                                    initial={{ scale: 0.5, opacity: 0 }}
-                                                    animate={{ scale: 1, opacity: 1 }}
-                                                    className="relative z-10"
-                                                >
-                                                    <Check size={14} />
-                                                </motion.div>
-                                            ) : (
-                                                <div className="w-1 h-1 rounded-full bg-white/5 group-hover:bg-accent/40 transition-colors" />
-                                            )}
-                                            {isSelected && (
-                                                <div className="absolute inset-0 bg-accent/5 rounded-xl blur-md" />
-                                            )}
+                                            <span>{option.label}</span>
+                                            {isSelected && <Check size={14} className="shrink-0" />}
                                         </button>
                                     );
                                 })
                             ) : (
-                                <div className="px-4 py-8 text-center text-xs text-white/20 font-medium">
+                                <div className="px-4 py-8 text-center text-xs text-white/20">
                                     No matches found
                                 </div>
                             )}

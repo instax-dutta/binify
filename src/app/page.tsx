@@ -5,11 +5,11 @@ import { motion, Variants } from 'framer-motion';
 import {
   Shield,
   Flame,
-  Terminal,
   Lock,
-  ShieldCheck,
+  Terminal,
+  Github,
   Globe,
-  Github
+  ChevronRight
 } from 'lucide-react';
 import PasteEditor from '@/components/PasteEditor';
 import PasteCreated from '@/components/PasteCreated';
@@ -22,26 +22,25 @@ const containerVariants: Variants = {
   }
 };
 
-const titleVariants: Variants = {
-  hidden: { opacity: 0, y: 40, filter: 'blur(10px)' },
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: {
-      duration: 1,
-      ease: [0.16, 1, 0.3, 1]
-    }
-  }
-};
-
-const cardVariants: Variants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: {
     opacity: 1,
     y: 0,
     transition: {
-      duration: 0.8,
+      duration: 0.7,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  }
+};
+
+const heroVariants: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.9,
       ease: [0.16, 1, 0.3, 1]
     }
   }
@@ -59,37 +58,30 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen selection:bg-accent/30 flex flex-col">
+    <main className="min-h-screen selection:bg-[#1ed760]/20 flex flex-col">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-2xl">
-        <div className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <motion.div
-              whileHover={{ rotate: 90, scale: 1.1 }}
-              className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-secondary flex items-center justify-center shadow-lg shadow-accent/20 transition-all duration-500"
-            >
-              <Terminal size={22} className="text-black" strokeWidth={2.5} />
-            </motion.div>
-            <div>
-              <h1 className="text-xl font-bold tracking-tight text-white group-hover:text-accent transition-colors">Binify</h1>
-              <p className="text-[10px] text-white/40 uppercase tracking-[0.2em] font-black leading-none mt-0.5">Zero Knowledge</p>
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#121212]/80 backdrop-blur-2xl border-b border-white/5">
+        <div className="container mx-auto px-6 h-16 flex items-center justify-between">
+          <a href="/" className="flex items-center gap-3 group cursor-pointer">
+            <div className="w-8 h-8 rounded-full bg-[#1ed760] flex items-center justify-center transition-all duration-300 group-hover:scale-105">
+              <Terminal size={16} className="text-black" strokeWidth={2.5} />
             </div>
-          </div>
+            <span className="text-base font-bold tracking-tight text-white group-hover:text-[#1ed760] transition-colors">Binify</span>
+          </a>
           <div className="hidden md:flex items-center gap-6">
-            <a href="/docs" className="text-sm font-medium text-white/50 hover:text-white hover:translate-y-[-1px] transition-all">Documentation</a>
-            <div className="h-4 w-px bg-white/10" />
-            <a href="https://github.com/instax-dutta/binify" target="_blank" rel="noopener noreferrer" className="p-2 text-white/30 hover:text-white transition-colors">
-              <Github size={20} />
+            <a href="/docs" className="nav-link-spotify-inactive text-sm">Docs</a>
+            <a href="https://github.com/instax-dutta/binify" target="_blank" rel="noopener noreferrer" className="p-1.5 text-[#b3b3b3] hover:text-white transition-colors">
+              <Github size={18} />
             </a>
-            <a href="https://sdad.pro" className="text-sm font-semibold text-accent flex items-center gap-2 px-4 py-2 rounded-lg bg-accent/5 border border-accent/10 hover:bg-accent hover:text-black transition-all">
-              <Globe size={14} />
+            <a href="https://sdad.pro" className="btn-spotify-secondary text-xs h-8 gap-1.5 !px-4">
+              <Globe size={12} />
               sdad.pro
             </a>
           </div>
         </div>
       </nav>
 
-      {/* Hero Content */}
+      {/* Content */}
       <div className="container mx-auto px-6 pt-24 pb-12 flex-1 flex flex-col items-center">
         {createdPaste ? (
           <PasteCreated
@@ -105,87 +97,82 @@ export default function HomePage() {
             animate="visible"
             className="flex flex-col items-center w-full"
           >
-            {/* Hero Header */}
-            <div className="text-center space-y-5 mb-24 max-w-3xl">
-              <motion.div variants={cardVariants} className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] border border-white/10 text-accent text-[10px] font-black tracking-widest uppercase">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+            {/* Hero */}
+            <div className="text-center space-y-6 mb-20 max-w-3xl">
+              <motion.div variants={itemVariants}>
+                <span className="inline-flex items-center gap-2 bg-[#1f1f1f] text-[#1ed760] px-4 py-1.5 rounded-[9999px] text-[0.625rem] font-bold uppercase tracking-[0.1em]">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1ed760] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#1ed760]" />
+                  </span>
+                  ZERO-KNOWLEDGE
                 </span>
-                Secure Transmission Nexus
               </motion.div>
 
-              <motion.h2 variants={cardVariants} className="text-4xl md:text-6xl font-bold tracking-tighter leading-[1.1]">
-                Your Secrets, <br />
-                <span className="text-accent">Truly Anonymous.</span>
-              </motion.h2>
+              <motion.h1 variants={heroVariants} className="title-xl text-white">
+                Your Secrets,<br />
+                <span className="text-[#1ed760]">Truly Anonymous.</span>
+              </motion.h1>
 
-              <motion.p variants={cardVariants} className="text-base md:text-lg text-white/40 font-medium leading-relaxed max-w-2xl mx-auto">
+              <motion.p variants={itemVariants} className="text-base md:text-lg text-[#b3b3b3] font-normal max-w-xl mx-auto leading-relaxed">
                 End-to-end encrypted pastebin with no server-side persistence of keys.
-                Built for the privacy-first generation.
               </motion.p>
             </div>
 
-            {/* Features Staggered */}
+            {/* Feature Cards */}
             <motion.div
               variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-40 w-full max-w-5xl"
+              className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-20 w-full max-w-5xl"
             >
               <FeatureCard
-                icon={<Shield size={20} className="text-accent" />}
+                icon={<Shield size={16} />}
                 title="E2E Protection"
-                description="AES-256-GCM encryption entirely in your browser. Server only sees noise."
-                delay={0}
+                description="AES-256-GCM encryption in your browser. Server only sees noise."
               />
               <FeatureCard
-                icon={<Flame size={20} className="text-orange-500" />}
+                icon={<Flame size={16} />}
                 title="Auto-Purge"
                 description="Self-destruct logic wipes data from both Redis and DB after threshold."
-                delay={1}
               />
               <FeatureCard
-                icon={<Lock size={20} className="text-blue-500" />}
+                icon={<Lock size={16} />}
                 title="Zero-Knowledge"
                 description="No keys touch our server. Even if we wanted to, we can't see your data."
-                delay={2}
               />
             </motion.div>
 
-            {/* Editor Area */}
-            <motion.div variants={cardVariants} className="w-full relative group">
-              <div className="absolute inset-0 bg-accent/5 blur-[100px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-              <div className="relative">
-                <div className="flex items-center gap-4 mb-10">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent to-white/10" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Binary Workspace</span>
-                  <div className="h-px flex-1 bg-gradient-to-l from-transparent to-white/10" />
-                </div>
-                <PasteEditor onPasteCreated={handlePasteCreated} />
+            {/* Editor */}
+            <motion.div variants={itemVariants} className="w-full max-w-5xl">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="divider-spotify flex-1" />
+                <span className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-white/20">ENCRYPT & SHARE</span>
+                <div className="divider-spotify flex-1" />
               </div>
+              <PasteEditor onPasteCreated={handlePasteCreated} />
             </motion.div>
           </motion.div>
         )}
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-16 mt-auto">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-12 text-center md:text-left">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex items-center gap-3 grayscale opacity-30 hover:grayscale-0 hover:opacity-100 transition-all duration-700 cursor-pointer">
-              <Terminal size={20} />
-              <span className="text-lg font-black tracking-tighter">BINIFY</span>
+      <footer className="border-t border-white/5 py-12 mt-auto">
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="flex items-center gap-2 opacity-30 hover:opacity-60 transition-all duration-500">
+              <Terminal size={14} />
+              <span className="text-sm font-bold tracking-tight">BINIFY</span>
             </div>
-            <p className="text-sm text-white/20 font-medium">© 2025 sdad.pro. Powered by pure cryptography.</p>
+            <p className="text-xs text-white/20">© 2025 sdad.pro. Pure cryptography.</p>
           </div>
-          <div className="flex items-center gap-10 text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
-            <a href="https://github.com/instax-dutta/binify" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors flex items-center gap-2">
-              <Github size={12} />
+          <div className="flex items-center gap-6 text-[0.625rem] font-bold text-white/20 uppercase tracking-[0.2em]">
+            <a href="https://github.com/instax-dutta/binify" target="_blank" rel="noopener noreferrer" className="hover:text-[#1ed760] transition-colors flex items-center gap-1.5">
+              <Github size={11} />
               GitHub
             </a>
-            <a href="/revoke" className="hover:text-accent transition-colors">Revoke Link</a>
-            <a href="/privacy" className="hover:text-accent transition-colors">Privacy</a>
-            <a href="/terms" className="hover:text-accent transition-colors">Terms</a>
-            <a href="/security" className="hover:text-accent transition-colors">Security</a>
+            <a href="/revoke" className="hover:text-white transition-colors">Revoke</a>
+            <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+            <a href="/terms" className="hover:text-white transition-colors">Terms</a>
+            <a href="/security" className="hover:text-white transition-colors">Security</a>
           </div>
         </div>
       </footer>
@@ -193,25 +180,17 @@ export default function HomePage() {
   );
 }
 
-function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: number }) {
+function FeatureCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
   return (
     <motion.div
-      variants={cardVariants}
-      whileHover={{ y: -6, backgroundColor: "rgba(255,255,255,0.06)", borderColor: "rgba(255,255,255,0.15)" }}
-      className="luxury-card flex flex-col gap-4 text-left p-6 border border-white/5 transition-colors group cursor-default"
+      variants={itemVariants}
+      className="bg-[#181818] rounded-lg p-5 transition-all duration-200 hover:bg-[#1f1f1f] cursor-default group"
     >
-      <motion.div
-        animate={{ y: [0, -4, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: delay * 0.5 }}
-        className="w-11 h-11 rounded-xl bg-white/[0.03] flex items-center justify-center border border-white/5 relative overflow-hidden group-hover:border-accent/30 transition-colors"
-      >
-        <div className="absolute inset-0 bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-        {icon}
-      </motion.div>
-      <div className="space-y-2">
-        <h3 className="text-lg font-bold text-white tracking-tight group-hover:text-accent transition-colors">{title}</h3>
-        <p className="text-sm text-white/40 leading-relaxed font-medium">{description}</p>
+      <div className="w-8 h-8 rounded-full bg-white/[0.03] flex items-center justify-center mb-3 group-hover:bg-[#1ed760]/10 transition-colors">
+        <span className="text-[#b3b3b3] group-hover:text-[#1ed760] transition-colors">{icon}</span>
       </div>
+      <h3 className="text-sm font-bold text-white mb-1 group-hover:text-[#1ed760] transition-colors">{title}</h3>
+      <p className="text-xs text-[#b3b3b3] leading-relaxed">{description}</p>
     </motion.div>
   );
 }

@@ -1,102 +1,150 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: #000000;
+  --background: #121212;
   --foreground: #ffffff;
-  --card: #0a0a0a;
-  --card-foreground: #ffffff;
-  --accent: #10b981;
-  --accent-secondary: #3b82f6;
+  --card: #181818;
+  --card-hover: #1f1f1f;
+  --surface: #1f1f1f;
+  --accent: #1ed760;
+  --accent-secondary: #539df5;
   --border: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.15);
-  --font-header: 'Plus Jakarta Sans', sans-serif;
-  --font-body: 'Source Sans 3', sans-serif;
+  --text-secondary: #b3b3b3;
+  --text-negative: #f3727f;
+  --text-warning: #ffa42b;
+  --font-ui: 'Figtree', 'Helvetica Neue', helvetica, arial, sans-serif;
+  --font-display: 'DM Sans', 'Figtree', sans-serif;
+  --shadow-heavy: rgba(0, 0, 0, 0.5) 0px 8px 24px;
+  --shadow-medium: rgba(0, 0, 0, 0.3) 0px 8px 8px;
   color-scheme: dark;
-  /* Force native UI elements (like dropdowns) to use dark theme */
 }
 
 @layer base {
   body {
     background-color: var(--background);
     color: var(--foreground);
-    font-family: var(--font-body);
+    font-family: var(--font-ui);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    font-size: 16px;
+    font-weight: 400;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-header);
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
 
   * {
     @apply border-white/5;
   }
+
+  ::selection {
+    background-color: rgba(30, 215, 96, 0.25);
+    color: #ffffff;
+  }
 }
 
 @layer components {
-  .luxury-glass {
-    @apply bg-white/[0.02] backdrop-blur-xl border border-white/5 shadow-2xl;
+  .card-spotify {
+    @apply bg-[#181818] rounded-lg transition-all duration-200;
   }
 
-  .luxury-card {
-    @apply luxury-glass rounded-2xl p-6 transition-all duration-300 hover:bg-white/[0.04] hover:border-white/10;
+  .card-spotify:hover {
+    background-color: #1f1f1f;
   }
 
-  .luxury-input {
-    @apply w-full bg-white/[0.03] border border-white/5 rounded-xl px-4 py-3 outline-none transition-all duration-300 hover:bg-white/[0.05] focus:bg-white/[0.07] focus:border-accent/40 focus:ring-1 focus:ring-accent/20 text-white placeholder:text-gray-500 font-sans;
+  .card-spotify-elevated {
+    @apply bg-[#181818] rounded-lg shadow-[rgba(0,0,0,0.3)_0px_8px_8px] transition-all duration-200;
   }
 
-  /* Force dark theme on native select dropdowns */
-  select.luxury-input option {
-    @apply bg-[#0a0a0a] text-white;
+  .card-spotify-elevated:hover {
+    background-color: #1f1f1f;
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 8px 24px;
   }
 
-  .luxury-textarea {
-    @apply luxury-input font-mono text-sm leading-relaxed min-h-[400px] resize-none;
+  .btn-spotify {
+    @apply relative inline-flex items-center justify-center gap-2 font-[family-name:var(--font-ui)] text-sm font-bold uppercase tracking-[0.0875rem] transition-all duration-200 select-none;
   }
 
-  .btn-luxury {
-    @apply relative overflow-hidden px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2;
+  .btn-spotify-primary {
+    @apply btn-spotify bg-[#1ed760] text-black rounded-[500px] px-8 py-3 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98];
   }
 
-  .btn-luxury-primary {
-    @apply btn-luxury bg-white text-black hover:bg-white/90 active:scale-[0.98];
+  .btn-spotify-primary:disabled {
+    @apply opacity-40 cursor-not-allowed hover:scale-100 hover:brightness-100 active:scale-100;
   }
 
-  .btn-luxury-secondary {
-    @apply btn-luxury bg-white/5 border border-white/10 text-white hover:bg-white/10 active:scale-[0.98];
+  .btn-spotify-secondary {
+    @apply btn-spotify bg-[#1f1f1f] text-white rounded-[9999px] px-6 py-2.5 hover:bg-white/10 active:scale-[0.98];
   }
 
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white/80 to-white/40;
+  .btn-spotify-secondary:disabled {
+    @apply opacity-40 cursor-not-allowed hover:bg-[#1f1f1f] active:scale-100;
   }
 
-  .text-accent-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent-secondary;
+  .btn-spotify-ghost {
+    @apply btn-spotify text-[#b3b3b3] rounded-[9999px] px-4 py-2 hover:text-white;
   }
 
-  .luxury-text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-white/20;
-    text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+  .input-spotify {
+    @apply w-full bg-[#1f1f1f] text-white rounded-[500px] px-4 py-3 outline-none transition-all duration-200 font-[family-name:var(--font-ui)] text-sm;
+    box-shadow: rgb(18, 18, 18) 0px 1px 0px, rgb(124, 124, 124) 0px 0px 0px 1px inset;
   }
 
-  /* Custom Scrollbar */
+  .input-spotify::placeholder {
+    color: rgba(255, 255, 255, 0.2);
+  }
+
+  .input-spotify:focus {
+    background-color: #252525;
+    box-shadow: rgb(18, 18, 18) 0px 1px 0px, rgb(30, 215, 96) 0px 0px 0px 1px inset;
+  }
+
+  .textarea-spotify {
+    @apply w-full bg-transparent text-white font-mono text-sm leading-relaxed resize-none outline-none;
+  }
+
+  .textarea-spotify::placeholder {
+    color: rgba(255, 255, 255, 0.15);
+  }
+
+  .label-spotify {
+    @apply flex items-center gap-2 text-[0.66rem] font-bold uppercase tracking-[0.05em] text-[#b3b3b3];
+  }
+
+  .badge-spotify {
+    @apply inline-flex items-center px-3 py-1 rounded-[9999px] text-[0.66rem] font-semibold capitalize;
+  }
+
+  .divider-spotify {
+    @apply h-px bg-gradient-to-r from-transparent via-white/5 to-transparent;
+  }
+
+  .nav-link-spotify {
+    @apply text-sm font-[family-name:var(--font-ui)] transition-colors duration-200;
+  }
+
+  .nav-link-spotify-active {
+    @apply nav-link-spotify text-white font-bold;
+  }
+
+  .nav-link-spotify-inactive {
+    @apply nav-link-spotify text-[#b3b3b3] font-normal hover:text-white;
+  }
+
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
+    height: 6px;
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
@@ -104,23 +152,47 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-white/20 rounded-full hover:bg-accent/40 transition-colors;
+    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
   }
 
   .scrollbar-hide {
     -ms-overflow-style: none;
-    /* IE and Edge */
     scrollbar-width: none;
-    /* Firefox */
   }
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
-    /* Chrome, Safari and Opera */
+  }
+
+  .title-xl {
+    @apply font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.05];
+  }
+
+  .title-lg {
+    @apply font-[family-name:var(--font-display)] text-2xl md:text-3xl font-bold tracking-tight leading-[1.1];
+  }
+
+  .title-md {
+    @apply font-[family-name:var(--font-display)] text-xl font-bold tracking-tight;
+  }
+
+  .text-body {
+    @apply text-base font-normal text-white/60 leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-sm text-[#b3b3b3] font-normal;
+  }
+
+  .text-micro {
+    @apply text-[0.625rem] font-bold uppercase tracking-[0.2em] text-[#b3b3b3];
   }
 }
 
-/* Lenis CSS */
+:root {
+  --black: #121212;
+}
+
 html.lenis,
 html.lenis body {
   height: auto;
@@ -140,26 +212,4 @@ html.lenis body {
 
 .lenis.lenis-scrolling iframe {
   pointer-events: none;
-}
-
-/* Background Gradients */
-.bg-mesh {
-  background-image:
-    radial-gradient(at 0% 0%, hsla(161, 80%, 50%, 0.18) 0px, transparent 55%),
-    radial-gradient(at 100% 0%, hsla(217, 95%, 65%, 0.12) 0px, transparent 55%),
-    radial-gradient(at 100% 100%, hsla(161, 80%, 50%, 0.08) 0px, transparent 55%),
-    radial-gradient(at 0% 100%, hsla(220, 95%, 65%, 0.12) 0px, transparent 55%),
-    radial-gradient(at 50% 50%, hsla(161, 80%, 50%, 0.05) 0px, transparent 50%);
-}
-
-.glow-mesh {
-  position: fixed;
-  top: -20%;
-  left: -20%;
-  width: 140vw;
-  height: 140vh;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.6;
-  filter: blur(120px);
 }

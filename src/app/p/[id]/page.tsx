@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Terminal, Lock, Loader2, AlertCircle, ShieldAlert } from 'lucide-react';
+import { Terminal, Lock, Loader2, ShieldAlert } from 'lucide-react';
 import { decryptContent } from '@/lib/crypto';
 import PasteViewer from '@/components/PasteViewer';
 
@@ -79,12 +79,11 @@ export default function ViewPastePage() {
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center p-6">
-                <div className="text-center space-y-6">
+                <div className="text-center space-y-4">
                     <div className="relative">
-                        <Loader2 size={48} className="text-accent animate-spin mx-auto" />
-                        <div className="absolute inset-0 blur-xl bg-accent/20 animate-pulse" />
+                        <Loader2 size={36} className="text-[#1ed760] animate-spin mx-auto" />
                     </div>
-                    <p className="text-xs font-black uppercase tracking-[0.3em] text-white/30">Decrypting Logic...</p>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-white/30">Decrypting...</p>
                 </div>
             </div>
         );
@@ -94,19 +93,20 @@ export default function ViewPastePage() {
         return (
             <div className="min-h-screen flex items-center justify-center p-6">
                 <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="max-w-md w-full luxury-card text-center space-y-8 border-red-500/20"
+                    className="max-w-md w-full bg-[#181818] rounded-lg p-8 text-center space-y-6 border border-[#f3727f]/15"
                 >
-                    <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
-                        <ShieldAlert size={40} className="text-red-500" />
+                    <div className="w-16 h-16 bg-[#f3727f]/10 rounded-full flex items-center justify-center mx-auto">
+                        <ShieldAlert size={32} className="text-[#f3727f]" />
                     </div>
                     <div className="space-y-2">
-                        <h2 className="text-2xl font-bold text-white tracking-tighter">Access Denied</h2>
-                        <p className="text-sm text-white/40 font-medium leading-relaxed">{error}</p>
+                        <h2 className="text-xl font-bold text-white tracking-tight">Access Denied</h2>
+                        <p className="text-sm text-[#b3b3b3] leading-relaxed">{error}</p>
                     </div>
-                    <a href="/" className="btn-luxury-primary w-full">
-                        Return to Matrix
+                    <a href="/" className="btn-spotify-primary inline-flex">
+                        <Terminal size={14} />
+                        RETURN HOME
                     </a>
                 </motion.div>
             </div>
@@ -119,33 +119,34 @@ export default function ViewPastePage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="max-w-md w-full luxury-card space-y-10"
+                    className="max-w-md w-full bg-[#181818] rounded-lg p-8 space-y-8"
                 >
-                    <div className="text-center space-y-4">
-                        <div className="w-16 h-16 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto border border-accent/20">
-                            <Lock size={30} className="text-accent" />
+                    <div className="text-center space-y-3">
+                        <div className="w-14 h-14 rounded-full bg-[#1ed760]/10 flex items-center justify-center mx-auto">
+                            <Lock size={24} className="text-[#1ed760]" />
                         </div>
                         <div className="space-y-1">
-                            <h2 className="text-2xl font-bold text-white tracking-tight">Secondary Key Required</h2>
-                            <p className="text-sm text-white/30 font-medium tracking-tight">This session is double-locked via PBKDF2.</p>
+                            <h2 className="text-xl font-bold text-white tracking-tight">Password Required</h2>
+                            <p className="text-sm text-[#b3b3b3]">This paste is protected by an extra PBKDF2 layer.</p>
                         </div>
                     </div>
 
-                    <form onSubmit={handlePasswordSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-1">Session Password</label>
+                    <form onSubmit={handlePasswordSubmit} className="space-y-5">
+                        <div className="space-y-1.5">
+                            <label className="label-spotify justify-center">Password</label>
                             <input
                                 type="password"
-                                placeholder="Enter bypass code"
+                                placeholder="Enter password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="luxury-input text-center tracking-widest"
+                                className="input-spotify text-center"
                                 autoFocus
                                 autoComplete="off"
                             />
                         </div>
-                        <button type="submit" className="btn-luxury-primary w-full py-4 text-sm font-bold uppercase tracking-widest">
-                            Unlock Binary
+                        <button type="submit" className="btn-spotify-primary w-full h-12 tracking-[0.05em]">
+                            <Lock size={14} />
+                            UNLOCK
                         </button>
                     </form>
                 </motion.div>
@@ -155,21 +156,19 @@ export default function ViewPastePage() {
 
     return (
         <div className="min-h-screen">
-            <nav className="border-b border-white/5 bg-black/50 backdrop-blur-xl">
-                <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+            <nav className="border-b border-white/5 bg-[#121212]/80 backdrop-blur-xl">
+                <div className="container mx-auto px-6 h-16 flex items-center justify-between">
                     <a href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-center group-hover:border-accent/40 transition-all">
-                            <Terminal size={20} className="text-white group-hover:text-accent transition-colors" />
+                        <div className="w-8 h-8 rounded-full bg-[#1ed760] flex items-center justify-center">
+                            <Terminal size={16} className="text-black" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight text-white">Binify</span>
+                        <span className="text-base font-bold tracking-tight text-white">Binify</span>
                     </a>
-                    <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">
-                        Secure Payload Terminal
-                    </div>
+                    <span className="text-[0.625rem] font-bold text-white/20 uppercase tracking-[0.2em]">DECRYPTED PAYLOAD</span>
                 </div>
             </nav>
 
-            <div className="container mx-auto px-6 pt-16">
+            <div className="container mx-auto px-6 pt-10">
                 <PasteViewer
                     content={content}
                     language={metadata?.language}

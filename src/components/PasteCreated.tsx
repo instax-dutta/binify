@@ -43,8 +43,8 @@ export default function PasteCreated({
                 width: 400,
                 margin: 2,
                 color: {
-                    dark: '#ffffff',
-                    light: '#000000',
+                    dark: '#1ed760',
+                    light: '#121212',
                 },
             })
                 .then(setQrCodeUrl)
@@ -74,160 +74,152 @@ export default function PasteCreated({
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full max-w-3xl mx-auto space-y-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-3xl mx-auto space-y-6"
         >
             {/* Success Banner */}
-            <div className="luxury-glass rounded-2xl p-8 border-accent/20 bg-accent/[0.02] relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-8 opacity-5">
-                    <CheckCircle2 size={120} className="text-accent" />
+            <div className="bg-[#181818] rounded-lg border border-[#1ed760]/20 p-6 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-6 opacity-[0.03]">
+                    <CheckCircle2 size={100} />
                 </div>
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center">
-                        <CheckCircle2 size={24} className="text-accent" />
+                <div className="flex items-center gap-4 mb-3">
+                    <div className="w-10 h-10 rounded-full bg-[#1ed760]/15 flex items-center justify-center">
+                        <CheckCircle2 size={20} className="text-[#1ed760]" />
                     </div>
-                    <h3 className="text-2xl font-bold text-white">Paste Secured Successfully</h3>
+                    <div>
+                        <h3 className="font-bold text-white text-lg">Paste encrypted</h3>
+                        <p className="text-sm text-[#b3b3b3]">Your data never touched our servers without encryption.</p>
+                    </div>
                 </div>
-                <p className="text-white/40 font-medium max-w-xl">
-                    Your data has been encrypted client-side and stored. The encryption key is embedded in your URL fragment and was never sent to our servers.
-                </p>
             </div>
 
             {/* URL Display */}
-            <div className="luxury-card space-y-4">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-1">
-                    Access & Share URL
+            <div className="bg-[#181818] rounded-lg p-5 space-y-3">
+                <label className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-[#b3b3b3]">
+                    Share URL
                 </label>
-                <div className="flex flex-col md:flex-row gap-3">
+                <div className="flex flex-col md:flex-row gap-2">
                     <input
                         type="text"
                         value={pasteUrl}
                         readOnly
-                        className="flex-1 luxury-input font-mono text-xs py-4 px-6 border-white/10"
+                        className="flex-1 input-spotify text-xs font-mono"
                         onClick={(e) => e.currentTarget.select()}
                     />
                     <button
                         onClick={copyUrl}
                         className={cn(
-                            "btn-luxury-primary md:min-w-[140px] transition-all",
-                            copiedUrl && "bg-accent text-black border-accent"
+                            "btn-spotify-primary min-w-[120px] h-[44px] tracking-[0.05em]",
+                            copiedUrl && "!bg-[#1ed760]"
                         )}
                     >
                         {copiedUrl ? (
-                            <span className="flex items-center gap-2">
-                                <CheckCircle2 size={18} />
-                                COPIED
-                            </span>
+                            <span className="flex items-center gap-2"><CheckCircle2 size={16} /> COPIED</span>
                         ) : (
-                            <span className="flex items-center gap-2">
-                                <Copy size={18} />
-                                COPY URL
-                            </span>
+                            <span className="flex items-center gap-2"><Copy size={16} /> COPY</span>
                         )}
                     </button>
                 </div>
             </div>
 
-            {/* Deletion Token Display */}
+            {/* Deletion Token */}
             {deletionToken && (
-                <div className="luxury-card space-y-4 border-white/5 bg-white/[0.01]">
+                <div className="bg-[#181818] rounded-lg p-5 space-y-3 border border-white/5">
                     <div className="flex items-center justify-between">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-accent ml-1">
-                            Administrative Deletion Token
+                        <label className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-[#1ed760]">
+                            Deletion Token
                         </label>
-                        <span className="text-[10px] font-bold text-accent/40 bg-accent/5 px-2 py-0.5 rounded">Required for Revocation</span>
+                        <span className="text-[0.5rem] font-bold text-[#1ed760]/40 bg-[#1ed760]/5 px-2 py-0.5 rounded-[9999px] uppercase tracking-[0.1em]">
+                            Keep secret
+                        </span>
                     </div>
-                    <div className="flex flex-col md:flex-row gap-3">
+                    <div className="flex flex-col md:flex-row gap-2">
                         <input
                             type="text"
                             value={deletionToken}
                             readOnly
-                            className="flex-1 luxury-input font-mono text-xs py-4 px-6 border-accent/10 bg-accent/[0.02] text-accent/80"
+                            className="flex-1 input-spotify text-xs font-mono"
                             onClick={(e) => e.currentTarget.select()}
                         />
                         <button
                             onClick={copyToken}
                             className={cn(
-                                "btn-luxury-secondary md:min-w-[140px] border-accent/20 hover:border-accent/40 transition-all",
-                                copiedToken && "text-accent bg-accent/5 border-accent/40"
+                                "btn-spotify-secondary min-w-[120px] h-[44px] tracking-[0.05em]",
+                                copiedToken && "!text-[#1ed760]"
                             )}
                         >
                             {copiedToken ? (
-                                <span className="flex items-center gap-2 text-accent">
-                                    <CheckCircle2 size={16} />
-                                    COPIED
-                                </span>
+                                <span className="flex items-center gap-2 text-[#1ed760]"><CheckCircle2 size={14} /> COPIED</span>
                             ) : (
-                                <span className="flex items-center gap-2">
-                                    <Copy size={16} />
-                                    COPY TOKEN
-                                </span>
+                                <span className="flex items-center gap-2"><Copy size={14} /> TOKEN</span>
                             )}
                         </button>
                     </div>
-                    <p className="text-[10px] text-white/20 font-medium px-1">
-                        Save this token to manually revoke (delete) or rotate this link later at <a href="/revoke" className="underline hover:text-accent transition-colors">/revoke</a>.
+                    <p className="text-[0.625rem] text-white/20 px-1">
+                        Use this at <a href="/revoke" className="underline hover:text-white transition-colors">/revoke</a> to delete or rotate your paste.
                     </p>
                 </div>
             )}
 
-            {/* Actions Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* QR Code */}
-                <div className="luxury-card flex flex-col items-center justify-center gap-6 group cursor-pointer" onClick={() => setShowQR(!showQR)}>
-                    <div className="flex items-center gap-3 text-sm font-bold text-white/40 group-hover:text-white transition-colors">
-                        <QrCode size={18} />
-                        GENERATE QR CODE
-                    </div>
+            {/* Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                    className="bg-[#181818] rounded-lg p-6 flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-[#1f1f1f] transition-colors"
+                    onClick={() => setShowQR(!showQR)}
+                >
+                    <span className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-[#b3b3b3]">
+                        <QrCode size={14} className="inline mr-1.5" />
+                        QR CODE
+                    </span>
                     {showQR && qrCodeUrl ? (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="p-4 bg-white rounded-xl shadow-2xl shadow-white/5"
+                            className="p-3 bg-white rounded-lg shadow-[rgba(0,0,0,0.5)_0px_8px_24px]"
                         >
-                            <img src={qrCodeUrl} alt="QR Code" className="w-48 h-48" />
+                            <img src={qrCodeUrl} alt="QR Code" className="w-40 h-40" />
                         </motion.div>
                     ) : (
-                        <div className="w-48 h-48 rounded-xl border border-dashed border-white/10 flex items-center justify-center bg-white/[0.01]">
-                            <QrCode size={32} className="text-white/5" />
+                        <div className="w-40 h-40 rounded-lg border border-dashed border-white/5 flex items-center justify-center">
+                            <QrCode size={28} className="text-white/5" />
                         </div>
                     )}
                 </div>
 
-                {/* Navigation & Warning */}
-                <div className="space-y-6">
-                    <div className="luxury-glass rounded-2xl p-6 border-orange-500/20 bg-orange-500/[0.02]">
-                        <div className="flex items-center gap-3 text-orange-500 mb-2">
-                            <AlertTriangle size={18} />
-                            <span className="text-xs font-black uppercase tracking-widest">Crucial Security Alert</span>
+                <div className="space-y-3">
+                    <div className="bg-[#181818] rounded-lg p-5 border border-[#ffa42b]/15 space-y-2">
+                        <div className="flex items-center gap-2 text-[#ffa42b]">
+                            <AlertTriangle size={14} />
+                            <span className="text-[0.625rem] font-bold uppercase tracking-[0.1em]">Warning</span>
                         </div>
-                        <p className="text-sm text-white/40 leading-relaxed font-medium">
-                            This URL contains the **decryption key**. If forgotten, our servers cannot recover your data. Bookmark it or save it in a safe place.
+                        <p className="text-xs text-[#b3b3b3] leading-relaxed">
+                            Save the URL now. If you lose it, the data is permanently unrecoverable.
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
                         <a
                             href={pasteUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="btn-luxury-secondary justify-between group"
+                            className="btn-spotify-secondary justify-between w-full"
                         >
-                            <span className="flex items-center gap-2">
-                                <ExternalLink size={16} />
-                                View Live Paste
+                            <span className="flex items-center gap-2 text-xs">
+                                <ExternalLink size={14} />
+                                VIEW PASTE
                             </span>
-                            <ArrowRight size={16} className="text-white/20 group-hover:translate-x-1 transition-transform" />
+                            <ArrowRight size={14} className="text-white/20" />
                         </a>
                         <button
                             onClick={onCreateAnother}
-                            className="btn-luxury-secondary justify-between group border-white/5"
+                            className="btn-spotify-secondary justify-between w-full"
                         >
-                            <span className="flex items-center gap-2">
-                                <Plus size={16} />
-                                Initialize New Paste
+                            <span className="flex items-center gap-2 text-xs">
+                                <Plus size={14} />
+                                NEW PASTE
                             </span>
+                            <ArrowRight size={14} className="text-white/20" />
                         </button>
                     </div>
                 </div>

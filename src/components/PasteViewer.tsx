@@ -13,9 +13,8 @@ import {
     Flame,
     Clock,
     Eye,
-    Terminal as TerminalIcon,
+    Terminal,
     CheckCircle2,
-    Code2,
     FileText,
     ChevronRight,
     AlertTriangle
@@ -100,78 +99,74 @@ export default function PasteViewer({
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-6xl mx-auto space-y-6 pb-20"
+            className="w-full max-w-6xl mx-auto space-y-5 pb-16"
         >
             {/* Burn Warning */}
             {willBurn && (
-                <div className="luxury-glass border-red-500/20 bg-red-500/[0.02] rounded-2xl p-6 relative overflow-hidden">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
-                            <Flame size={18} className="text-red-500 animate-pulse" />
+                <div className="bg-[#f3727f]/5 border border-[#f3727f]/15 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#f3727f]/15 flex items-center justify-center shrink-0">
+                            <Flame size={14} className="text-[#f3727f] animate-pulse" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Burn After Reading Enabled</h3>
-                            <p className="text-xs text-white/40 font-medium">This content will be permanently purged from the server once you close this session.</p>
+                            <p className="text-sm font-bold text-white uppercase tracking-[0.05em]">Burn after reading</p>
+                            <p className="text-xs text-[#b3b3b3]">This content will self-destruct after this session.</p>
                         </div>
                     </div>
                 </div>
             )}
 
             {/* Meta Header */}
-            <div className="luxury-card space-y-8">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-accent">
-                            <TerminalIcon size={12} />
-                            Binary Output
+            <div className="bg-[#181818] rounded-lg p-6 space-y-5">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
+                    <div className="space-y-3">
+                        <div className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-[#1ed760] flex items-center gap-2">
+                            <Terminal size={12} />
+                            PAYLOAD
                         </div>
-                        <h1 className="text-3xl md:text-5xl font-bold tracking-tighter text-white">
-                            {title || 'Untitled Session'}
+                        <h1 className="title-lg text-white break-words max-w-2xl">
+                            {title || 'Untitled'}
                         </h1>
-                        <div className="flex flex-wrap gap-4 text-xs font-semibold text-white/30">
-                            <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/5">
-                                <Clock size={14} className="text-white/20" />
+                        <div className="flex flex-wrap gap-2">
+                            <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] bg-white/[0.03] px-2.5 py-1 rounded-[9999px]">
+                                <Clock size={11} />
                                 {new Date(createdAt).toLocaleDateString()}
-                            </div>
+                            </span>
                             {expiresAt && (
-                                <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/5">
-                                    <CheckCircle2 size={14} className="text-orange-500/50" />
-                                    Purge in {timeLeft}
-                                </div>
+                                <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] bg-white/[0.03] px-2.5 py-1 rounded-[9999px]">
+                                    <CheckCircle2 size={11} className="text-[#ffa42b]" />
+                                    {timeLeft}
+                                </span>
                             )}
                             {maxViews && (
-                                <div className="flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-white/5">
-                                    <Eye size={14} className="text-blue-500/50" />
-                                    Access {viewCount} / {maxViews}
-                                </div>
+                                <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] bg-white/[0.03] px-2.5 py-1 rounded-[9999px]">
+                                    <Eye size={11} />
+                                    {viewCount} / {maxViews}
+                                </span>
                             )}
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-2">
                         <button
                             onClick={() => setViewMode(viewMode === 'formatted' ? 'raw' : 'formatted')}
-                            className="btn-luxury-secondary text-xs h-12"
+                            className="btn-spotify-secondary text-[0.625rem] tracking-[0.05em] h-9"
                         >
-                            {viewMode === 'formatted' ? (
-                                <span className="flex items-center gap-2">RAW DATA <ChevronRight size={14} /></span>
-                            ) : (
-                                <span className="flex items-center gap-2">FORMATTED <ChevronRight size={14} /></span>
-                            )}
+                            {viewMode === 'formatted' ? 'RAW' : 'FORMATTED'}
                         </button>
                         <button
                             onClick={copyToClipboard}
-                            className={cn("btn-luxury-secondary text-xs h-12 min-w-[100px]", copied && "text-accent border-accent/20 bg-accent/5")}
+                            className={cn("btn-spotify-secondary text-[0.625rem] tracking-[0.05em] h-9", copied && "!text-[#1ed760]")}
                         >
                             {copied ? (
-                                <span className="flex items-center gap-2"><CheckCircle2 size={14} /> COPIED</span>
+                                <span className="flex items-center gap-1.5"><CheckCircle2 size={12} /> COPIED</span>
                             ) : (
-                                <span className="flex items-center gap-2"><Copy size={14} /> COPY</span>
+                                <span className="flex items-center gap-1.5"><Copy size={12} /> COPY</span>
                             )}
                         </button>
-                        <button onClick={downloadPaste} className="btn-luxury-secondary text-xs h-12">
+                        <button onClick={downloadPaste} className="btn-spotify-secondary h-9 px-3">
                             <Download size={14} />
                         </button>
                     </div>
@@ -179,45 +174,46 @@ export default function PasteViewer({
 
                 {language && language !== 'plaintext' && (
                     <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-bold text-white/20 uppercase tracking-widest">Compiler</span>
-                        <div className="px-3 py-1 rounded-full bg-accent/10 border border-accent/20 text-accent text-[10px] font-black uppercase">
+                        <span className="text-[0.5rem] font-bold uppercase tracking-[0.15em] text-white/20">LANG</span>
+                        <span className="badge-spotify bg-[#1ed760]/10 text-[#1ed760] border border-[#1ed760]/20">
                             {language}
-                        </div>
+                        </span>
                     </div>
                 )}
-            </div>
 
-            <div className="flex justify-end pr-2">
-                <a href="/revoke" className="text-[9px] font-bold text-white/10 hover:text-orange-500/50 transition-colors uppercase tracking-[0.2em] flex items-center gap-1.5">
-                    <AlertTriangle size={10} />
-                    Revoke Access Link
-                </a>
+                <div className="flex justify-end">
+                    <a href="/revoke" className="text-[0.5rem] font-bold text-white/10 hover:text-[#ffa42b]/60 transition-colors uppercase tracking-[0.15em] flex items-center gap-1">
+                        <AlertTriangle size={8} />
+                        Revoke
+                    </a>
+                </div>
             </div>
 
             {/* Content Canvas */}
-            <div className="luxury-glass border-white/10 rounded-2xl overflow-hidden relative">
-                <div className="absolute top-0 left-0 right-0 h-10 bg-white/[0.03] border-b border-white/5 flex items-center px-4 gap-4">
+            <div className="bg-[#181818] rounded-lg overflow-hidden border border-white/5">
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-[#1f1f1f] border-b border-white/5">
                     <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/20" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-orange-500/20" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-accent/20" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#f3727f]/60" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#ffa42b]/60" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#1ed760]/60" />
                     </div>
-                    <div className="text-[10px] font-bold text-white/10 tracking-widest uppercase flex items-center gap-2">
-                        <FileText size={12} />
-                        Binary Session Output
-                    </div>
+                    <span className="text-[0.625rem] font-bold text-white/10 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                        <FileText size={11} />
+                        OUTPUT
+                    </span>
                 </div>
 
                 <div
-                    className="mt-10 p-0 overflow-y-auto overflow-x-auto selection:bg-accent/20 custom-scrollbar h-[650px]"
+                    className="p-0 overflow-y-auto overflow-x-auto selection:bg-[#1ed760]/20 custom-scrollbar h-[650px]"
                     data-lenis-prevent="true"
                 >
                     {viewMode === 'raw' ? (
-                        <pre className="p-8 text-sm font-mono text-white/70 whitespace-pre-wrap break-words leading-relaxed">
+                        <pre className="p-6 text-sm font-mono text-white/60 whitespace-pre-wrap break-words leading-relaxed">
                             {content}
                         </pre>
                     ) : language === 'markdown' ? (
-                        <div className="prose prose-invert max-w-none p-8 text-white/80 overflow-x-auto">
+                        <div className="prose prose-invert max-w-none p-6 text-white/80 overflow-x-auto"
+                            style={{ '--tw-prose-pre-bg': 'transparent' } as React.CSSProperties}>
                             <ReactMarkdown
                                 remarkPlugins={[remarkGfm]}
                                 rehypePlugins={[rehypeSanitize]}
@@ -233,7 +229,7 @@ export default function PasteViewer({
                                                     margin: 0,
                                                     padding: '1.5rem',
                                                     background: 'rgba(255, 255, 255, 0.03)',
-                                                    borderRadius: '0.75rem',
+                                                    borderRadius: '0.5rem',
                                                     border: '1px solid rgba(255, 255, 255, 0.05)',
                                                 }}
                                                 {...props}
@@ -241,28 +237,28 @@ export default function PasteViewer({
                                                 {String(children).replace(/\n$/, '')}
                                             </SyntaxHighlighter>
                                         ) : (
-                                            <code className={cn("bg-white/10 px-1.5 py-0.5 rounded text-accent-secondary font-mono text-xs", className)} {...props}>
+                                            <code className={cn("bg-white/10 px-1.5 py-0.5 rounded text-[#539df5] font-mono text-xs", className)} {...props}>
                                                 {children}
                                             </code>
                                         );
                                     },
                                     table({ children }) {
                                         return (
-                                            <div className="overflow-x-auto my-8 luxury-glass rounded-xl border border-white/10">
-                                                <table className="min-w-full divide-y divide-white/10">
+                                            <div className="overflow-x-auto my-8 bg-white/[0.02] rounded-lg border border-white/5">
+                                                <table className="min-w-full divide-y divide-white/5">
                                                     {children}
                                                 </table>
                                             </div>
                                         );
                                     },
                                     thead({ children }) {
-                                        return <thead className="bg-white/[0.03] uppercase tracking-wider text-[10px] font-bold text-white/40">{children}</thead>;
+                                        return <thead className="bg-white/[0.03]">{children}</thead>;
                                     },
                                     th({ children }) {
-                                        return <th className="px-6 py-4 text-left font-bold border-b border-white/5">{children}</th>;
+                                        return <th className="px-5 py-3 text-left text-[0.625rem] font-bold uppercase tracking-[0.1em] text-white/40 border-b border-white/5">{children}</th>;
                                     },
                                     td({ children }) {
-                                        return <td className="px-6 py-4 text-sm border-b border-white/5 text-white/60">{children}</td>;
+                                        return <td className="px-5 py-3 text-sm border-b border-white/5 text-white/60">{children}</td>;
                                     },
                                     tr({ children }) {
                                         return <tr className="hover:bg-white/[0.01] transition-colors">{children}</tr>;
@@ -278,32 +274,31 @@ export default function PasteViewer({
                             style={vscDarkPlus}
                             customStyle={{
                                 margin: 0,
-                                padding: '2rem',
+                                padding: '1.5rem',
                                 background: 'transparent',
                                 fontSize: '0.875rem',
                                 lineHeight: '1.7',
                             }}
                             showLineNumbers
-                            lineNumberStyle={{ minWidth: '3em', paddingRight: '1.5em', color: 'rgba(255,255,255,0.05)', textAlign: 'right' }}
+                            lineNumberStyle={{ minWidth: '2.5em', paddingRight: '1em', color: 'rgba(255,255,255,0.05)', textAlign: 'right' }}
                         >
                             {content}
                         </SyntaxHighlighter>
                     ) : (
-                        <pre className="p-8 text-sm font-mono text-white/70 whitespace-pre-wrap break-words leading-relaxed">
+                        <pre className="p-6 text-sm font-mono text-white/60 whitespace-pre-wrap break-words leading-relaxed">
                             {content}
                         </pre>
                     )}
                 </div>
             </div>
 
-            {/* View Page Footer */}
-            <div className="pt-8 text-center">
+            <div className="pt-6 text-center">
                 <a
                     href="/"
-                    className="inline-flex items-center gap-2 text-xs font-bold text-white/20 hover:text-accent transition-all group tracking-widest uppercase"
+                    className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-white/20 hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em]"
                 >
-                    Initialize Own Secure Session
-                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                    ENCRYPT NEW PAYLOAD
+                    <ChevronRight size={12} />
                 </a>
             </div>
         </motion.div>
