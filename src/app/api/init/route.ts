@@ -9,11 +9,14 @@ import { logger, sanitizeError } from '@/lib/logging';
 
 export async function POST(request: NextRequest) {
     try {
-        // Basic security check: if INIT_SECRET is set, require it
+        // Basic security check: INIT_SECRET must be set and match the auth header
         const initSecret = process.env.INIT_SECRET;
         const authHeader = request.headers.get('authorization');
 
-        if (initSecret && authHeader !== `Bearer ${initSecret}`) {
+        if (!initSecret || authHeader !== `Bearer ${initSecret}`) {
+            if (!initSecret) {
+                logger.error('INIT_SECRET environment variable is not set');
+            }
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
