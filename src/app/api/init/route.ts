@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initializeDatabase } from '@/lib/db';
 import { logger, sanitizeError } from '@/lib/logging';
+import { safeCompare } from '@/lib/security';
 
 export async function POST(request: NextRequest) {
     try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
         const initSecret = process.env.INIT_SECRET;
         const authHeader = request.headers.get('authorization');
 
-        if (initSecret && authHeader !== `Bearer ${initSecret}`) {
+        if (initSecret && (!authHeader || !safeCompare(authHeader, `Bearer ${initSecret}`))) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
