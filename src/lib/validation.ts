@@ -138,9 +138,9 @@ export function calculateTTL(expiresAt?: number): number | undefined {
 /**
  * Re-export getClientIp from the dedicated IP utility module.
  */
-export { getClientIp } from './ip';
+export { getClientIp } from './ip.ts';
 
 /**
  * Re-export paste size validation logic from the dedicated module.
  */
-export { MAX_PASTE_SIZE, validatePasteSize } from './paste-size';
+export { MAX_PASTE_SIZE, validatePasteSize } from './paste-size.ts';
