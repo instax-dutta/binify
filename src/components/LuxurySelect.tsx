@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,11 +33,18 @@ export default function LuxurySelect({
     const [searchTerm, setSearchTerm] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const selectedOption = options.find(opt => opt.value === value);
 
-    const filteredOptions = options.filter(opt =>
-        opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+    const selectedOption = useMemo(() =>
+        options.find(opt => opt.value === value),
+        [options, value]
     );
+
+    const filteredOptions = useMemo(() => {
+        const lowerSearchTerm = searchTerm.toLowerCase();
+        return options.filter(opt =>
+            opt.label.toLowerCase().includes(lowerSearchTerm)
+        );
+    }, [options, searchTerm]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
