@@ -13,6 +13,7 @@ import {
 } from '@/lib/db';
 import { getPaste, deletePaste } from '@/lib/redis';
 import { logger, sanitizeError } from '@/lib/logging';
+import { safeCompare } from '@/lib/security';
 
 /**
  * GET - Retrieve paste and update view state
@@ -140,7 +141,7 @@ export async function DELETE(
             );
         }
 
-        if (metadata.deletionToken !== token) {
+        if (!metadata.deletionToken || !safeCompare(metadata.deletionToken, token)) {
             return NextResponse.json(
                 { error: 'Invalid authorization token. Revocation denied.' },
                 { status: 403 }
