@@ -4,6 +4,9 @@
 
 import { createClient, type Client } from '@libsql/client';
 import { logger } from './logging';
+import { type PasteMetadata, isPasteExpired } from './paste-expiry';
+
+export { type PasteMetadata, isPasteExpired };
 
 let dbClient: Client | null = null;
 
@@ -69,25 +72,6 @@ export async function initializeDatabase() {
         // Ignore if column already exists
         logger.info('Migration: deletion_token column already exists or could not be added');
     }
-}
-
-/**
- * Paste metadata type
- */
-export interface PasteMetadata {
-    id: string;
-    createdAt: number;
-    expiresAt?: number;
-    maxViews?: number;
-    viewCount: number;
-    burned: boolean;
-    hasPassword: boolean;
-    deletionToken?: string;
-    metadata?: {
-        tags?: string[];
-        language?: string;
-        title?: string;
-    };
 }
 
 /**
@@ -185,25 +169,6 @@ export async function deletePasteMetadata(id: string): Promise<void> {
         sql: 'DELETE FROM pastes WHERE id = ?',
         args: [id],
     });
-}
-
-/**
- * Check if paste has expired
- */
-export function isPasteExpired(paste: PasteMetadata): boolean {
-    if (paste.burned) {
-        return true;
-    }
-
-    if (paste.expiresAt && Date.now() > paste.expiresAt) {
-        return true;
-    }
-
-    if (paste.maxViews && paste.viewCount >= paste.maxViews) {
-        return true;
-    }
-
-    return false;
 }
 
 /**
