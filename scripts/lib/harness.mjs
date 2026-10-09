@@ -59,6 +59,41 @@ export function freePort() {
 }
 
 /**
+ * Kill whatever is still listening on `port`.
+ *
+ * Signalling the process group is not enough: `next start` daemonises its
+ * server, which leaves the group and adopts init, so the group signal never
+ * reaches it. The port is the one handle that survives, and this gate owns it
+ * because it was just handed a free one.
+ */
+function killListenerOn(port) {
+    let pids = new Set();
+
+    for (const cmd of [
+        ['ss', ['-tlnpH', `sport = :${port}`]],
+        ['lsof', [`-tiTCP:${port}`, '-sTCP:LISTEN']],
+    ]) {
+        try {
+            const out = spawnSync(cmd[0], cmd[1], { encoding: 'utf8', timeout: 5000 }).stdout ?? '';
+            for (const m of out.matchAll(/pid=(\d+)/g)) pids.add(m[1]);
+            for (const m of out.matchAll(/^\s*(\d+)\s*$/gm)) pids.add(m[1]);
+            if (pids.size) break;
+        } catch {
+            /* try the next tool */
+        }
+    }
+
+    for (const pid of pids) {
+        try {
+            process.kill(Number(pid), 'SIGKILL');
+        } catch {
+            /* already gone */
+        }
+    }
+    return pids.size;
+}
+
+/**
  * Boot `next start` against the production build and wait until it answers.
  * Always tears the process down, including on failure.
  */
@@ -105,9 +140,9 @@ export async function withServer(fn, { timeoutMs = 90_000 } = {}) {
         if (!up) fail(`server did not become ready on ${base}`, log.slice(-1500));
         return await fn(base, { port, log: () => log });
     } finally {
-        // Signal the whole group, not the launcher, so the renamed server dies
-        // with it. SIGKILL the group as a fallback because Next does not always
-        // shut down cleanly on SIGTERM.
+        // Signal the group, then sweep the port. Either alone leaves something
+        // running: the group signal misses a daemonised server, and the port
+        // sweep is what actually frees the memory.
         const signalGroup = (signal) => {
             try {
                 process.kill(-child.pid, signal);
@@ -120,13 +155,14 @@ export async function withServer(fn, { timeoutMs = 90_000 } = {}) {
             }
         };
         signalGroup('SIGTERM');
-        await delay(500);
+        await delay(400);
         signalGroup('SIGKILL');
         try {
             child.unref();
         } catch {
             /* nothing to do */
         }
+        killListenerOn(port);
     }
 }
 
