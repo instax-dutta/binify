@@ -52,12 +52,14 @@ export const metadata: Metadata = {
   creator: 'sdad.pro',
   metadataBase: new URL('https://bin.sdad.pro'),
   icons: {
+    // Served from this origin rather than as absolute bin.sdad.pro URLs, so
+    // the same markup is correct in preview deployments and on localhost.
     icon: [
-      { url: 'https://bin.sdad.pro/favicon.png', type: 'image/png' },
-      { url: 'https://bin.sdad.pro/favicon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
     ],
     apple: [
-      { url: 'https://bin.sdad.pro/favicon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icon-180.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -67,9 +69,12 @@ export const metadata: Metadata = {
     siteName: 'Binify',
     images: [
       {
-        url: 'https://bin.sdad.pro/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/og-image.jpg',
+        // The real dimensions. They were previously declared as 1200x630
+        // while the file was 1024x1024, which made platforms crop a square
+        // image to a 1.91:1 box.
+        width: 1024,
+        height: 1024,
         alt: 'Binify - Secure Encrypted Pastebin',
       },
     ],
@@ -81,7 +86,7 @@ export const metadata: Metadata = {
     title: 'Binify - Zero-Knowledge Encrypted Pastebin',
     description: 'Share secrets securely with end-to-end encryption. No keys ever touch the server.',
     creator: '@sdad_pro',
-    images: ['https://bin.sdad.pro/og-image.png'],
+    images: ['/og-image.jpg'],
   },
   manifest: '/manifest.json',
   robots: {
