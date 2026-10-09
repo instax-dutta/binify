@@ -94,6 +94,20 @@ function killListenerOn(port) {
 }
 
 /**
+ * Guarantee the server dies even when the gate ends the process itself.
+ *
+ * `pass` and `fail` call process.exit, which unwinds nothing: a `finally` in
+ * the caller never runs, so every gate that finished successfully left its
+ * server running. An exit handler does run on process.exit, so this is the only
+ * hook that covers every exit path.
+ */
+function killOnExit(port) {
+    const onExit = () => killListenerOn(port);
+    process.once('exit', onExit);
+    return () => process.removeListener('exit', onExit);
+}
+
+/**
  * Boot `next start` against the production build and wait until it answers.
  * Always tears the process down, including on failure.
  */
@@ -117,6 +131,9 @@ export async function withServer(fn, { timeoutMs = 90_000 } = {}) {
         stdio: ['ignore', 'pipe', 'pipe'],
         detached: true,
     });
+
+    // Covers the exit paths that skip the finally below.
+    const disarmExitHook = killOnExit(port);
 
     let log = '';
     child.stdout.on('data', (d) => { log += d; });
@@ -163,6 +180,7 @@ export async function withServer(fn, { timeoutMs = 90_000 } = {}) {
             /* nothing to do */
         }
         killListenerOn(port);
+        disarmExitHook();
     }
 }
 
