@@ -130,7 +130,7 @@ export default function HomePage() {
       <footer className="border-t border-white/5 py-12 mt-auto">
         <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="flex items-center gap-2 opacity-30 hover:opacity-60 transition-all duration-500">
+            <div className="flex items-center gap-2 opacity-60 hover:opacity-100 transition-all duration-500">
               <Terminal size={14} />
               <span className="text-sm font-bold tracking-tight">BINIFY</span>
             </div>
