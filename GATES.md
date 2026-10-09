@@ -23,7 +23,7 @@ Two properties are decided here rather than measured, because a test cannot deci
 - [x] G1: every existing test passes and the type checker is clean
   CHECK: node scripts/verify-suite.mjs
   EXPECT: SUITE PASS
-  EVIDENCE: automatic-evidence=v1; definition-sha256=b1c701de5de4df7a193d050cef5b58d0196781244c0d6a0ae971a18bd0568f4e; exit=0; EXPECT=matched; output-sha256=16cb24f062453caa2a3e41865613624d13801126b68bd6224fcec30e2f7607f6; output-bytes=94; shell=/bin/sh; cwd=/home/tejes/binify-test/binify; path=7cc916ea10f3/10 entries
+  EVIDENCE: automatic-evidence=v1; definition-sha256=b1c701de5de4df7a193d050cef5b58d0196781244c0d6a0ae971a18bd0568f4e; exit=0; EXPECT=matched; output-sha256=1ccc7ac0c78414e82200c6c0e6bf042eed0155159d14e713e2f85b1f169bc677; output-bytes=94; shell=/bin/sh; cwd=/home/tejes/binify-test/binify; path=7cc916ea10f3/10 entries
 
 - [x] G2: the built app returns hardened security headers, and its production Content-Security-Policy omits unsafe-eval
   CHECK: node scripts/verify-headers.mjs
@@ -63,7 +63,7 @@ Two properties are decided here rather than measured, because a test cannot deci
 - [x] G9: the homepage payload stays within its declared budget
   CHECK: node scripts/verify-budget.mjs
   EXPECT: BUDGET PASS
-  EVIDENCE: automatic-evidence=v1; definition-sha256=8e4385a8bd3405b0ae5de717a68fbe7831ecb8e1a8ca66b5eb10a5d9ce398d48; exit=0; EXPECT=matched; output-sha256=101d5119ab153ac3c704675741f9d058fba322a57d3ea5c1ba5fc5f2b68ccf26; output-bytes=843; shell=/bin/sh; cwd=/home/tejes/binify-test/binify; path=7cc916ea10f3/10 entries
+  EVIDENCE: automatic-evidence=v1; definition-sha256=8e4385a8bd3405b0ae5de717a68fbe7831ecb8e1a8ca66b5eb10a5d9ce398d48; exit=0; EXPECT=matched; output-sha256=94eeadcfe1c2f2a3a9e12b5b08b685632c0c67d61fd7a215e5e46a3bce127e60; output-bytes=843; shell=/bin/sh; cwd=/home/tejes/binify-test/binify; path=7cc916ea10f3/10 entries
 
 - [x] G10: every static asset referenced by metadata and the manifest exists and is within budget
   CHECK: node scripts/verify-assets.mjs
