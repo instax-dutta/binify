@@ -24,7 +24,20 @@ await withServer(async (base) => {
         for (const p of PAGES) {
             const context = await browser.newContext();
             const page = await context.newPage();
+            // Entry animations use fill-mode:both with staggered delays, so a
+            // scan can catch an element mid-fade and measure a colour that is
+            // not the one a reader ever sees. Settle every animation first so
+            // the audit measures the resting state deterministically.
+            await page.addInitScript(() => {
+                const style = document.createElement('style');
+                style.textContent =
+                    '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important}';
+                document.addEventListener('DOMContentLoaded', () =>
+                    document.head.appendChild(style)
+                );
+            });
             await page.goto(base + p, { waitUntil: 'networkidle' });
+            await page.waitForTimeout(250);
 
             const results = await new AxeBuilder({ page })
                 .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])

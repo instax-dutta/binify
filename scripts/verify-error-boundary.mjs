@@ -16,7 +16,7 @@ const THROW_ROUTE = `${ROOT}/src/app/__gate-throw/page.tsx`;
 
 function structural() {
     const problems = [];
-    for (const rel of ['src/app/error.ts', 'src/app/global-error.ts']) {
+    for (const rel of ['src/app/error.tsx', 'src/app/global-error.tsx']) {
         const path = `${ROOT}/${rel}`;
         if (!existsSync(path)) { problems.push(`${rel} missing`); continue; }
         const src = require('node:fs').readFileSync(path, 'utf8');
