@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { validatePasteSize, decodedByteLength, MAX_PASTE_SIZE } from './paste-size.ts';
+import { parseMaxPasteSize, validatePasteSize, decodedByteLength, MAX_PASTE_SIZE } from './paste-size.ts';
 
 test('decodedByteLength', async (t) => {
     await t.test('is exact for full 4-character groups', () => {
@@ -57,5 +57,47 @@ test('validatePasteSize', async (t) => {
         const started = Date.now();
         assert.strictEqual(validatePasteSize('A'.repeat(6_000_000)), false);
         assert.ok(Date.now() - started < 500, 'measurement should be near-instant');
+    });
+});
+
+test('parseMaxPasteSize', async (t) => {
+    const DEFAULT = 4 * 1024 * 1024;
+    const CEILING = 4 * 1024 * 1024;
+    const FLOOR = 1024;
+
+    await t.test('falls back to the default when unset or blank', () => {
+        assert.strictEqual(parseMaxPasteSize(undefined), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize(''), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize('   '), DEFAULT);
+    });
+
+    await t.test('falls back to the default on an unparseable value', () => {
+        // The point of these: '1MB' is the trap. parseInt would read it as 1 and
+        // clamp to the 1 KB floor, silently capping every paste at a kilobyte.
+        assert.strictEqual(parseMaxPasteSize('abc'), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize('1MB'), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize('12abc'), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize('1_000_000'), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize('NaN'), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize('-1'), DEFAULT);
+        assert.strictEqual(parseMaxPasteSize('1e6'), DEFAULT);
+    });
+
+    await t.test('honours a configured value', () => {
+        // The value this deployment actually uses.
+        assert.strictEqual(parseMaxPasteSize('1000000'), 1_000_000);
+        assert.strictEqual(parseMaxPasteSize('262144'), 262_144);
+    });
+
+    await t.test('clamps a value above the hard ceiling', () => {
+        assert.strictEqual(parseMaxPasteSize('999999999'), CEILING);
+    });
+
+    await t.test('clamps a value below the floor instead of disabling it', () => {
+        // Zero and other small numbers are valid integers, so they clamp rather
+        // than fall back, and the limit can never be switched off.
+        assert.strictEqual(parseMaxPasteSize('0'), FLOOR);
+        assert.strictEqual(parseMaxPasteSize('10'), FLOOR);
+        assert.strictEqual(parseMaxPasteSize('1024'), FLOOR);
     });
 });

@@ -100,6 +100,9 @@ claimed as done. Each is a single step in a console, not a code change.
    owner. Confirm the app still works after the rotation.
 2. **Set the production environment in Vercel**: `DATABASE_URL` (pooled
    `binify_app` URI), `TOKEN_PEPPER`, `INIT_SECRET`, `CRON_SECRET`, and
-   `MAX_PASTE_SIZE` if the default 4 MB is not wanted.
+   `MAX_PASTE_SIZE=1000000`. The last one is the chosen value for a low-traffic
+   deployment: it bounds the storage allowance, which is the only Neon limit that
+   does not reset monthly. Set it as a plain integer, or the 4 MB default
+   applies silently.
 3. **Confirm the Neon plan's PITR retention and backup window** and correct the
    table in `docs/neon-migration.md` if it differs. The app cannot observe this.

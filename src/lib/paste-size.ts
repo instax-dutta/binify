@@ -17,17 +17,34 @@ const DEFAULT_MAX_PASTE_SIZE = 4 * 1024 * 1024;
 const CEILING = 4 * 1024 * 1024;
 const FLOOR = 1024;
 
-function resolveMaxPasteSize(): number {
-    const raw = process.env.MAX_PASTE_SIZE;
-    if (!raw) return DEFAULT_MAX_PASTE_SIZE;
+/**
+ * Resolve a configured limit from its raw environment value.
+ *
+ * Exported and pure so the clamping is testable. A deployment sets this value to
+ * control its egress exposure, so a silently ignored typo would be worse than
+ * no configuration at all: the operator would believe a cap was in place while
+ * the 4 MB default applied. Anything unparseable therefore falls back to the
+ * default rather than to something unexpected, and the caller can log it.
+ */
+export function parseMaxPasteSize(raw: string | undefined): number {
+    if (raw === undefined) return DEFAULT_MAX_PASTE_SIZE;
 
-    const parsed = Number.parseInt(raw, 10);
+    const trimmed = raw.trim();
+    if (trimmed === '') return DEFAULT_MAX_PASTE_SIZE;
+
+    // Strict on purpose. parseInt('1MB') is 1 and parseInt('12abc') is 12, so a
+    // value with a unit suffix would clamp down to the 1 KB floor and silently
+    // cap every paste at a kilobyte. Only a plain integer is accepted; anything
+    // else is a mistake worth falling back from rather than guessing at.
+    if (!/^\d+$/.test(trimmed)) return DEFAULT_MAX_PASTE_SIZE;
+
+    const parsed = Number.parseInt(trimmed, 10);
     if (!Number.isFinite(parsed)) return DEFAULT_MAX_PASTE_SIZE;
 
     return Math.min(CEILING, Math.max(FLOOR, parsed));
 }
 
-export const MAX_PASTE_SIZE = resolveMaxPasteSize();
+export const MAX_PASTE_SIZE = parseMaxPasteSize(process.env.MAX_PASTE_SIZE);
 
 /**
  * Decode a base64url length to its byte count without allocating the buffer.

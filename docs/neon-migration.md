@@ -55,6 +55,31 @@ multiplies directly into how many reads you can serve:
 Set `MAX_PASTE_SIZE` in the environment to trade maximum paste size for volume.
 It defaults to 4 MB, so nothing changes unless you set it.
 
+The value is **bytes of ciphertext** and must be a plain integer. Anything else
+is ignored and the 4 MB default applies, deliberately: `parseInt('1MB')` is `1`,
+which would clamp down to the 1 KB floor and silently cap every paste at a
+kilobyte. A configuration that is visibly wrong is better than one that is
+quietly wrong.
+
+### Recommended for a small deployment
+
+For an application used by a handful of people rather than the public, set:
+
+```
+MAX_PASTE_SIZE=1000000
+```
+
+At this volume the compute and egress allowances are not close to their limits,
+so this is about bounding the one allowance that does not reset monthly (storage,
+1 GB) rather than about cost. A megabyte is far above any code snippet, so it
+costs nothing in practice.
+
+On Vercel:
+
+```
+vercel env add MAX_PASTE_SIZE production
+```
+
 **Exceeding the egress allowance suspends compute** until the next billing
 period rather than simply billing overage. Your site goes dark, so set
 `MAX_PASTE_SIZE` deliberately.
