@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import typography from '@tailwindcss/typography';
 
 const config: Config = {
     darkMode: 'class',
@@ -30,9 +31,9 @@ const config: Config = {
                 warning: '#ffa42b',
             },
             fontFamily: {
-                sans: ['Figtree', 'system-ui', 'sans-serif'],
-                display: ['DM Sans', 'Figtree', 'sans-serif'],
-                mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+                sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+                display: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
+                mono: ['var(--font-mono)', 'Consolas', 'monospace'],
             },
             boxShadow: {
                 'spotify-heavy': 'rgba(0, 0, 0, 0.5) 0px 8px 24px',
@@ -65,9 +66,7 @@ const config: Config = {
             },
         },
     },
-    plugins: [
-        require('@tailwindcss/typography'),
-    ],
+    plugins: [typography],
 };
 
 export default config;

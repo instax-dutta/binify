@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -193,23 +191,84 @@
   --black: #121212;
 }
 
-html.lenis,
-html.lenis body {
-  height: auto;
+/*
+ * Entry animations. These replace a JS animation runtime: the browser
+ * compositor drives them off the main thread, so they cost no bundle weight
+ * and do not compete with decryption for main-thread time.
+ */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
-.lenis.lenis-smooth {
-  scroll-behavior: auto !important;
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
 
-.lenis.lenis-stopped {
-  overflow: hidden;
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
-.lenis.lenis-scrolling iframe {
-  pointer-events: none;
+@layer utilities {
+  .anim-rise {
+    animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .anim-fade {
+    animation: fade 0.3s ease-out both;
+  }
+
+  .anim-pop {
+    animation: pop 0.15s ease-out both;
+  }
+
+  .anim-slide-down {
+    animation: slide-down 0.18s ease-out both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise,
+  .anim-fade,
+  .anim-pop,
+  .anim-slide-down {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

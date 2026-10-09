@@ -1,20 +1,17 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { Gavel, AlertTriangle, FileText, ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function TermsPage() {
     return (
         <main className="min-h-screen pt-24 pb-20 px-6">
             <div className="container mx-auto max-w-4xl">
-                <a href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
+                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
                     <ChevronLeft size={12} /> BACK
-                </a>
+                </Link>
 
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="space-y-10"
+                <div className="anim-rise space-y-10"
                 >
                     <div className="space-y-3">
                         <div className="flex items-center gap-2 text-[#1ed760]">
@@ -59,7 +56,7 @@ export default function TermsPage() {
                             </p>
                         </section>
                     </div>
-                </motion.div>
+                </div>
             </div>
         </main>
     );

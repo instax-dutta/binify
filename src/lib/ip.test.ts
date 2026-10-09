@@ -1,10 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { getClientIp } from './ip.ts';
+import { getClientIp, UNVERIFIED_IP } from './ip.ts';
 
-/**
- * Mock Headers implementation for testing
- */
 class MockHeaders {
     private headers: Record<string, string> = {};
 
@@ -15,74 +12,88 @@ class MockHeaders {
     }
 
     get(name: string): string | null {
-        return this.headers[name.toLowerCase()] || null;
+        return this.headers[name.toLowerCase()] ?? null;
     }
 }
 
-test('getClientIp security logic', async (t) => {
-    await t.test('should prioritize request.ip over headers', () => {
-        const req = {
-            ip: '1.1.1.1',
-            headers: new MockHeaders({
-                'x-forwarded-for': '2.2.2.2, 3.3.3.3',
-                'x-real-ip': '4.4.4.4'
-            })
-        };
-        assert.strictEqual(getClientIp(req as any), '1.1.1.1');
+const req = (headers: Record<string, string>, ip?: string) =>
+    ({ ip, headers: new MockHeaders(headers) }) as unknown as Request;
+
+test('getClientIp prefers the platform-observed address', async (t) => {
+    await t.test('uses request.ip when present', () => {
+        assert.strictEqual(
+            getClientIp(req({ 'x-forwarded-for': '2.2.2.2, 3.3.3.3', 'x-real-ip': '4.4.4.4' }, '1.1.1.1')),
+            '1.1.1.1'
+        );
     });
 
-    await t.test('should pick the LAST entry of X-Forwarded-For when request.ip is absent', () => {
-        const req = {
-            headers: new MockHeaders({
-                'x-forwarded-for': '10.0.0.1, 10.0.0.2, 4.4.4.4'
-            })
-        };
-        // 4.4.4.4 is the IP added by the trusted proxy, 10.0.0.1 and 10.0.0.2 could be spoofed
-        assert.strictEqual(getClientIp(req as any), '4.4.4.4');
+    await t.test('ignores headers entirely when request.ip is present', () => {
+        delete process.env.TRUST_PROXY;
+        assert.strictEqual(
+            getClientIp(req({ 'x-forwarded-for': '9.9.9.9' }, '1.1.1.1')),
+            '1.1.1.1'
+        );
+    });
+});
+
+test('getClientIp fails closed when the address cannot be verified', async (t) => {
+    await t.test('does not trust X-Forwarded-For by default', () => {
+        delete process.env.TRUST_PROXY;
+        assert.strictEqual(
+            getClientIp(req({ 'x-forwarded-for': '10.0.0.1, 4.4.4.4' })),
+            UNVERIFIED_IP
+        );
     });
 
-    await t.test('should ignore X-Real-IP even if X-Forwarded-For is absent (if not trusted)', () => {
-        const req = {
-            headers: new MockHeaders({
-                'x-real-ip': '7.7.7.7'
-            })
-        };
-        // Our new logic REMOVED X-Real-IP fallback to prevent spoofing
-        // It should return unknown if no trusted source is found
-        assert.strictEqual(getClientIp(req as any), 'unknown');
+    await t.test('a spoofed header cannot mint a fresh rate-limit bucket', () => {
+        delete process.env.TRUST_PROXY;
+        // Two different claimed addresses must land in the same bucket, otherwise
+        // rotating the header defeats rate limiting entirely.
+        const a = getClientIp(req({ 'x-forwarded-for': '203.0.113.5' }));
+        const b = getClientIp(req({ 'x-forwarded-for': '203.0.113.6' }));
+        assert.strictEqual(a, b);
     });
 
-    await t.test('should handle single entry in X-Forwarded-For', () => {
-        const req = {
-            headers: new MockHeaders({
-                'x-forwarded-for': '5.5.5.5'
-            })
-        };
-        assert.strictEqual(getClientIp(req as any), '5.5.5.5');
+    await t.test('ignores X-Real-IP, which is trivially spoofable', () => {
+        delete process.env.TRUST_PROXY;
+        assert.strictEqual(getClientIp(req({ 'x-real-ip': '7.7.7.7' })), UNVERIFIED_IP);
     });
 
-    await t.test('should handle whitespace in X-Forwarded-For', () => {
-        const req = {
-            headers: new MockHeaders({
-                'x-forwarded-for': ' 6.6.6.6 , 7.7.7.7 '
-            })
-        };
-        assert.strictEqual(getClientIp(req as any), '7.7.7.7');
+    await t.test('handles missing and empty headers', () => {
+        delete process.env.TRUST_PROXY;
+        assert.strictEqual(getClientIp(req({})), UNVERIFIED_IP);
+        assert.strictEqual(getClientIp(req({ 'x-forwarded-for': '' })), UNVERIFIED_IP);
+    });
+});
+
+test('getClientIp trusts headers only behind an opted-in proxy', async (t) => {
+    await t.test('takes the last entry, appended by the closest proxy', () => {
+        process.env.TRUST_PROXY = 'true';
+        assert.strictEqual(
+            getClientIp(req({ 'x-forwarded-for': '10.0.0.1, 10.0.0.2, 4.4.4.4' })),
+            '4.4.4.4'
+        );
     });
 
-    await t.test('should return unknown when no trusted info is present', () => {
-        const req = {
-            headers: new MockHeaders({})
-        };
-        assert.strictEqual(getClientIp(req as any), 'unknown');
+    await t.test('handles a single entry', () => {
+        process.env.TRUST_PROXY = 'true';
+        assert.strictEqual(getClientIp(req({ 'x-forwarded-for': '5.5.5.5' })), '5.5.5.5');
     });
 
-    await t.test('should return unknown when X-Forwarded-For is empty', () => {
-        const req = {
-            headers: new MockHeaders({
-                'x-forwarded-for': ''
-            })
-        };
-        assert.strictEqual(getClientIp(req as any), 'unknown');
+    await t.test('trims whitespace', () => {
+        process.env.TRUST_PROXY = 'true';
+        assert.strictEqual(
+            getClientIp(req({ 'x-forwarded-for': ' 6.6.6.6 , 7.7.7.7 ' })),
+            '7.7.7.7'
+        );
+    });
+
+    await t.test('still falls back when the header is absent', () => {
+        process.env.TRUST_PROXY = 'true';
+        assert.strictEqual(getClientIp(req({})), UNVERIFIED_IP);
+    });
+
+    await t.after(() => {
+        delete process.env.TRUST_PROXY;
     });
 });

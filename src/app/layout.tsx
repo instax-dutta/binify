@@ -1,6 +1,51 @@
 import type { Metadata } from 'next';
+import localFont from 'next/font/local';
 import './globals.css';
 import ClientLayout from '@/components/ClientLayout';
+
+/*
+ * Fonts are committed to the repository rather than fetched from Google during
+ * the build. The files were taken from Google Fonts (all three are SIL Open Font
+ * License) and are served from this origin only.
+ *
+ * next/font/google downloads at build time, which makes every build depend on
+ * reaching fonts.googleapis.com. That is not a theoretical concern: a gate build
+ * failed on a transient network error and produced module-not-found for the font
+ * CSS. Committing the files makes the build hermetic, keeps the visitor's
+ * address away from Google, and lets the CSP stay at 'self' for styles and
+ * fonts.
+ */
+const display = localFont({
+    src: [
+        { path: './fonts/dm-sans-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/dm-sans-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/dm-sans-600.woff2', weight: '600', style: 'normal' },
+        { path: './fonts/dm-sans-700.woff2', weight: '700', style: 'normal' },
+    ],
+    variable: '--font-display',
+    display: 'swap',
+});
+
+const sans = localFont({
+    src: [
+        { path: './fonts/figtree-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/figtree-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/figtree-600.woff2', weight: '600', style: 'normal' },
+        { path: './fonts/figtree-700.woff2', weight: '700', style: 'normal' },
+    ],
+    variable: '--font-sans',
+    display: 'swap',
+});
+
+const mono = localFont({
+    src: [
+        { path: './fonts/jetbrains-mono-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/jetbrains-mono-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/jetbrains-mono-600.woff2', weight: '600', style: 'normal' },
+    ],
+    variable: '--font-mono',
+    display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: {
@@ -24,12 +69,14 @@ export const metadata: Metadata = {
   creator: 'sdad.pro',
   metadataBase: new URL('https://bin.sdad.pro'),
   icons: {
+    // Served from this origin rather than as absolute bin.sdad.pro URLs, so
+    // the same markup is correct in preview deployments and on localhost.
     icon: [
-      { url: 'https://bin.sdad.pro/favicon.png', type: 'image/png' },
-      { url: 'https://bin.sdad.pro/favicon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
     ],
     apple: [
-      { url: 'https://bin.sdad.pro/favicon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/icon-180.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -39,9 +86,12 @@ export const metadata: Metadata = {
     siteName: 'Binify',
     images: [
       {
-        url: 'https://bin.sdad.pro/og-image.png',
-        width: 1200,
-        height: 630,
+        url: '/og-image.jpg',
+        // The real dimensions. They were previously declared as 1200x630
+        // while the file was 1024x1024, which made platforms crop a square
+        // image to a 1.91:1 box.
+        width: 1024,
+        height: 1024,
         alt: 'Binify - Secure Encrypted Pastebin',
       },
     ],
@@ -53,7 +103,7 @@ export const metadata: Metadata = {
     title: 'Binify - Zero-Knowledge Encrypted Pastebin',
     description: 'Share secrets securely with end-to-end encryption. No keys ever touch the server.',
     creator: '@sdad_pro',
-    images: ['https://bin.sdad.pro/og-image.png'],
+    images: ['/og-image.jpg'],
   },
   manifest: '/manifest.json',
   robots: {
@@ -74,7 +124,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}>
       <body className="antialiased font-sans">
         <ClientLayout>{children}</ClientLayout>
       </body>

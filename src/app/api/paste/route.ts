@@ -1,144 +1,98 @@
 /**
- * POST /api/paste - Create encrypted paste
+ * POST /api/paste - Create an encrypted paste.
+ *
+ * The payload and its metadata are written as one row in one statement, so the
+ * paste either exists completely or not at all.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { generatePasteId, generateDeletionToken } from '@/lib/crypto';
-import { createPasteMetadata } from '@/lib/db';
-import { storePaste } from '@/lib/redis';
-import { isRateLimited } from '@/lib/redis';
-import { logger, sanitizeError } from '@/lib/logging';
+import { generatePasteId } from '@/lib/crypto';
+import { generateToken, hashDeletionToken } from '@/lib/security';
+import { createPaste, opportunisticPurge } from '@/lib/pastes';
+import { consumeRateLimit } from '@/lib/rate-limit';
+import { RATE_LIMITS } from '@/lib/limits';
+import { getClientIp } from '@/lib/ip';
 import {
     CreatePasteSchema,
     calculateExpiration,
-    calculateTTL,
     validatePasteSize,
-    getClientIp,
+    MAX_PASTE_SIZE,
 } from '@/lib/validation';
-
-// Rate limiting: 10 pastes per hour per IP
-const RATE_LIMIT_MAX = 10;
-const RATE_LIMIT_WINDOW = 3600; // 1 hour in seconds
+import { ApiError, apiHeaders } from '@/lib/http';
+import { errorResponse } from '@/lib/api';
 
 export async function POST(request: NextRequest) {
     try {
-        // Rate limiting
-        const clientIp = getClientIp(request);
-        const rateLimited = await isRateLimited(
-            clientIp,
-            RATE_LIMIT_MAX,
-            RATE_LIMIT_WINDOW
+        const verdict = await consumeRateLimit(
+            `create:${getClientIp(request)}`,
+            RATE_LIMITS.create
         );
 
-        if (rateLimited) {
-            return NextResponse.json(
-                { error: 'Rate limit exceeded. Please try again later.' },
-                { status: 429 }
-            );
+        if (verdict.limited) {
+            throw ApiError.rateLimited(verdict.resetIn);
         }
 
-        // Parse and validate request body
-        const body = await request.json();
-        const validatedData = CreatePasteSchema.parse(body);
-
-        // Validate paste size
-        if (!validatePasteSize(validatedData.ciphertext)) {
-            return NextResponse.json(
-                { error: 'Paste size exceeds 4MB limit' },
-                { status: 413 }
-            );
+        // Cap the body before parsing. Vercel already caps request size, but
+        // checking the declared length rejects an oversized payload without
+        // buffering it.
+        const declared = Number(request.headers.get('content-length') ?? 0);
+        if (declared > MAX_PASTE_SIZE * 2) {
+            throw ApiError.tooLarge();
         }
 
-        // Generate paste ID and deletion token
+        const contentType = request.headers.get('content-type') ?? '';
+        if (!contentType.includes('application/json')) {
+            throw ApiError.unsupportedMediaType();
+        }
+
+        const parsed = CreatePasteSchema.safeParse(await request.json());
+        if (!parsed.success) {
+            throw ApiError.badRequest();
+        }
+        const data = parsed.data;
+
+        if (!validatePasteSize(data.ciphertext)) {
+            throw ApiError.tooLarge();
+        }
+
+        // Three independent nanoid draws. A collision is handled by the primary
+        // key rejecting the insert, so there is nothing to retry around.
         const pasteId = generatePasteId();
-        const deletionToken = generateDeletionToken();
+        const deletionToken = generateToken();
+        const expiresAt = calculateExpiration(data.expirationType);
 
-        // Calculate expiration
-        const expiresAt = calculateExpiration(validatedData.expirationType);
-        const ttl = calculateTTL(expiresAt);
-
-        // Determine max views
         let maxViews: number | undefined;
-        if (validatedData.expirationType === 'burn') {
+        if (data.expirationType === 'burn') {
             maxViews = 1;
-        } else if (validatedData.expirationType === 'views') {
-            maxViews = validatedData.maxViews;
+        } else if (data.expirationType === 'views') {
+            maxViews = data.maxViews;
         }
 
-        // Store payload and metadata in parallel for improved performance
-        await Promise.all([
-            // Store encrypted payload in Redis
-            (async () => {
-                try {
-                    await storePaste(
-                        pasteId,
-                        {
-                            ciphertext: validatedData.ciphertext,
-                            iv: validatedData.iv,
-                            authTag: validatedData.authTag,
-                            salt: validatedData.salt,
-                            iterations: validatedData.iterations,
-                        },
-                        ttl
-                    );
-                } catch (redisError) {
-                    logger.error('[REDIS_ERROR] Failed to store payload:', sanitizeError(redisError));
-                    throw new Error('Storage nexus unavailable. Check infrastructure status.');
-                }
-            })(),
+        await createPaste({
+            id: pasteId,
+            ciphertext: data.ciphertext,
+            iv: data.iv,
+            authTag: data.authTag,
+            salt: data.salt,
+            iterations: data.iterations,
+            // Only the hash is persisted, so a database dump cannot revoke or
+            // rotate anyone's paste.
+            tokenHash: hashDeletionToken(deletionToken),
+            expiresAt,
+            maxViews,
+            hasPassword: data.hasPassword,
+            title: data.title,
+            language: data.language,
+        });
 
-            // Store metadata in TursoDB
-            (async () => {
-                try {
-                    await createPasteMetadata({
-                        id: pasteId,
-                        createdAt: Date.now(),
-                        expiresAt,
-                        maxViews,
-                        hasPassword: validatedData.hasPassword,
-                        deletionToken,
-                        metadata: {
-                            language: validatedData.language,
-                            title: validatedData.title,
-                        },
-                    });
-                } catch (dbError) {
-                    logger.error('[DB_ERROR] Full failure detail:', sanitizeError(dbError));
-                    const errorMessage = dbError instanceof Error ? dbError.message : 'Unknown Database Error';
-                    // Attempt to clean up Redis if DB fails
-                    try {
-                        await storePaste(pasteId, { ciphertext: '', iv: '', authTag: '' }, 1);
-                    } catch (e) {
-                        // Silent catch for cleanup failure
-                    }
-                    throw new Error(`Database synchronization failed: ${errorMessage}`);
-                }
-            })(),
-        ]);
-
-        // Return paste ID and metadata
-        return NextResponse.json(
-            {
-                pasteId,
-                deletionToken,
-                expiresAt,
-                maxViews,
-            },
-            { status: 201 }
-        );
-    } catch (error) {
-        logger.error('[API_ERROR] Critical failure in /api/paste:', sanitizeError(error));
-
-        if (error instanceof Error && error.name === 'ZodError') {
-            return NextResponse.json(
-                { error: 'Invalid request payload structure.', details: error.message },
-                { status: 400 }
-            );
-        }
+        // Best-effort housekeeping; never surfaced to the caller.
+        void opportunisticPurge();
 
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Critical Internal Systems Failure.' },
-            { status: 500 }
+            { pasteId, deletionToken, expiresAt, maxViews },
+            { status: 201, headers: apiHeaders(verdict, RATE_LIMITS.create.max) }
         );
+    } catch (err) {
+        return errorResponse(err, 'create paste');
     }
 }

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { motion } from 'framer-motion';
 import {
     CheckCircle2,
     Copy,
@@ -73,10 +72,7 @@ export default function PasteCreated({
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-3xl mx-auto space-y-6"
+        <div className="anim-rise w-full max-w-3xl mx-auto space-y-6"
         >
             {/* Success Banner */}
             <div className="bg-[#181818] rounded-lg border border-[#1ed760]/20 p-6 relative overflow-hidden">
@@ -156,7 +152,7 @@ export default function PasteCreated({
                             )}
                         </button>
                     </div>
-                    <p className="text-[0.625rem] text-white/20 px-1">
+                    <p className="text-[0.625rem] text-white/50 px-1">
                         Use this at <a href="/revoke" className="underline hover:text-white transition-colors">/revoke</a> to delete or rotate your paste.
                     </p>
                 </div>
@@ -173,16 +169,17 @@ export default function PasteCreated({
                         QR CODE
                     </span>
                     {showQR && qrCodeUrl ? (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="p-3 bg-white rounded-lg shadow-[rgba(0,0,0,0.5)_0px_8px_24px]"
+                        <div className="anim-rise p-3 bg-white rounded-lg shadow-[rgba(0,0,0,0.5)_0px_8px_24px]"
                         >
+                            {/* The QR code is a data: URL produced in the browser
+                                by toDataURL(). next/image cannot optimise data
+                                URLs, so the raw element is correct here. */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={qrCodeUrl} alt="QR Code" className="w-40 h-40" />
-                        </motion.div>
+                        </div>
                     ) : (
                         <div className="w-40 h-40 rounded-lg border border-dashed border-white/5 flex items-center justify-center">
-                            <QrCode size={28} className="text-white/5" />
+                            <QrCode size={28} aria-hidden="true" className="text-white/50" />
                         </div>
                     )}
                 </div>
@@ -209,7 +206,7 @@ export default function PasteCreated({
                                 <ExternalLink size={14} />
                                 VIEW PASTE
                             </span>
-                            <ArrowRight size={14} className="text-white/20" />
+                            <ArrowRight size={14} className="text-white/50" />
                         </a>
                         <button
                             onClick={onCreateAnother}
@@ -219,11 +216,11 @@ export default function PasteCreated({
                                 <Plus size={14} />
                                 NEW PASTE
                             </span>
-                            <ArrowRight size={14} className="text-white/20" />
+                            <ArrowRight size={14} className="text-white/50" />
                         </button>
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }

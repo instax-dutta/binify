@@ -29,7 +29,9 @@ export const CreatePasteSchema = z.object({
     iv: z.string().min(1, 'IV is required'),
     authTag: z.string().min(1, 'Auth tag is required'),
     salt: z.string().optional(),
+    // Legacy PBKDF2 pastes recorded an iteration count; newer ones name the KDF.
     iterations: z.number().optional(),
+    kdf: z.literal('argon2id').optional(),
 
     // Expiration settings
     expirationType: ExpirationTypeSchema,
@@ -65,6 +67,7 @@ export const GetPasteResponseSchema = z.object({
     authTag: z.string(),
     salt: z.string().optional(),
     iterations: z.number().optional(),
+    kdf: z.literal('argon2id').optional(),
 
     // Metadata
     createdAt: z.number(),
@@ -120,25 +123,6 @@ export function calculateExpiration(
             return undefined;
     }
 }
-
-/**
- * Calculate TTL in seconds from expiration timestamp
- */
-export function calculateTTL(expiresAt?: number): number | undefined {
-    if (!expiresAt) return undefined;
-
-    const now = Date.now();
-    const ttlMs = expiresAt - now;
-
-    if (ttlMs <= 0) return 0;
-
-    return Math.floor(ttlMs / 1000);
-}
-
-/**
- * Re-export getClientIp from the dedicated IP utility module.
- */
-export { getClientIp } from './ip';
 
 /**
  * Re-export paste size validation logic from the dedicated module.

@@ -1,13 +1,25 @@
 /**
- * POST /api/paste/[id]/rotate - Change paste ID (Link Rotation)
+ * POST /api/paste/[id]/rotate - Change a paste's public id (link rotation).
+ *
+ * Because the payload and metadata share a row, rotation is a single UPDATE:
+ * there is no second key to move and no window where the paste exists twice or
+ * nowhere.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getPasteMetadata, getDb } from '@/lib/db';
-import { getPaste, storePaste, getPasteTTL, deletePaste } from '@/lib/redis';
-import { logger, sanitizeError } from '@/lib/logging';
 import { generatePasteId } from '@/lib/crypto';
-import { safeCompare } from '@/lib/security';
+import { hashDeletionToken } from '@/lib/security';
+import { rotatePasteId } from '@/lib/pastes';
+import { consumeRateLimit } from '@/lib/rate-limit';
+import { RATE_LIMITS } from '@/lib/limits';
+import { getClientIp } from '@/lib/ip';
+import { z } from 'zod';
+import { ApiError, apiHeaders, assertValidPasteId } from '@/lib/http';
+import { errorResponse } from '@/lib/api';
+
+const RotateSchema = z.object({
+    token: z.string().min(1).max(256),
+});
 
 export async function POST(
     request: NextRequest,
@@ -15,79 +27,39 @@ export async function POST(
 ) {
     try {
         const { id: oldId } = await params;
-        const body = await request.json();
-        const { token } = body;
+        assertValidPasteId(oldId);
 
-        if (!token) {
-            return NextResponse.json(
-                { error: 'Authorization token required for rotation.' },
-                { status: 401 }
-            );
+        const verdict = await consumeRateLimit(
+            `rotate:${getClientIp(request)}`,
+            RATE_LIMITS.rotate
+        );
+        if (verdict.limited) {
+            throw ApiError.rateLimited(verdict.resetIn);
         }
 
-        const metadata = await getPasteMetadata(oldId);
-
-        if (!metadata) {
-            return NextResponse.json(
-                { error: 'Paste session not found.' },
-                { status: 404 }
-            );
+        const parsed = RotateSchema.safeParse(await request.json());
+        if (!parsed.success) {
+            throw ApiError.unauthorized();
         }
 
-        if (!metadata.deletionToken || !safeCompare(metadata.deletionToken, token)) {
-            return NextResponse.json(
-                { error: 'Invalid authorization token. Rotation denied.' },
-                { status: 403 }
-            );
-        }
-
-        // 1. Generate new ID
         const newId = generatePasteId();
 
-        // 2. Translocate payload in Redis
-        const [payload, ttl] = await Promise.all([
-            getPaste(oldId),
-            getPasteTTL(oldId),
-        ]);
-
-        if (!payload) {
-            return NextResponse.json(
-                { error: 'Encrypted payload missing or already purged.' },
-                { status: 404 }
-            );
-        }
-
-        // TTL from Redis: -1 (no expiry), -2 (doesn't exist)
-        // storePaste expects seconds
-        await storePaste(newId, payload, ttl > 0 ? ttl : undefined);
-
-        // 3. Update ID in Database
-        const db = getDb();
-        try {
-            await db.execute({
-                sql: 'UPDATE pastes SET id = ?, updated_at = ? WHERE id = ?',
-                args: [newId, Date.now(), oldId],
-            });
-        } catch (dbError) {
-            logger.error('[DB_ERROR] Failed to rotate ID:', sanitizeError(dbError));
-            // Cleanup new redis entry if DB fails
-            await deletePaste(newId);
-            throw new Error('Database synchronization failed during rotation.');
-        }
-
-        // 4. Cleanup old Redis key
-        await deletePaste(oldId);
-
-        return NextResponse.json({
-            success: true,
+        // One statement: authorise on the token hash and move the id together.
+        const rotated = await rotatePasteId(
+            oldId,
             newId,
-            message: 'Paste ID rotated successfully.',
-        });
-    } catch (error) {
-        logger.error('[API_ERROR] Rotation failure:', sanitizeError(error));
-        return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Rotation sequence failed.' },
-            { status: 500 }
+            hashDeletionToken(parsed.data.token)
         );
+
+        if (!rotated) {
+            throw ApiError.unauthorized();
+        }
+
+        return NextResponse.json(
+            { success: true, newId, message: 'Paste id rotated.' },
+            { headers: apiHeaders(verdict, RATE_LIMITS.rotate.max) }
+        );
+    } catch (err) {
+        return errorResponse(err, 'rotate paste');
     }
 }
