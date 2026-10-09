@@ -58,8 +58,11 @@ async function withProbeRoute(fn) {
     mkdirSync(PROBE_DIR, { recursive: true });
     writeFileSync(
         `${PROBE_DIR}/page.tsx`,
-        `'use client';
-// Temporary route created by scripts/verify-error-boundary.mjs.
+        `// Temporary route created by scripts/verify-error-boundary.mjs.
+// Rendered per request rather than prerendered: a throw during static
+// generation would fail the build instead of reaching the boundary.
+export const dynamic = 'force-dynamic';
+
 export default function Throws() {
     throw new Error('gate: deliberate render failure');
 }
