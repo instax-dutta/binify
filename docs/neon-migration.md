@@ -1,7 +1,8 @@
-# Moving to Neon
+# Database
 
-The app stores everything in one Postgres database, so moving off the
-self-hosted cluster on pelican is a connection-string change, not a migration.
+The app stores everything in one Postgres database on Neon. The client is `pg`
+and the schema lives in `src/lib/db.ts`; changing where it runs is a
+connection-string change, not a migration.
 
 ## Why Neon rather than a Cloudflare tunnel
 
@@ -66,19 +67,7 @@ surprise outage.
 
 ## Rolling back
 
-Keep the pelican cluster running until Neon has served real traffic. Reverting is
-replacing one environment variable and re-running `npm run migrate` — the schema
-is identical because both use `src/lib/db.ts`.
-
-## Disconnecting the tunnel
-
-The `pelican-pg` tunnel is no longer needed. On pelican there are currently two
-connectors for it:
-
-- a host process using `~/.cloudflared/config.yml`
-- a Docker container started with `--token` in its argv, which is why the token
-  shows up in `ps`
-
-The systemd unit references `/etc/cloudflared/token`, which does not exist, so
-it sits in `activating` — that is why there are two. None of it is publicly
-reachable: `pg.aeglyn.site` has no DNS record.
+An earlier development setup ran a self-hosted PostgreSQL cluster on a remote
+machine. It has been decommissioned; the app talks only to Neon. To move
+somewhere else, replace one environment variable and re-run `npm run migrate` —
+the schema is defined once, in `src/lib/db.ts`.
