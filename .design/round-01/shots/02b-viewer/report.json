@@ -1,0 +1,46 @@
+[
+  {
+    "file": "reading-1280x900.png",
+    "state": "reading",
+    "size": "1280x900",
+    "zoom": 1,
+    "issues": [
+      "加载错误：Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:54943/favicon.ico"
+    ]
+  },
+  {
+    "file": "confirming-1280x900.png",
+    "state": "confirming",
+    "size": "1280x900",
+    "zoom": 1,
+    "issues": []
+  },
+  {
+    "file": "burned-1280x900.png",
+    "state": "burned",
+    "size": "1280x900",
+    "zoom": 1,
+    "issues": []
+  },
+  {
+    "file": "reading-390x844.png",
+    "state": "reading",
+    "size": "390x844",
+    "zoom": 1,
+    "issues": []
+  },
+  {
+    "file": "confirming-390x844.png",
+    "state": "confirming",
+    "size": "390x844",
+    "zoom": 1,
+    "issues": []
+  },
+  {
+    "file": "burned-390x844.png",
+    "state": "burned",
+    "size": "390x844",
+    "zoom": 1,
+    "issues": []
+  }
+]

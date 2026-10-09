@@ -1,0 +1,15 @@
+[
+  {
+    "file": "page.png",
+    "state": null,
+    "size": "1200x630",
+    "zoom": 1,
+    "issues": [
+      "加载错误：Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:55699/fonts/plex-mono-400.woff2",
+      "加载错误：Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:55699/fonts/plex-mono-500.woff2",
+      "加载错误：Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:55699/fonts/cormorant-600.woff2",
+      "加载错误：Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:55699/fonts/cormorant-500.woff2",
+      "加载错误：Failed to load resource: the server responded with a status of 404 (Not Found) http://127.0.0.1:55699/favicon.ico"
+    ]
+  }
+]

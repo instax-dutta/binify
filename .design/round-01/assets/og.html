@@ -1,0 +1,77 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+:root{
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='v'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23v)' opacity='0.055'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box}
+/* Shared @font-face declarations for all three candidates. */
+@font-face { font-family: 'Special Elite'; src: url('fonts/special-elite-400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cormorant Garamond'; src: url('fonts/cormorant-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Cormorant Garamond'; src: url('fonts/cormorant-600.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IBM Plex Mono'; src: url('fonts/plex-mono-400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'IBM Plex Mono'; src: url('fonts/plex-mono-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Oswald'; src: url('fonts/oswald-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Oswald'; src: url('fonts/oswald-600.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Saira Stencil One'; src: url('fonts/saira-stencil-400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+
+</style>
+<style>
+html,body{width:1200px; height:630px; margin:0}
+body{
+  font-family:'IBM Plex Mono', monospace;
+  background:
+    radial-gradient(70% 46% at 50% -8%, rgba(201,162,90,.14) 0%, transparent 60%),
+    radial-gradient(90% 60% at 50% 110%, rgba(201,162,90,.05) 0%, transparent 55%),
+    #0f0c09;
+  display:flex; flex-direction:column; align-items:center;
+}
+.top{width:100%; display:flex; justify-content:space-between; padding:30px 44px 0;
+     font-size:11px; letter-spacing:.3em; color:rgba(236,225,203,.6)}
+.top .b{color:#c9a25a}
+.stage{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center}
+.charred{
+  position:relative; width:430px; height:150px;
+  background:
+    var(--grain),
+    linear-gradient(180deg, #23150c 0%, #58402a 4%, #7c6044 8%, #ece1cb 14%, #e2d5bc 100%);
+  box-shadow:0 30px 60px rgba(0,0,0,.6), inset 0 0 0 1px rgba(43,36,26,.12);
+  transform:rotate(.4deg);
+}
+.charred svg{position:absolute; right:34px; top:30px}
+.motto{
+  margin:34px 0 18px; font-family:'Cormorant Garamond'; font-style:italic; font-weight:500;
+  font-size:32px; color:rgba(236,225,203,.75);
+}
+.motto em{font-style:italic}
+.sub{font-size:12px; letter-spacing:.34em; color:#c9a25a}
+.brand{position:absolute; bottom:34px; font-size:10.5px; letter-spacing:.28em; color:rgba(236,225,203,.5)}
+.brand b{color:#c9a25a; font-weight:500}
+</style></head>
+<body>
+<div class="top"><span>THE <span class="b">BURN</span> ARCHIVE</span><span>ZERO-KNOWLEDGE</span></div>
+<div class="stage">
+  <div class="charred">
+    <svg width="104" height="104" viewBox="0 0 120 120">
+      <defs>
+        <radialGradient id="waxface" cx="42%" cy="34%" r="72%">
+          <stop offset="0%" stop-color="#8a3a33"/><stop offset="55%" stop-color="#7a2e2a"/><stop offset="100%" stop-color="#541f1b"/>
+        </radialGradient>
+        <path id="legend" d="M 60,15 a45,45 0 1,1 -0.01,0 z" fill="none"/>
+      </defs>
+      <circle cx="60" cy="60" r="56" fill="url(#waxface)"/>
+      <ellipse cx="44" cy="42" rx="14" ry="10" fill="#96423c" opacity=".35"/>
+      <ellipse cx="78" cy="76" rx="16" ry="12" fill="#54201c" opacity=".5"/>
+      <ellipse cx="62" cy="30" rx="9" ry="6" fill="#9c4a44" opacity=".25"/>
+      <circle cx="60" cy="60" r="52.5" fill="none" stroke="#4a1c18" stroke-width="1.6"/>
+      <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(240,226,208,.16)" stroke-width="1"/>
+      <text font-family="IBM Plex Mono" font-size="6.6" letter-spacing="2.1" fill="rgba(240,226,208,.62)" font-weight="500"><textPath href="#legend" startOffset="0">SPOKEN ONCE · THEN SILENCE · SEALS THE BURN ·</textPath></text>
+      <text x="60" y="79" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="52" fill="#3f1714" opacity=".9">B</text>
+      <text x="60" y="77.6" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="52" fill="#7f342e" opacity=".85">B</text>
+    </svg>
+  </div>
+  <p class="motto">Spoken once, then silence.</p>
+  <p class="sub">ENCRYPTED IN YOUR BROWSER · BURNS ON READ</p>
+</div>
+<p class="brand">BIN.SDAD.PRO — WHAT MUST NOT PERSIST</p>
+</body></html>

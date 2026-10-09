@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Binify — Sanctum</title>
+<link rel="stylesheet" href="shared-faces.css">
+<style>
+:root{
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='v'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23v)' opacity='0.055'/%3E%3C/svg%3E");
+  --night:#0f0c09; --night-hi:#171310;
+  --vellum:#ece1cb; --vellum-dim:#e2d5bc;
+  --ink:#2b241a; --ink-soft:#4f4637;
+  --amber:#c9a25a; --wax:#7a2e2a; --wax-deep:#4d1d1a;
+  --hair:rgba(236,225,203,.3);
+}
+*{box-sizing:border-box; margin:0}
+body{
+  min-height:100vh; color:var(--vellum);
+  font-family:'IBM Plex Mono', monospace;
+  background:
+    radial-gradient(70% 46% at 50% -8%, rgba(201,162,90,.14) 0%, transparent 60%),
+    radial-gradient(90% 60% at 50% 108%, rgba(201,162,90,.05) 0%, transparent 55%),
+    var(--night);
+  display:flex; flex-direction:column;
+}
+nav{display:flex; justify-content:space-between; align-items:baseline; padding:18px 26px; font-size:11px; letter-spacing:.26em; white-space:nowrap}
+nav .word{color:var(--amber)}
+nav .links a{color:rgba(236,225,203,.62); text-decoration:none; margin-left:20px; font-size:11px; letter-spacing:.22em}
+nav .links a:hover{color:var(--amber)}
+main{flex:1; display:grid; place-items:center; padding:30px 20px 46px}
+.stage{width:min(420px,100%)}
+.motto{
+  text-align:center; font-family:'Cormorant Garamond'; font-style:italic; font-weight:500;
+  font-size:21px; color:rgba(236,225,203,.68); letter-spacing:.02em; margin-bottom:34px;
+}
+.motto::before,.motto::after{content:"—"; color:var(--amber); font-style:normal; margin:0 14px; font-size:15px; vertical-align:3px}
+.slip{
+  background:
+    var(--grain),
+    linear-gradient(178deg, var(--vellum) 0%, var(--vellum-dim) 100%);
+  color:var(--ink); padding:34px 32px 34px; transform:rotate(-.6deg);
+  box-shadow:
+    0 40px 80px rgba(0,0,0,.6), 0 6px 18px rgba(0,0,0,.35),
+    inset 0 0 0 1px rgba(43,36,26,.14), inset 0 0 34px rgba(43,36,26,.09);
+}
+.slip .order{font-size:11px; letter-spacing:.4em; color:var(--ink-soft); text-align:center; margin-bottom:26px}
+.slip .rule{height:1px; background:rgba(43,36,26,.28); margin:22px 0}
+.slip label{display:block; font-size:11px; letter-spacing:.3em; color:var(--ink-soft); margin-bottom:8px}
+.slip label:not(:first-of-type){margin-top:24px}
+.slip input[type=text]{
+  width:100%; background:transparent; border:0; border-bottom:1px solid rgba(43,36,26,.5);
+  font-family:'Cormorant Garamond'; font-weight:500; font-size:20px; color:var(--ink);
+  padding:2px 0 7px; outline:none;
+}
+.slip textarea{
+  width:100%; min-height:180px; background:transparent; border:0; outline:none; resize:none;
+  font-family:'Cormorant Garamond'; font-weight:500; font-size:19px; line-height:1.55; color:var(--ink);
+}
+.slip input[type=password]{
+  width:100%; background:transparent; border:0; border-bottom:1px solid rgba(43,36,26,.5);
+  font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--ink); padding:3px 0 7px; outline:none;
+}
+.slip input::placeholder,.slip textarea::placeholder{color:rgba(43,36,26,.52)}
+.oath{display:grid; grid-template-columns:1fr 1fr; gap:0 22px}
+.oath select{
+  width:100%; background:transparent; border:0; border-bottom:1px solid rgba(43,36,26,.5);
+  font-family:'IBM Plex Mono'; font-size:12.5px; color:var(--ink); padding:3px 0 7px; outline:none; cursor:pointer;
+  appearance:none; -webkit-appearance:none;
+}
+.oath .cell{position:relative}
+.oath .cell::after{content:"▾"; position:absolute; right:2px; bottom:9px; font-size:11px; color:var(--ink-soft)}
+
+/* The seal: an impression pressed into the paper. Flat, matte, voiced. */
+.seal-zone{display:flex; flex-direction:column; align-items:center; gap:12px; margin-top:30px}
+.seal{
+  position:relative; width:84px; height:84px; padding:0; border:0; background:transparent;
+  cursor:pointer; display:grid; place-items:center; transition:transform .14s ease;
+}
+.seal::before{ /* melt skirt: wax loses a little of itself into the paper */
+  content:""; position:absolute; inset:-7px; border-radius:50%;
+  background:radial-gradient(circle, rgba(122,46,42,.38) 0%, rgba(122,46,42,.16) 58%, transparent 72%);
+  filter:blur(3px); z-index:0;
+}
+.seal svg{position:relative; z-index:1; display:block}
+.seal:hover{transform:scale(1.04)}
+.seal:active{transform:scale(.94)}
+.seal-zone .under{font-size:11px; letter-spacing:.32em; color:var(--ink); font-weight:500}
+.night-foot{display:flex; justify-content:space-between; padding:18px 26px 22px; font-size:10.5px; letter-spacing:.26em; color:rgba(236,225,203,.55)}
+
+/* sealing transition */
+.composer{transition:opacity .35s ease}
+body[data-state="sealed"] .composer{opacity:0; visibility:hidden; position:absolute; pointer-events:none}
+[x-cloak]{display:none!important}
+body[data-state="sealed"] .motto{display:none}
+.deliver{display:none; text-align:center; animation:rise .5s ease-out both}
+body[data-state="sealed"] .deliver{display:block}
+@keyframes rise{from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none}}
+
+.deliver .charred{
+  position:relative; width:min(340px,100%); height:158px; margin:0 auto;
+  background:
+    var(--grain),
+    linear-gradient(180deg, #23150c 0%, #58402a 4%, #7c6044 8%, var(--vellum) 14%, var(--vellum-dim) 100%);
+  box-shadow:0 26px 50px rgba(0,0,0,.55), inset 0 0 0 1px rgba(43,36,26,.12);
+}
+.charred .seal-slot{
+  position:absolute; right:26px; top:56px; width:84px; height:84px;
+  transform:rotate(4deg);
+  animation:press .55s cubic-bezier(.2,1.5,.4,1) .25s both;
+}
+@keyframes press{0%{transform:rotate(4deg) scale(1.5); opacity:0} 100%{transform:rotate(4deg) scale(1); opacity:1}}
+.deliver .whisper{
+  font-family:'Cormorant Garamond'; font-style:italic; font-weight:500; font-size:20px;
+  color:rgba(236,225,203,.7); margin:26px 0 20px; line-height:1.55;
+}
+.deliver .sigil-link{font-size:15px; color:var(--amber); word-break:break-all; line-height:1.7; letter-spacing:.04em}
+.deliver .meta-line{margin-top:20px; font-size:11px; letter-spacing:.24em; color:rgba(236,225,203,.66); display:flex; gap:12px 30px; justify-content:center; flex-wrap:wrap}
+.copy{
+  margin-top:26px; background:transparent; border:1px solid var(--hair); color:var(--vellum);
+  font-family:'IBM Plex Mono'; font-size:11px; letter-spacing:.28em; padding:12px 28px; cursor:pointer;
+}
+.copy:hover{border-color:var(--amber); color:var(--amber)}
+.copy:active{transform:translateY(1px)}
+
+@media (max-width:600px){
+  nav{padding:16px 18px 14px; font-size:10px; letter-spacing:.2em}
+  nav .links a{font-size:10px; letter-spacing:.18em; margin-left:14px}
+  .motto{font-size:18px; margin-bottom:28px}
+  .slip{padding:26px 22px 28px; transform:rotate(-.2deg)}
+  .night-foot{padding:16px 18px 20px}
+}
+</style>
+</head>
+<body x-data="app()" x-bind:data-state="state">
+<nav>
+  <span>THE <span class="word">BURN</span> ARCHIVE</span>
+  <span class="links"><a href="#">DOCS</a><a href="#">REVOKE</a><a href="#">GITHUB</a></span>
+</nav>
+
+<template x-if="true">
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- A pressed wax impression: matte, flat, with a rim legend like a real seal. -->
+    <radialGradient id="waxface" cx="42%" cy="34%" r="72%">
+      <stop offset="0%" stop-color="#8a3a33"/>
+      <stop offset="55%" stop-color="#7a2e2a"/>
+      <stop offset="100%" stop-color="#541f1b"/>
+    </radialGradient>
+    <path id="legend" d="M 60,15 a45,45 0 1,1 -0.01,0 z" fill="none"/>
+    <g id="sealface">
+      <circle cx="60" cy="60" r="56" fill="url(#waxface)"/>
+      <!-- mottle: wax is never uniform -->
+      <ellipse cx="44" cy="42" rx="14" ry="10" fill="#96423c" opacity=".35"/>
+      <ellipse cx="78" cy="76" rx="16" ry="12" fill="#54201c" opacity=".5"/>
+      <ellipse cx="62" cy="30" rx="9" ry="6" fill="#9c4a44" opacity=".25"/>
+      <!-- pressed rim ridges -->
+      <circle cx="60" cy="60" r="52.5" fill="none" stroke="#4a1c18" stroke-width="1.6"/>
+      <circle cx="60" cy="60" r="42" fill="none" stroke="rgba(240,226,208,.16)" stroke-width="1"/>
+      <!-- rim legend -->
+      <text font-family="IBM Plex Mono" font-size="6.6" letter-spacing="2.1" fill="rgba(240,226,208,.62)" font-weight="500">
+        <textPath href="#legend" startOffset="0">SPOKEN ONCE · THEN SILENCE · SEALS THE BURN ·</textPath>
+      </text>
+      <!-- debossed monogram: dark print + 1px light top edge -->
+      <text x="60" y="79" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="52" fill="#3f1714" opacity=".9">B</text>
+      <text x="60" y="77.6" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="52" fill="#7f342e" opacity=".85">B</text>
+    </g>
+  </defs>
+</svg>
+</template>
+
+<main>
+  <div class="stage">
+    <p class="motto">Spoken once, then silence</p>
+
+    <div class="composer">
+      <form class="slip" x-on:submit.prevent="state='sealed'">
+        <div class="order">WHAT MUST NOT PERSIST</div>
+        <label>NAME</label>
+        <input type="text" placeholder="Leave it nameless" x-model="title">
+        <label>THE MESSAGE</label>
+        <textarea placeholder="Say what must not be kept…" x-model="content"></textarea>
+        <div class="rule"></div>
+        <div class="oath">
+          <div>
+            <label>BURNS</label>
+            <div class="cell"><select x-model="retention">
+              <option value="5min">IN 5 MINUTES</option><option value="1hour">IN 1 HOUR</option>
+              <option value="1day">IN 1 DAY</option><option value="7days">IN 7 DAYS</option>
+              <option value="never">ON MY WORD</option>
+            </select></div>
+          </div>
+          <div>
+            <label>GUARD</label>
+            <input type="password" placeholder="Optional word" x-model="passphrase">
+          </div>
+        </div>
+        <div class="seal-zone">
+          <button type="submit" class="seal" aria-label="Encrypt and share">
+            <svg width="72" height="72" viewBox="0 0 120 120"><use href="#sealface"/></svg>
+          </button>
+          <span class="under">PRESS THE SEAL</span>
+        </div>
+      </form>
+    </div>
+
+    <div class="deliver">
+      <div class="charred">
+        <div class="seal-slot">
+          <svg width="84" height="84" viewBox="0 0 120 120"><use href="#sealface"/></svg>
+        </div>
+      </div>
+      <p class="whisper">The seal is pressed. Deliver the sigil —<br>it opens once, then it is smoke.</p>
+      <p class="sigil-link" x-text="link"></p>
+      <div class="meta-line">
+        <span x-text="'RETURNS TO ASH ' + retentionLabel"></span>
+        <span x-text="passphrase ? 'GUARDED' : 'UNGUARDED'"></span>
+      </div>
+      <button class="copy" x-on:click="copied=true" x-text="copied ? 'SIGIL COPIED' : 'COPY THE SIGIL'"></button>
+    </div>
+  </div>
+</main>
+
+<div class="night-foot">
+  <span>ENTERED UNDER SEAL</span>
+  <span>MMXXVI</span>
+</div>
+
+<script>
+function app(){
+  return {
+    state: new URLSearchParams(location.search).get('state') || 'idle',
+    title:'', content:'', retention:'5min', passphrase:'', copied:false,
+    get retentionLabel(){
+      return {['5min']:'IN FIVE MINUTES',['1hour']:'IN AN HOUR',['1day']:'IN A DAY',['7days']:'IN SEVEN DAYS',['never']:'ON YOUR WORD'}[this.retention];
+    },
+    get link(){ return 'bin.sdad.pro/p/4wZm' + Math.random().toString(36).slice(2,7); },
+  };
+}
+</script>
+<script defer src="vendor/alpine.min.js"></script>
+</body>
+</html>
