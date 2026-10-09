@@ -174,7 +174,7 @@ export default function PasteViewer({
                 )}
 
                 <div className="flex justify-end">
-                    <a href="/revoke" className="text-[0.5rem] font-bold text-white/45 hover:text-[#ffa42b]/60 transition-colors uppercase tracking-[0.15em] flex items-center gap-1">
+                    <a href="/revoke" className="text-[0.5rem] font-bold text-white/50 hover:text-[#ffa42b]/60 transition-colors uppercase tracking-[0.15em] flex items-center gap-1">
                         <AlertTriangle size={8} />
                         Revoke
                     </a>
@@ -189,7 +189,7 @@ export default function PasteViewer({
                         <div className="w-2.5 h-2.5 rounded-full bg-[#ffa42b]/60" />
                         <div className="w-2.5 h-2.5 rounded-full bg-[#1ed760]/60" />
                     </div>
-                    <span className="text-[0.625rem] font-bold text-white/45 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                    <span className="text-[0.625rem] font-bold text-white/50 uppercase tracking-[0.15em] flex items-center gap-1.5">
                         <FileText size={11} />
                         OUTPUT
                     </span>

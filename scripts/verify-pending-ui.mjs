@@ -15,7 +15,7 @@ await withServer(async (base) => {
     const problems = [];
 
     // Loading and error affordances exist at the route level.
-    for (const rel of ['src/app/loading.tsx', 'src/app/error.ts', 'src/app/global-error.ts']) {
+    for (const rel of ['src/app/loading.tsx', 'src/app/error.tsx', 'src/app/global-error.tsx']) {
         let ok = false;
         try {
             const src = (await import('node:fs')).readFileSync(
@@ -35,7 +35,9 @@ await withServer(async (base) => {
         // A paste that cannot exist still renders an explained failure, and
         // that failure is announced rather than silently blank.
         const page = await browser.newPage();
-        await page.goto(`${base}/p/${PASTE_ID}`, { waitUntil: 'domcontentloaded' });
+        // A viewer without the key fragment is refused before any fetch, which is
+        // correct behaviour. Include a fragment so the request is actually made.
+        await page.goto(`${base}/p/${PASTE_ID}#testkey`, { waitUntil: 'domcontentloaded' });
         await page.waitForTimeout(2500);
 
         const text = await page.evaluate(() => document.body.innerText);
@@ -51,7 +53,7 @@ await withServer(async (base) => {
 
         // The loading state must be perceivable while the paste is fetched.
         const nav = await browser.newPage();
-        await nav.goto(`${base}/p/${PASTE_ID}`, { waitUntil: 'commit' });
+        await nav.goto(`${base}/p/${PASTE_ID}#testkey`, { waitUntil: 'commit' });
         await nav.waitForSelector('[aria-live], [role="status"], [role="alert"]', { timeout: 4000 })
             .catch(() => problems.push('no live region appears during the loading window'));
         await nav.close();

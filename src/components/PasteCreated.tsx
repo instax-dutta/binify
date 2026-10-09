@@ -175,7 +175,7 @@ export default function PasteCreated({
                         </div>
                     ) : (
                         <div className="w-40 h-40 rounded-lg border border-dashed border-white/5 flex items-center justify-center">
-                            <QrCode size={28} aria-hidden="true" className="text-white/45" />
+                            <QrCode size={28} aria-hidden="true" className="text-white/50" />
                         </div>
                     )}
                 </div>
