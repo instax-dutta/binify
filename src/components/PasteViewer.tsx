@@ -1,12 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
-import remarkGfm from 'remark-gfm';
-import { motion } from 'framer-motion';
 import {
     Copy,
     Download,
@@ -21,6 +15,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logger } from '@/lib/logging';
+
+import ContentCanvas from './ContentCanvas';
 
 interface PasteViewerProps {
     content: string;
@@ -98,11 +94,7 @@ export default function PasteViewer({
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-6xl mx-auto space-y-5 pb-16"
-        >
+        <div className="anim-rise w-full max-w-6xl mx-auto space-y-5 pb-16">
             {/* Burn Warning */}
             {willBurn && (
                 <div className="bg-[#f3727f]/5 border border-[#f3727f]/15 rounded-lg p-4">
@@ -203,92 +195,12 @@ export default function PasteViewer({
                     </span>
                 </div>
 
-                <div
-                    className="p-0 overflow-y-auto overflow-x-auto selection:bg-[#1ed760]/20 custom-scrollbar h-[650px]"
-                    data-lenis-prevent="true"
-                >
-                    {viewMode === 'raw' ? (
-                        <pre className="p-6 text-sm font-mono text-white/60 whitespace-pre-wrap break-words leading-relaxed">
-                            {content}
-                        </pre>
-                    ) : language === 'markdown' ? (
-                        <div className="prose prose-invert max-w-none p-6 text-white/80 overflow-x-auto"
-                            style={{ '--tw-prose-pre-bg': 'transparent' } as React.CSSProperties}>
-                            <ReactMarkdown
-                                remarkPlugins={[remarkGfm]}
-                                rehypePlugins={[rehypeSanitize]}
-                                components={{
-                                    code({ node, inline, className, children, ...props }: any) {
-                                        const match = /language-(\w+)/.exec(className || '');
-                                        return !inline && match ? (
-                                            <SyntaxHighlighter
-                                                style={vscDarkPlus}
-                                                language={match[1]}
-                                                PreTag="div"
-                                                customStyle={{
-                                                    margin: 0,
-                                                    padding: '1.5rem',
-                                                    background: 'rgba(255, 255, 255, 0.03)',
-                                                    borderRadius: '0.5rem',
-                                                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                                                }}
-                                                {...props}
-                                            >
-                                                {String(children).replace(/\n$/, '')}
-                                            </SyntaxHighlighter>
-                                        ) : (
-                                            <code className={cn("bg-white/10 px-1.5 py-0.5 rounded text-[#539df5] font-mono text-xs", className)} {...props}>
-                                                {children}
-                                            </code>
-                                        );
-                                    },
-                                    table({ children }) {
-                                        return (
-                                            <div className="overflow-x-auto my-8 bg-white/[0.02] rounded-lg border border-white/5">
-                                                <table className="min-w-full divide-y divide-white/5">
-                                                    {children}
-                                                </table>
-                                            </div>
-                                        );
-                                    },
-                                    thead({ children }) {
-                                        return <thead className="bg-white/[0.03]">{children}</thead>;
-                                    },
-                                    th({ children }) {
-                                        return <th className="px-5 py-3 text-left text-[0.625rem] font-bold uppercase tracking-[0.1em] text-white/40 border-b border-white/5">{children}</th>;
-                                    },
-                                    td({ children }) {
-                                        return <td className="px-5 py-3 text-sm border-b border-white/5 text-white/60">{children}</td>;
-                                    },
-                                    tr({ children }) {
-                                        return <tr className="hover:bg-white/[0.01] transition-colors">{children}</tr>;
-                                    },
-                                }}
-                            >
-                                {content}
-                            </ReactMarkdown>
-                        </div>
-                    ) : language && language !== 'plaintext' ? (
-                        <SyntaxHighlighter
-                            language={language.toLowerCase()}
-                            style={vscDarkPlus}
-                            customStyle={{
-                                margin: 0,
-                                padding: '1.5rem',
-                                background: 'transparent',
-                                fontSize: '0.875rem',
-                                lineHeight: '1.7',
-                            }}
-                            showLineNumbers
-                            lineNumberStyle={{ minWidth: '2.5em', paddingRight: '1em', color: 'rgba(255,255,255,0.05)', textAlign: 'right' }}
-                        >
-                            {content}
-                        </SyntaxHighlighter>
-                    ) : (
-                        <pre className="p-6 text-sm font-mono text-white/60 whitespace-pre-wrap break-words leading-relaxed">
-                            {content}
-                        </pre>
-                    )}
+                <div className="p-0 overflow-y-auto overflow-x-auto selection:bg-[#1ed760]/20 custom-scrollbar h-[650px]">
+                    <ContentCanvas
+                        content={content}
+                        language={language}
+                        forceRaw={viewMode === 'raw'}
+                    />
                 </div>
             </div>
 
@@ -301,6 +213,6 @@ export default function PasteViewer({
                     <ChevronRight size={12} />
                 </a>
             </div>
-        </motion.div>
+        </div>
     );
 }

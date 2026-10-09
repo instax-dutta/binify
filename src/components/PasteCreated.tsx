@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { motion } from 'framer-motion';
 import {
     CheckCircle2,
     Copy,
@@ -73,10 +72,7 @@ export default function PasteCreated({
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-3xl mx-auto space-y-6"
+        <div className="anim-rise w-full max-w-3xl mx-auto space-y-6"
         >
             {/* Success Banner */}
             <div className="bg-[#181818] rounded-lg border border-[#1ed760]/20 p-6 relative overflow-hidden">
@@ -173,13 +169,10 @@ export default function PasteCreated({
                         QR CODE
                     </span>
                     {showQR && qrCodeUrl ? (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="p-3 bg-white rounded-lg shadow-[rgba(0,0,0,0.5)_0px_8px_24px]"
+                        <div className="anim-rise p-3 bg-white rounded-lg shadow-[rgba(0,0,0,0.5)_0px_8px_24px]"
                         >
                             <img src={qrCodeUrl} alt="QR Code" className="w-40 h-40" />
-                        </motion.div>
+                        </div>
                     ) : (
                         <div className="w-40 h-40 rounded-lg border border-dashed border-white/5 flex items-center justify-center">
                             <QrCode size={28} className="text-white/5" />
@@ -224,6 +217,6 @@ export default function PasteCreated({
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }

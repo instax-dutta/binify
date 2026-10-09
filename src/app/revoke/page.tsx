@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
     ShieldAlert,
     Trash2,
@@ -130,10 +129,7 @@ export default function RevokePage() {
                 </div>
             </div>
 
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-2xl space-y-6"
+            <div className="anim-rise w-full max-w-2xl space-y-6"
             >
                 <div className="text-center space-y-3">
                     <h1 className="title-xl text-white">
@@ -144,13 +140,10 @@ export default function RevokePage() {
                     </p>
                 </div>
 
-                <AnimatePresence mode="wait">
                     {status === 'success' ? (
-                        <motion.div
+                        <div
                             key="success"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="bg-[#181818] rounded-lg p-8 space-y-6 text-center border border-[#1ed760]/15"
+                            className="anim-pop bg-[#181818] rounded-lg p-8 space-y-6 text-center border border-[#1ed760]/15"
                         >
                             <div className="w-16 h-16 bg-[#1ed760]/10 rounded-full flex items-center justify-center mx-auto">
                                 <CheckCircle2 size={32} className="text-[#1ed760]" />
@@ -197,13 +190,11 @@ export default function RevokePage() {
                                     NEW OPERATION
                                 </button>
                             )}
-                        </motion.div>
+                        </div>
                     ) : (
-                        <motion.div
+                        <div
                             key="form"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="space-y-5"
+                            className="anim-fade space-y-5"
                         >
                             <div className="bg-[#181818] rounded-lg p-6 space-y-5">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -236,13 +227,12 @@ export default function RevokePage() {
                                 </div>
 
                                 {status === 'error' && (
-                                    <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: 'auto' }}
-                                        className="bg-[#f3727f]/10 border border-[#f3727f]/20 text-[#f3727f] p-3 rounded-lg text-xs"
+                                    <div
+                                        role="alert"
+                                        className="anim-slide-down bg-[#f3727f]/10 border border-[#f3727f]/20 text-[#f3727f] p-3 rounded-lg text-xs"
                                     >
                                         {message}
-                                    </motion.div>
+                                    </div>
                                 )}
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
@@ -278,15 +268,14 @@ export default function RevokePage() {
                                     <span className="text-[0.625rem] font-bold uppercase tracking-[0.1em]">Security Policy</span>
                                 </div>
                                 <div className="space-y-2 text-[0.625rem] text-white/20 leading-relaxed">
-                                    <p>Revocation is instant and final. Data is purged from both Redis and DB.</p>
+                                    <p>Revocation is instant and final. The row is deleted in a single atomic statement.</p>
                                     <p>Rotation generates a new URL. The old link returns 404 immediately.</p>
                                     <p>Binify never stores your encryption key. These operations manage the paste ID only.</p>
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
-                </AnimatePresence>
-            </motion.div>
+            </div>
 
             {isProcessing && (
                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center">

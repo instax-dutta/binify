@@ -1,22 +1,30 @@
 /**
- * GET /api/paste/[id] - Retrieve encrypted paste
- * DELETE /api/paste/[id] - Securely revoke (delete) paste
+ * GET    /api/paste/[id] - Retrieve an encrypted paste (consumes one view)
+ * DELETE /api/paste/[id] - Revoke a paste with its deletion token
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import {
-    getPasteMetadata,
-    incrementViewCount,
-    markPasteAsBurned,
-    deletePasteMetadata,
-    isPasteExpired,
-} from '@/lib/db';
-import { getPaste, deletePaste } from '@/lib/redis';
-import { logger, sanitizeError } from '@/lib/logging';
-import { safeCompare } from '@/lib/security';
+    consumePaste,
+    getPasteState,
+    deleteIfExhausted,
+    revokePaste,
+} from '@/lib/pastes';
+import { consumeRateLimit } from '@/lib/rate-limit';
+import { consumeLocalRateLimit, RATE_LIMITS } from '@/lib/limits';
+import { getClientIp } from '@/lib/ip';
+import { hashDeletionToken } from '@/lib/security';
+import { ApiError, apiHeaders, assertValidPasteId } from '@/lib/http';
+import { errorResponse } from '@/lib/api';
 
 /**
- * GET - Retrieve paste and update view state
+ * GET - Retrieve a paste and advance its view budget.
+ *
+ * `consumePaste` decides inside a single statement whether this caller is the
+ * one that gets the last permitted view, so parallel requests cannot both
+ * succeed. The client decrypts with a key held in the URL fragment, which the
+ * server never receives, so the response body is ciphertext to anyone who has
+ * only the paste id.
  */
 export async function GET(
     request: NextRequest,
@@ -24,97 +32,59 @@ export async function GET(
 ) {
     try {
         const { id } = await params;
+        assertValidPasteId(id);
 
-        // Get metadata from database
-        let metadata;
-        try {
-            metadata = await getPasteMetadata(id);
-        } catch (dbError) {
-            logger.error('[DB_ERROR] Failed to fetch metadata:', sanitizeError(dbError));
-            throw new Error(`Database nexus unreachable`);
+        const verdict = consumeLocalRateLimit(`read:${getClientIp(request)}`, RATE_LIMITS.read);
+        if (verdict.limited) {
+            throw ApiError.rateLimited(verdict.resetIn);
         }
 
-        if (!metadata) {
-            return NextResponse.json(
-                { error: 'Paste session not found.' },
-                { status: 404 }
-            );
+        const paste = await consumePaste(id);
+
+        if (!paste) {
+            // Distinguish "gone" from "never existed" without leaking anything
+            // about rows that do exist.
+            const state = await getPasteState(id);
+            if (!state) throw ApiError.notFound();
+            if (state.expired || state.exhausted) throw ApiError.gone();
+            throw ApiError.notFound();
         }
 
-        // Check if paste has expired
-        if (isPasteExpired(metadata)) {
-            // Clean up
-            try {
-                await Promise.all([deletePaste(id), deletePasteMetadata(id)]);
-            } catch (cleanupError) {
-                logger.error('[CLEANUP_ERROR] Failed to purge expired paste:', sanitizeError(cleanupError));
-            }
-
-            return NextResponse.json(
-                { error: 'Transmission expired.' },
-                { status: 410 }
-            );
+        // This read used the final view; purge now that the payload has been
+        // handed over. Idempotent, so a racing purge is harmless.
+        if (paste.finalView) {
+            void deleteIfExhausted(id);
         }
 
-        // Get encrypted payload from Redis
-        let payload;
-        try {
-            payload = await getPaste(id);
-        } catch (redisError) {
-            logger.error('[REDIS_ERROR] Failed to fetch payload:', sanitizeError(redisError));
-            throw new Error('Storage nexus out of sync.');
-        }
-
-        if (!payload || !payload.ciphertext) {
-            return NextResponse.json(
-                { error: 'Encrypted payload missing.' },
-                { status: 404 }
-            );
-        }
-
-        // Determine if this will be the last view
-        const willBurn =
-            metadata.maxViews !== undefined &&
-            metadata.viewCount + 1 >= metadata.maxViews;
-
-        // Secure state updates
-        try {
-            if (willBurn) {
-                await Promise.all([deletePaste(id), markPasteAsBurned(id)]);
-            } else {
-                await incrementViewCount(id);
-            }
-        } catch (updateError) {
-            logger.error('[SYNC_ERROR] Failed to update paste state:', sanitizeError(updateError));
-        }
-
-        // Return encrypted payload and metadata (EXCEPT deletion token)
-        return NextResponse.json({
-            ciphertext: payload.ciphertext,
-            iv: payload.iv,
-            authTag: payload.authTag,
-            salt: payload.salt,
-            iterations: payload.iterations,
-            createdAt: metadata.createdAt,
-            expiresAt: metadata.expiresAt,
-            viewCount: metadata.viewCount + 1,
-            maxViews: metadata.maxViews,
-            hasPassword: metadata.hasPassword,
-            language: metadata.metadata?.language,
-            title: metadata.metadata?.title,
-            willBurn,
-        });
-    } catch (error) {
-        logger.error('[API_ERROR] Retrieval failure:', sanitizeError(error));
         return NextResponse.json(
-            { error: error instanceof Error ? error.message : 'Internal Systems Failure.' },
-            { status: 500 }
+            {
+                ciphertext: paste.ciphertext,
+                iv: paste.iv,
+                authTag: paste.authTag,
+                salt: paste.salt,
+                iterations: paste.iterations,
+                createdAt: paste.createdAt,
+                expiresAt: paste.expiresAt,
+                viewCount: paste.viewCount,
+                maxViews: paste.maxViews,
+                hasPassword: paste.hasPassword,
+                language: paste.language,
+                title: paste.title,
+                finalView: paste.finalView,
+            },
+            { headers: apiHeaders(verdict, RATE_LIMITS.read.max) }
         );
+    } catch (err) {
+        return errorResponse(err, 'read paste');
     }
 }
 
 /**
- * DELETE - Securely revoke a paste using deletion token
+ * DELETE - Revoke a paste.
+ *
+ * Authorisation and deletion are one statement against the stored token hash.
+ * An absent paste and a wrong token are both reported identically, so the
+ * endpoint cannot be used to confirm that an id exists.
  */
 export async function DELETE(
     request: NextRequest,
@@ -122,41 +92,32 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params;
-        const { searchParams } = new URL(request.url);
-        const token = searchParams.get('token');
+        assertValidPasteId(id);
 
-        if (!token) {
-            return NextResponse.json(
-                { error: 'Authorization token required for revocation.' },
-                { status: 401 }
-            );
-        }
-
-        const metadata = await getPasteMetadata(id);
-
-        if (!metadata) {
-            return NextResponse.json(
-                { error: 'Paste session not found.' },
-                { status: 404 }
-            );
-        }
-
-        if (!metadata.deletionToken || !safeCompare(metadata.deletionToken, token)) {
-            return NextResponse.json(
-                { error: 'Invalid authorization token. Revocation denied.' },
-                { status: 403 }
-            );
-        }
-
-        // Securely purge from both layers
-        await Promise.all([deletePaste(id), deletePasteMetadata(id)]);
-
-        return NextResponse.json({ success: true, message: 'Paste securely revoked.' });
-    } catch (error) {
-        logger.error('[API_ERROR] Revocation failure:', sanitizeError(error));
-        return NextResponse.json(
-            { error: 'Revocation sequence failed.' },
-            { status: 500 }
+        const verdict = await consumeRateLimit(
+            `revoke:${getClientIp(request)}`,
+            RATE_LIMITS.revoke
         );
+        if (verdict.limited) {
+            throw ApiError.rateLimited(verdict.resetIn);
+        }
+
+        const token = new URL(request.url).searchParams.get('token');
+        if (!token || token.length > 256) {
+            throw ApiError.unauthorized();
+        }
+
+        const revoked = await revokePaste(id, hashDeletionToken(token));
+        if (!revoked) {
+            // Same response whether the id was wrong or the token was wrong.
+            throw ApiError.unauthorized();
+        }
+
+        return NextResponse.json(
+            { success: true, message: 'Paste revoked.' },
+            { headers: apiHeaders(verdict, RATE_LIMITS.revoke.max) }
+        );
+    } catch (err) {
+        return errorResponse(err, 'revoke paste');
     }
 }

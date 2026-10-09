@@ -1,28 +1,21 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
 import {
     Clock,
     Eye,
-    Flame,
     Lock,
     FileCode,
     Loader2,
     Check,
     Terminal
 } from 'lucide-react';
-import { generateKey, encryptContent } from '@/lib/crypto';
-import type { ExpirationType } from '@/lib/validation';
+import { generateKey, encryptContent, sealPaste } from '@/lib/crypto';
+import { calculateExpiration, type ExpirationType } from '@/lib/validation';
 import { cn } from '@/lib/utils';
 
+import ContentCanvas from './ContentCanvas';
 import LuxurySelect from './LuxurySelect';
-
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
-import remarkGfm from 'remark-gfm';
 
 interface PasteEditorProps {
     onPasteCreated: (pasteId: string, key: string, deletionToken?: string) => void;
@@ -87,7 +80,20 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
 
         try {
             const key = await generateKey();
-            const encrypted = await encryptContent(content, key, password || undefined);
+
+            // Seal the descriptive fields inside the ciphertext so the GCM tag
+            // authenticates them. The server still receives title/language for
+            // indexing, but the values the client renders come from the
+            // authenticated copy, not from whatever the server chose to send.
+            const payload = sealPaste({
+                content,
+                title: title || undefined,
+                language: language !== 'plaintext' ? language : undefined,
+                expiresAt: calculateExpiration(expirationType),
+                maxViews: expirationType === 'views' ? maxViews : expirationType === 'burn' ? 1 : undefined,
+            });
+
+            const encrypted = await encryptContent(payload, key, password || undefined);
 
             const response = await fetch('/api/paste', {
                 method: 'POST',
@@ -98,6 +104,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                     authTag: encrypted.authTag,
                     salt: encrypted.salt,
                     iterations: encrypted.iterations,
+                    kdf: encrypted.kdf,
                     expirationType,
                     maxViews: expirationType === 'views' ? maxViews : undefined,
                     hasPassword: !!password,
@@ -192,92 +199,21 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 onChange={(e) => setContent(e.target.value)}
                                 className="textarea-spotify w-full h-[650px] overflow-y-auto custom-scrollbar px-5 py-5 text-white/80 selection:bg-[#1ed760]/20"
                                 spellCheck={false}
-                                data-lenis-prevent="true"
                                 aria-label="Editor Content"
                             />
                         ) : (
                             <div
                                 className="p-0 overflow-y-auto overflow-x-auto selection:bg-[#1ed760]/20 custom-scrollbar h-[650px]"
-                                data-lenis-prevent="true"
                             >
-                                {language === 'markdown' ? (
-                                    <div className="prose prose-invert max-w-none p-6 text-white/80 overflow-x-auto"
-                                        style={{ '--tw-prose-pre-bg': 'transparent' } as React.CSSProperties}>
-                                        <ReactMarkdown
-                                            remarkPlugins={[remarkGfm]}
-                                            rehypePlugins={[rehypeSanitize]}
-                                            components={{
-                                                code({ node, inline, className, children, ...props }: any) {
-                                                    const match = /language-(\w+)/.exec(className || '');
-                                                    return !inline && match ? (
-                                                        <SyntaxHighlighter
-                                                            style={vscDarkPlus}
-                                                            language={match[1]}
-                                                            PreTag="div"
-                                                            customStyle={{
-                                                                margin: 0,
-                                                                padding: '1.5rem',
-                                                                background: 'rgba(255, 255, 255, 0.03)',
-                                                                borderRadius: '0.5rem',
-                                                                border: '1px solid rgba(255, 255, 255, 0.05)',
-                                                            }}
-                                                            {...props}
-                                                        >
-                                                            {String(children).replace(/\n$/, '')}
-                                                        </SyntaxHighlighter>
-                                                    ) : (
-                                                        <code className={cn("bg-white/10 px-1.5 py-0.5 rounded text-[#539df5] font-mono text-xs", className)} {...props}>
-                                                            {children}
-                                                        </code>
-                                                    );
-                                                },
-                                                table({ children }) {
-                                                    return (
-                                                        <div className="overflow-x-auto my-8 bg-white/[0.02] rounded-lg border border-white/5">
-                                                            <table className="min-w-full divide-y divide-white/5">
-                                                                {children}
-                                                            </table>
-                                                        </div>
-                                                    );
-                                                },
-                                                thead({ children }) {
-                                                    return <thead className="bg-white/[0.03]">{children}</thead>;
-                                                },
-                                                th({ children }) {
-                                                    return <th className="px-5 py-3 text-left text-[0.625rem] font-bold uppercase tracking-[0.1em] text-white/40 border-b border-white/5">{children}</th>;
-                                                },
-                                                td({ children }) {
-                                                    return <td className="px-5 py-3 text-sm border-b border-white/5 text-white/60">{children}</td>;
-                                                },
-                                                tr({ children }) {
-                                                    return <tr className="hover:bg-white/[0.01] transition-colors">{children}</tr>;
-                                                },
-                                            }}
-                                        >
-                                            {content || '*Nothing to preview...*'}
-                                        </ReactMarkdown>
-                                    </div>
-                                ) : language && language !== 'plaintext' ? (
-                                    <SyntaxHighlighter
-                                        language={language.toLowerCase()}
-                                        style={vscDarkPlus}
-                                        customStyle={{
-                                            margin: 0,
-                                            padding: '1.5rem',
-                                            background: 'transparent',
-                                            fontSize: '0.875rem',
-                                            lineHeight: '1.7',
-                                        }}
-                                        showLineNumbers
-                                        lineNumberStyle={{ minWidth: '2.5em', paddingRight: '1em', color: 'rgba(255,255,255,0.05)', textAlign: 'right' }}
-                                    >
-                                        {content || '// Nothing to preview...'}
-                                    </SyntaxHighlighter>
-                                ) : (
-                                    <pre className="p-6 text-sm font-mono text-white/60 whitespace-pre-wrap break-words leading-relaxed">
-                                        {content || 'Nothing to preview...'}
-                                    </pre>
-                                )}
+                                <ContentCanvas
+                                    content={content}
+                                    language={language}
+                                    emptyPreview={
+                                        language === 'markdown'
+                                            ? '*Nothing to preview...*'
+                                            : '// Nothing to preview...'
+                                    }
+                                />
                             </div>
                         )}
                     </div>
@@ -342,18 +278,14 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                     </div>
                 </div>
 
-                <AnimatePresence>
-                    {error && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="bg-[#f3727f]/10 border border-[#f3727f]/20 text-[#f3727f] px-4 py-3 rounded-lg text-sm text-center"
-                        >
-                            {error}
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {error && (
+                    <div
+                        role="alert"
+                        className="anim-slide-down bg-[#f3727f]/10 border border-[#f3727f]/20 text-[#f3727f] px-4 py-3 rounded-lg text-sm text-center"
+                    >
+                        {error}
+                    </div>
+                )}
 
                 {/* Submit */}
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-5 pt-2">

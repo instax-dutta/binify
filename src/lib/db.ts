@@ -1,192 +1,146 @@
 /**
- * TursoDB (libSQL) client for paste metadata storage
+ * PostgreSQL connection layer.
+ *
+ * Single datastore: encrypted payloads and their metadata live in one table so
+ * a paste is created, read, burned, rotated and revoked atomically. There is no
+ * second store to keep in sync, so no dual-write can half-apply.
  */
 
-import { createClient, type Client } from '@libsql/client';
-import { logger } from './logging';
-import { type PasteMetadata, isPasteExpired } from './paste-expiry';
+import { Pool, type PoolClient, type QueryResultRow } from 'pg';
+import { logger, sanitizeError } from './logging';
 
-export { type PasteMetadata, isPasteExpired };
-
-let dbClient: Client | null = null;
+let pool: Pool | null = null;
 
 /**
- * Get or create TursoDB client
+ * Lazily create the pool.
+ *
+ * On serverless the connection must point at a pooled endpoint (Neon's
+ * `-pooled` hostname, Supabase's transaction/session pooler, or a pgbouncer in
+ * front). Direct connections will exhaust Postgres' backend slots under
+ * concurrency.
  */
-export function getDb(): Client {
-    if (!dbClient) {
-        const url = process.env.TURSO_DATABASE_URL;
-        const authToken = process.env.TURSO_AUTH_TOKEN;
+export function getPool(): Pool {
+    if (pool) return pool;
 
-        if (!url) {
-            throw new Error('TURSO_DATABASE_URL environment variable is not set');
-        }
-
-        dbClient = createClient({
-            url,
-            authToken,
-        });
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+        throw new Error('DATABASE_URL environment variable is not set');
     }
 
-    return dbClient;
+    pool = new Pool({
+        connectionString,
+        // Serverless instances are short-lived and may scale to zero; keep the
+        // ceiling tight so a traffic spike cannot open unbounded backends.
+        max: Number(process.env.DATABASE_POOL_MAX ?? 5),
+        idleTimeoutMillis: 30_000,
+        connectionTimeoutMillis: 10_000,
+        ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false },
+    });
+
+    // A pool-level error (e.g. an idle backend dropped by the server) must not
+    // become an unhandled 'error' event and crash the instance.
+    pool.on('error', (err) => {
+        logger.error('[PG_POOL_ERROR]', sanitizeError(err));
+    });
+
+    return pool;
 }
 
 /**
- * Initialize database schema
+ * Run a parameterised query. Never interpolate caller input into SQL.
  */
-export async function initializeDatabase() {
-    const db = getDb();
+export async function query<T extends QueryResultRow = QueryResultRow>(
+    text: string,
+    params: unknown[] = []
+): Promise<T[]> {
+    const result = await getPool().query<T>(text, params);
+    return result.rows;
+}
 
-    await db.execute(`
-    CREATE TABLE IF NOT EXISTS pastes (
-      id TEXT PRIMARY KEY,
-      created_at INTEGER NOT NULL,
-      expires_at INTEGER,
-      max_views INTEGER,
-      view_count INTEGER DEFAULT 0,
-      burned INTEGER DEFAULT 0,
-      has_password INTEGER DEFAULT 0,
-      metadata TEXT,
-      deletion_token TEXT,
-      updated_at INTEGER NOT NULL
-    )
-  `);
+export async function queryOne<T extends QueryResultRow = QueryResultRow>(
+    text: string,
+    params: unknown[] = []
+): Promise<T | null> {
+    const rows = await query<T>(text, params);
+    return rows[0] ?? null;
+}
 
-    // Create index for cleanup queries
-    await db.execute(`
-    CREATE INDEX IF NOT EXISTS idx_expires_at ON pastes(expires_at)
-  `);
-
-    // Create index for burned pastes
-    await db.execute(`
-    CREATE INDEX IF NOT EXISTS idx_burned ON pastes(burned)
-  `);
-
-    logger.info('Database initialized successfully');
-
-    // Migration: Add deletion_token if it doesn't exist
+/**
+ * Run `fn` inside a transaction, rolling back on any throw.
+ */
+export async function transaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
+    const client = await getPool().connect();
     try {
-        await db.execute(`ALTER TABLE pastes ADD COLUMN deletion_token TEXT`);
-        logger.info('Migration: Added deletion_token column');
-    } catch (e) {
-        // Ignore if column already exists
-        logger.info('Migration: deletion_token column already exists or could not be added');
+        await client.query('BEGIN');
+        const result = await fn(client);
+        await client.query('COMMIT');
+        return result;
+    } catch (err) {
+        await client.query('ROLLBACK').catch(() => {
+            /* the connection is already unusable; releasing it is enough */
+        });
+        throw err;
+    } finally {
+        client.release();
     }
 }
 
 /**
- * Create paste metadata record
+ * Schema DDL. Idempotent, so it is safe to run on every deploy and from the
+ * migration script. This is the only definition of the schema in the repo.
  */
-export async function createPasteMetadata(
-    paste: Omit<PasteMetadata, 'viewCount' | 'burned'>
-): Promise<void> {
-    const db = getDb();
-    const now = Date.now();
+export const SCHEMA_SQL = `
+CREATE TABLE IF NOT EXISTS pastes (
+  id            TEXT PRIMARY KEY,
+  ciphertext    TEXT        NOT NULL,
+  iv            TEXT        NOT NULL,
+  auth_tag      TEXT        NOT NULL,
+  salt          TEXT,
+  iterations    INTEGER,
+  token_hash    TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  expires_at    TIMESTAMPTZ,
+  max_views     INTEGER,
+  view_count    INTEGER     NOT NULL DEFAULT 0,
+  burned        BOOLEAN     NOT NULL DEFAULT FALSE,
+  has_password  BOOLEAN     NOT NULL DEFAULT FALSE,
+  title         TEXT,
+  language      TEXT,
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
-    await db.execute({
-        sql: `
-      INSERT INTO pastes (
-        id, created_at, expires_at, max_views, view_count, 
-        burned, has_password, metadata, deletion_token, updated_at
-      ) VALUES (?, ?, ?, ?, 0, 0, ?, ?, ?, ?)
-    `,
-        args: [
-            paste.id,
-            paste.createdAt,
-            paste.expiresAt ?? null,
-            paste.maxViews ?? null,
-            paste.hasPassword ? 1 : 0,
-            paste.metadata ? JSON.stringify(paste.metadata) : null,
-            paste.deletionToken ?? null,
-            now,
-        ],
-    });
+CREATE INDEX IF NOT EXISTS idx_pastes_expires_at
+  ON pastes (expires_at) WHERE expires_at IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_pastes_created_at ON pastes (created_at);
+
+CREATE TABLE IF NOT EXISTS rate_limits (
+  key           TEXT PRIMARY KEY,
+  window_start  TIMESTAMPTZ NOT NULL,
+  count         INTEGER     NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_rate_limits_window ON rate_limits (window_start);
+`;
+
+/**
+ * Create tables and indexes if they do not exist. Safe to run repeatedly.
+ */
+export async function initializeDatabase(): Promise<void> {
+    await getPool().query(SCHEMA_SQL);
+    logger.info('Database schema verified');
 }
 
 /**
- * Get paste metadata by ID
+ * Row-level advisory lock to keep concurrent init calls from racing each other.
  */
-export async function getPasteMetadata(id: string): Promise<PasteMetadata | null> {
-    const db = getDb();
-
-    const result = await db.execute({
-        sql: 'SELECT * FROM pastes WHERE id = ?',
-        args: [id],
-    });
-
-    if (result.rows.length === 0) {
-        return null;
+export async function withInitLock<T>(fn: () => Promise<T>): Promise<T> {
+    const client = await getPool().connect();
+    try {
+        await client.query('SELECT pg_advisory_lock($1)', [0x62696e69]);
+        return await fn();
+    } finally {
+        await client.query('SELECT pg_advisory_unlock($1)', [0x62696e69]).catch(() => {});
+        client.release();
     }
-
-    const row = result.rows[0];
-
-    return {
-        id: row.id as string,
-        createdAt: row.created_at as number,
-        expiresAt: row.expires_at ? (row.expires_at as number) : undefined,
-        maxViews: row.max_views ? (row.max_views as number) : undefined,
-        viewCount: row.view_count as number,
-        burned: Boolean(row.burned),
-        hasPassword: Boolean(row.has_password),
-        deletionToken: row.deletion_token as string || undefined,
-        metadata: row.metadata ? JSON.parse(row.metadata as string) : undefined,
-    };
-}
-
-/**
- * Increment view count for a paste
- */
-export async function incrementViewCount(id: string): Promise<void> {
-    const db = getDb();
-    const now = Date.now();
-
-    await db.execute({
-        sql: 'UPDATE pastes SET view_count = view_count + 1, updated_at = ? WHERE id = ?',
-        args: [now, id],
-    });
-}
-
-/**
- * Mark paste as burned
- */
-export async function markPasteAsBurned(id: string): Promise<void> {
-    const db = getDb();
-    const now = Date.now();
-
-    await db.execute({
-        sql: 'UPDATE pastes SET burned = 1, updated_at = ? WHERE id = ?',
-        args: [now, id],
-    });
-}
-
-/**
- * Delete paste metadata
- */
-export async function deletePasteMetadata(id: string): Promise<void> {
-    const db = getDb();
-
-    await db.execute({
-        sql: 'DELETE FROM pastes WHERE id = ?',
-        args: [id],
-    });
-}
-
-/**
- * Cleanup expired pastes (for manual cleanup or cron)
- * Returns IDs of expired pastes
- */
-export async function getExpiredPasteIds(): Promise<string[]> {
-    const db = getDb();
-    const now = Date.now();
-
-    const result = await db.execute({
-        sql: `
-      SELECT id FROM pastes 
-      WHERE (expires_at IS NOT NULL AND expires_at < ?) 
-         OR burned = 1
-    `,
-        args: [now],
-    });
-
-    return result.rows.map((row) => row.id as string);
 }
