@@ -8,7 +8,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { withServer, pass, fail } from './lib/harness.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
@@ -19,7 +19,7 @@ function structural() {
     for (const rel of ['src/app/error.tsx', 'src/app/global-error.tsx']) {
         const path = `${ROOT}/${rel}`;
         if (!existsSync(path)) { problems.push(`${rel} missing`); continue; }
-        const src = require('node:fs').readFileSync(path, 'utf8');
+        const src = readFileSync(path, 'utf8');
         if (!/^'use client'|^"use client"/m.test(src)) {
             problems.push(`${rel} must be a client component`);
         }
