@@ -53,19 +53,34 @@ await withServer(async (base) => {
             });
 
             await page.click('button[type=submit]');
-            await page.waitForTimeout(3000);
-            const shareLink = await page.evaluate(() =>
-                [...document.querySelectorAll('a')].map((a) => a.href).find((h) => h.includes('/p/'))
-            );
+
+            // Wait for the condition, not a fixed delay. Sealing runs Argon2id
+            // in the browser on purpose, so how long it takes depends on the
+            // machine and the network. A fixed sleep either wastes time or fails
+            // on a slow host, and a gate that flakes is a gate nobody trusts.
+            let shareLink = null;
+            try {
+                await page.waitForSelector('a[href*="/p/"]', { timeout: 45_000 });
+                shareLink = await page.evaluate(
+                    () => document.querySelector('a[href*="/p/"]')?.href ?? null
+                );
+            } catch {
+                shareLink = null;
+            }
 
             let decrypted = false;
             if (shareLink) {
                 const viewer = await browser.newPage();
                 await viewer.goto(shareLink, { waitUntil: 'networkidle' });
-                await viewer.waitForTimeout(2000);
-                decrypted = await viewer.evaluate(() =>
-                    document.body.innerText.includes('export const answer = 42;')
-                );
+                try {
+                    await viewer.waitForFunction(
+                        () => document.body.innerText.includes('export const answer = 42;'),
+                        { timeout: 45_000 }
+                    );
+                    decrypted = true;
+                } catch {
+                    decrypted = false;
+                }
                 await viewer.close();
             }
 
