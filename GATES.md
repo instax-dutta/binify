@@ -85,10 +85,10 @@ Two properties are decided here rather than measured, because a test cannot deci
   EXPECT: DOCS PASS
   EVIDENCE: automatic-evidence=v1; definition-sha256=3d7b15615cfa39b562e94b2bde81f9112a6323c7f272cfa3ef81ada831f56bc2; exit=0; EXPECT=matched; output-sha256=212bcb96c1c1416c95d2d17898c3c436fbfcb2e501da9081fe6d971fc785f555; output-bytes=10; shell=/bin/sh; cwd=/home/tejes/binify-test/binify; path=7cc916ea10f3/10 entries
 
-- [ ] G14: the database stays available, and the mechanism is chosen for the failure mode rather than applied on reflex
+- [x] G14: the database stays available, and the mechanism is chosen for the failure mode rather than applied on reflex
   CHECK: node scripts/verify-keepalive.mjs
   EXPECT: KEEPALIVE PASS
-  EVIDENCE: pending
+  EVIDENCE: automatic-evidence=v1; definition-sha256=c59a7f0701fd339995904f0d55e116375921dbc87154a23a18c2ce55c341f6fa; exit=0; EXPECT=matched; output-sha256=16a1d6b973319ee4112ddb72d5f074d000edd7a219b7e99ab36c98bc251b646d; output-bytes=15; shell=/bin/sh; cwd=/home/tejes/binify-test/binify; path=7cc916ea10f3/10 entries
 
 ## Owner actions
 
