@@ -11,29 +11,15 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                background: 'var(--background)',
-                foreground: 'var(--foreground)',
-                card: {
-                    DEFAULT: 'var(--card)',
-                    hover: 'var(--card-hover)',
-                },
-                surface: 'var(--surface)',
-                accent: {
-                    DEFAULT: 'var(--accent)',
-                    secondary: 'var(--accent-secondary)',
-                },
-                border: {
-                    DEFAULT: 'var(--border)',
-                    hover: 'var(--border-hover)',
-                },
-                muted: '#b3b3b3',
-                negative: '#f3727f',
-                warning: '#ffa42b',
+                night: 'var(--night)',
+                vellum: 'var(--vellum)',
+                ink: 'var(--ink)',
+                amber: 'var(--amber)',
+                wax: 'var(--wax)',
             },
             fontFamily: {
-                sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-                display: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
-                mono: ['var(--font-mono)', 'Consolas', 'monospace'],
+                voice: ['var(--font-voice)', 'serif'],
+                data: ['var(--font-data)', 'monospace'],
             },
             boxShadow: {
                 'spotify-heavy': 'rgba(0, 0, 0, 0.5) 0px 8px 24px',

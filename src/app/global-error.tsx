@@ -1,9 +1,11 @@
 'use client';
 
+import { useEffect } from 'react';
+
 /**
- * Last-resort boundary for failures in the root layout itself, where the route
- * boundary cannot render. This component replaces the entire document, so it
- * has to emit <html> and <body> itself.
+ * The last boundary. If the error survived here the document shell itself has
+ * failed, so this component must emit <html> and <body> itself, and load the
+ * fonts inline for whatever style still reaches the visitor.
  */
 export default function GlobalError({
     error,
@@ -12,52 +14,77 @@ export default function GlobalError({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
+    useEffect(() => {
+        console.error('[global-error]', error.digest ?? error.name, error.message);
+    }, [error]);
+
     return (
         <html lang="en">
             <body
-                role="alert"
-                aria-live="assertive"
-                className="bg-[#121212] text-white antialiased"
                 style={{
-                    fontFamily:
-                        'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif',
                     minHeight: '100vh',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: 0,
-                    padding: '1.5rem',
+                    display: 'grid',
+                    placeItems: 'center',
+                    padding: '24px',
+                    background: '#0f0c09',
+                    color: '#ece1cb',
+                    fontFamily:
+                        'IBM Plex Mono, ui-monospace, SFMono-Regular, Menlo, monospace',
                 }}
             >
-                <main style={{ maxWidth: '28rem', textAlign: 'center' }}>
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>
+                <div role="alert" aria-live="assertive" style={{ textAlign: 'center' }}>
+                    <div
+                        aria-hidden="true"
+                        style={{
+                            width: 74,
+                            height: 74,
+                            margin: '0 auto 28px',
+                            borderRadius: '50%',
+                            display: 'grid',
+                            placeItems: 'center',
+                            border: '1px solid rgba(122,46,42,.5)',
+                            boxShadow: '0 0 40px rgba(122,46,42,.15) inset',
+                        }}
+                    >
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#a4463f" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                            <path d="M6 3.5 V20.5" />
+                            <path d="M10 6 C 13.5 7.5, 15 10, 13.5 13.5" strokeDasharray="2 2.6" />
+                            <path d="M14 15.5 L18 19.5" opacity=".55" strokeDasharray="1.5 3" />
+                        </svg>
+                    </div>
+                    <h1 style={{ fontSize: 25, fontWeight: 600, fontFamily: 'Cormorant Garamond, Georgia, serif' }}>
                         Something went wrong
                     </h1>
-                    <p style={{ color: '#b3b3b3', fontSize: '0.875rem', lineHeight: 1.6 }}>
-                        Binify could not start. Reloading usually clears it.
+                    <p
+                        style={{
+                            marginTop: 14,
+                            fontSize: 11.5,
+                            letterSpacing: '.18em',
+                            color: 'rgba(236,225,203,.66)',
+                            textTransform: 'uppercase',
+                            lineHeight: '1.9',
+                        }}
+                    >
+                        The lamp guttered — nothing is lost but the page
+                        {error.digest ? ` · proof ${error.digest}` : ''}
                     </p>
-                    {error.digest && (
-                        <p style={{ color: '#666', fontSize: '0.6875rem', marginTop: '1rem' }}>
-                            Reference: {error.digest}
-                        </p>
-                    )}
                     <button
-                        type="button"
                         onClick={reset}
                         style={{
-                            marginTop: '1.5rem',
-                            padding: '0.75rem 1.5rem',
-                            borderRadius: '9999px',
-                            border: 'none',
-                            background: '#1ed760',
-                            color: '#000',
-                            fontWeight: 700,
+                            marginTop: 30,
+                            background: 'transparent',
+                            border: '1px solid rgba(236,225,203,.3)',
+                            color: '#ece1cb',
+                            fontFamily: 'inherit',
+                            fontSize: 11,
+                            letterSpacing: '.28em',
+                            padding: '12px 26px',
                             cursor: 'pointer',
                         }}
                     >
-                        Reload
+                        TRY AGAIN
                     </button>
-                </main>
+                </div>
             </body>
         </html>
     );

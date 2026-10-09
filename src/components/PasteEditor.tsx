@@ -1,35 +1,26 @@
 'use client';
 
 import { useState } from 'react';
-import {
-    Clock,
-    Eye,
-    Lock,
-    FileCode,
-    Loader2,
-    Check,
-    Terminal
-} from 'lucide-react';
 import { generateKey, encryptContent, sealPaste } from '@/lib/crypto';
 import { calculateExpiration, type ExpirationType } from '@/lib/validation';
 import { cn } from '@/lib/utils';
-
 import ContentCanvas from './ContentCanvas';
 import LuxurySelect from './LuxurySelect';
+import { WaxSeal, WaxSealDefs } from './WaxSeal';
 
 interface PasteEditorProps {
     onPasteCreated: (pasteId: string, key: string, deletionToken?: string) => void;
 }
 
 const expirationOptions = [
-    { label: '5 minutes', value: '5min' },
-    { label: '1 hour', value: '1hour' },
-    { label: '1 day', value: '1day' },
-    { label: '7 days', value: '7days' },
-    { label: '30 days', value: '30days' },
-    { label: 'Never', value: 'never' },
-    { label: 'After X views', value: 'views' },
-    { label: 'Burn after reading', value: 'burn' },
+    { label: 'In 5 minutes', value: '5min' },
+    { label: 'In an hour', value: '1hour' },
+    { label: 'In a day', value: '1day' },
+    { label: 'In seven days', value: '7days' },
+    { label: 'In thirty days', value: '30days' },
+    { label: 'On my word', value: 'never' },
+    { label: 'After X readings', value: 'views' },
+    { label: 'On first reading', value: 'burn' },
 ];
 
 const languageOptions = [
@@ -71,7 +62,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
 
     const handleCreate = async () => {
         if (!content.trim()) {
-            setError('Content cannot be empty');
+            setError('The message cannot be empty');
             return;
         }
 
@@ -115,116 +106,108 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Failed to create paste');
+                throw new Error(errorData.error || 'The slip could not be sealed');
             }
 
             const data = await response.json();
             onPasteCreated(data.pasteId, key, data.deletionToken);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to create paste');
+            setError(err instanceof Error ? err.message : 'The slip could not be sealed');
         } finally {
             setIsCreating(false);
         }
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto space-y-6">
-            <form onSubmit={(e) => { e.preventDefault(); handleCreate(); }} className="space-y-6">
-                {/* Title Input */}
-                <div>
-                    <input
-                        type="text"
-                        placeholder="Give your paste a title..."
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        className="input-spotify text-base py-3.5"
-                        maxLength={200}
-                        autoComplete="off"
-                        aria-label="Paste Title"
-                    />
+        <div className="w-full max-w-[460px] mx-auto">
+            <WaxSealDefs />
+            <form
+                onSubmit={(e) => { e.preventDefault(); handleCreate(); }}
+                className="slip px-7 py-8 md:px-8 anim-rise"
+            >
+                <p className="rune text-center tracking-[0.4em] text-[11px] mb-7">
+                    WHAT MUST NOT PERSIST
+                </p>
+
+                <label htmlFor="paste-title" className="rune block mb-2">Name</label>
+                <input
+                    id="paste-title"
+                    type="text"
+                    placeholder="Give this slip a title — or leave it nameless"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="paper-input font-voice font-medium text-[20px]"
+                    maxLength={200}
+                    autoComplete="off"
+                />
+
+                {/* The message area is a single white field on the slip: the
+                    voice carries prose, the data hand carries code. */}
+                <label htmlFor="editor-content" className="rune block mt-6 mb-2">The message</label>
+                <div className="flex items-center justify-between mb-2">
+                    <div className="flex gap-3" role="tablist" aria-label="Message view">
+                        <button
+                            type="button"
+                            onClick={() => setViewMode('edit')}
+                            aria-pressed={viewMode === 'edit'}
+                            className={cn(
+                                'rune pb-1 transition-colors',
+                                viewMode === 'edit'
+                                    ? 'text-wax border-b border-wax'
+                                    : 'opacity-60 hover:opacity-90'
+                            )}
+                        >
+                            Write
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode('preview')}
+                            aria-pressed={viewMode === 'preview'}
+                            className={cn(
+                                'rune pb-1 transition-colors',
+                                viewMode === 'preview'
+                                    ? 'text-wax border-b border-wax'
+                                    : 'opacity-60 hover:opacity-90'
+                            )}
+                        >
+                            Proof
+                        </button>
+                    </div>
+                    <span className="rune" aria-live="polite">
+                        {content.length.toLocaleString()} CHARS
+                    </span>
                 </div>
 
-                {/* Content Editor */}
-                <div className="bg-[#181818] rounded-lg overflow-hidden border border-white/5">
-                    {/* Editor toolbar */}
-                    <div className="flex items-center justify-between px-4 py-2.5 bg-[#1f1f1f] border-b border-white/5">
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1.5">
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#f3727f]/60 group-hover:bg-[#f3727f] transition-colors" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#ffa42b]/60 group-hover:bg-[#ffa42b] transition-colors" />
-                                <div className="w-2.5 h-2.5 rounded-full bg-[#1ed760]/60 group-hover:bg-[#1ed760] transition-colors" />
-                            </div>
-                            <span className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-white/50">
-                                {viewMode === 'edit' ? 'EDITOR' : 'PREVIEW'}
-                            </span>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                            <div className="flex bg-[#121212] rounded-[9999px] p-0.5 border border-white/5">
-                                <button
-                                    type="button"
-                                    onClick={() => setViewMode('edit')}
-                                    aria-pressed={viewMode === 'edit'}
-                                    className={cn(
-                                        "px-3 py-1 text-[0.625rem] font-bold rounded-[9999px] transition-all uppercase tracking-[0.05em]",
-                                        viewMode === 'edit' ? "bg-[#1f1f1f] text-white" : "text-white/50 hover:text-white/40"
-                                    )}
-                                >
-                                    EDIT
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setViewMode('preview')}
-                                    aria-pressed={viewMode === 'preview'}
-                                    className={cn(
-                                        "px-3 py-1 text-[0.625rem] font-bold rounded-[9999px] transition-all uppercase tracking-[0.05em]",
-                                        viewMode === 'preview' ? "bg-[#1f1f1f] text-white" : "text-white/50 hover:text-white/40"
-                                    )}
-                                >
-                                    PREVIEW
-                                </button>
-                            </div>
-                            <span className="text-[0.625rem] font-bold text-white/50 uppercase tracking-[0.1em]">
-                                {content.length.toLocaleString()} CHARS
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Editor body */}
-                    <div className="relative min-h-[500px]">
-                        {viewMode === 'edit' ? (
-                            <textarea
-                                placeholder="Paste your code or text here..."
-                                value={content}
-                                onChange={(e) => setContent(e.target.value)}
-                                className="textarea-spotify w-full h-[650px] overflow-y-auto custom-scrollbar px-5 py-5 text-white/80 selection:bg-[#1ed760]/20"
-                                spellCheck={false}
-                                aria-label="Editor Content"
+                <div className="relative min-h-[300px]">
+                    {viewMode === 'edit' ? (
+                        <textarea
+                            id="editor-content"
+                            placeholder="Say what must not be kept…"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            className="paper-input border-0 font-voice font-medium text-[19px] leading-[1.55] w-full min-h-[280px] resize-none custom-scrollbar"
+                            spellCheck={false}
+                        />
+                    ) : (
+                        <div className="min-h-[280px] max-h-[420px] overflow-y-auto overflow-x-auto custom-scrollbar">
+                            <ContentCanvas
+                                content={content}
+                                language={language}
+                                emptyPreview={
+                                    language === 'markdown'
+                                        ? 'Nothing to prove yet.'
+                                        : '// nothing to prove yet'
+                                }
                             />
-                        ) : (
-                            <div
-                                className="p-0 overflow-y-auto overflow-x-auto selection:bg-[#1ed760]/20 custom-scrollbar h-[650px]"
-                            >
-                                <ContentCanvas
-                                    content={content}
-                                    language={language}
-                                    emptyPreview={
-                                        language === 'markdown'
-                                            ? '*Nothing to preview...*'
-                                            : '// Nothing to preview...'
-                                    }
-                                />
-                            </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* Options Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                        <label htmlFor="expiration-select" className="label-spotify">
-                            <Clock size={12} /> Expiration
-                        </label>
+                <div className="slip-rule" />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-x-5 gap-y-5">
+                    <div>
+                        <label htmlFor="expiration-select" className="rune block mb-2">Burns</label>
                         <LuxurySelect
                             id="expiration-select"
                             options={expirationOptions}
@@ -234,25 +217,23 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                     </div>
 
                     {expirationType === 'views' ? (
-                        <div className="space-y-1.5">
-                            <label htmlFor="max-views-input" className="label-spotify">
-                                <Eye size={12} /> Max Views
-                            </label>
+                        <div>
+                            <label htmlFor="max-views-input" className="rune block mb-2">Readings</label>
                             <input
                                 id="max-views-input"
                                 type="number"
                                 min={1}
                                 max={1000}
                                 value={maxViews}
+                                aria-label="Maximum number of readings"
                                 onChange={(e) => setMaxViews(parseInt(e.target.value) || 1)}
-                                className="input-spotify"
+                                className="paper-input font-data text-xs"
                             />
                         </div>
-                    ) : (
-                        <div className="space-y-1.5">
-                            <label htmlFor="language-select" className="label-spotify">
-                                <FileCode size={12} /> Language
-                            </label>
+                    ) : null}
+                    {expirationType !== 'views' ? (
+                        <div>
+                            <label htmlFor="language-select" className="rune block mb-2">The hand</label>
                             <LuxurySelect
                                 id="language-select"
                                 options={languageOptions}
@@ -260,55 +241,52 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 onChange={(val) => setLanguage(val)}
                             />
                         </div>
-                    )}
+                    ) : null}
 
-                    <div className="space-y-1.5">
-                        <label htmlFor="password-input" className="label-spotify">
-                            <Lock size={12} /> Password
-                        </label>
+                    <div>
+                        <label htmlFor="guard-input" className="rune block mb-2">Guard</label>
                         <input
-                            id="password-input"
+                            id="guard-input"
                             type="password"
-                            placeholder="Extra layer of security..."
+                            placeholder="Optional word"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="input-spotify"
+                            className="paper-input font-data text-xs"
                             autoComplete="new-password"
                         />
                     </div>
                 </div>
 
                 {error && (
-                    <div
-                        role="alert"
-                        className="anim-slide-down bg-[#f3727f]/10 border border-[#f3727f]/20 text-[#f3727f] px-4 py-3 rounded-lg text-sm text-center"
-                    >
+                    <p role="alert" className="anim-fade mt-6 text-center font-voice italic text-[17px]" style={{ color: '#a4463f' }}>
                         {error}
-                    </div>
+                    </p>
                 )}
 
-                {/* Submit */}
-                <div className="flex flex-col md:flex-row items-start md:items-center gap-5 pt-2">
+                <div className="seal-zone flex flex-col items-center gap-3 mt-8">
                     <button
                         type="submit"
                         disabled={isCreating || !content.trim()}
-                        className="btn-spotify-primary min-w-[200px] h-12 disabled:opacity-40 disabled:cursor-not-allowed"
+                        aria-label="Press the seal to encrypt and share"
+                        className="seal-press"
                     >
-                        {isCreating ? (
-                            <Loader2 size={18} className="animate-spin" />
-                        ) : (
-                            <>
-                                <Terminal size={16} />
-                                <span>ENCRYPT & SHARE</span>
-                            </>
-                        )}
+                        <span className="sr-only">Encrypt and share</span>
+                        <WaxSeal
+                            size={72}
+                            className={cn('transition-transform', isCreating && 'press-depressed spin-slow')}
+                        />
                     </button>
-                    <div className="flex items-center gap-2 text-xs text-[#b3b3b3]">
-                        <Check size={14} className="text-[#1ed760]" />
-                        <span>Encrypted in-browser before upload</span>
-                    </div>
+                    <span className="rune text-ink tracking-[0.32em]" style={{ color: 'var(--ink)' }}>
+                        {isCreating ? 'SEALING…' : 'PRESS THE SEAL'}
+                    </span>
+                    <span className="rune text-[10px] opacity-70">
+                        ONE READING · THE SERVER HOLDS NOISE
+                    </span>
                 </div>
             </form>
+            <p className="rune-muted text-center mt-6 text-[10.5px]">
+                THE BURN ARCHIVE — WHAT LEAVES THIS MACHINE IS NOISE
+            </p>
         </div>
     );
 }

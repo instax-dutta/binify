@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Design exploration trees. The vendored minified Alpine copy there is
+    // screenshot tooling, not product code, and is not this repo's lint duty.
+    ".design/**",
   ]),
 ]);
 

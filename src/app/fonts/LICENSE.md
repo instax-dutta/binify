@@ -1,13 +1,14 @@
 # Bundled fonts
 
-The files in this directory were downloaded from Google Fonts and are committed
-so that a build never depends on reaching `fonts.googleapis.com`.
+The files in this directory are committed so a build never depends on reaching
+`fonts.googleapis.com`.
 
-| Family | File prefix | Copyright | License |
+| Family | Files | Copyright | License |
 |---|---|---|---|
-| DM Sans | `dm-sans-*.woff2` | Colophon Foundry, Jonny Pinhorn | SIL Open Font License 1.1 |
-| Figtree | `figtree-*.woff2` | The Figtree Project Authors | SIL Open Font License 1.1 |
-| JetBrains Mono | `jetbrains-mono-*.woff2` | JetBrains | SIL Open Font License 1.1 |
+| Cormorant Garamond | cormorant-500/600.woff2 | The Cormorant Project Authors | SIL Open Font License 1.1 |
+| IBM Plex Mono | plex-mono-400/500.woff2 | IBM Corp. | SIL Open Font License 1.1 |
+
+Dropped with the Sanctum redesign: DM Sans, Figtree and JetBrains Mono.
 
 The SIL Open Font License 1.1 permits redistribution of the font files, with or
 without modification, provided the fonts are not sold on their own and the

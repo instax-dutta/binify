@@ -10,14 +10,18 @@ export default function Loading() {
         <div
             role="status"
             aria-live="polite"
-            className="min-h-screen flex items-center justify-center bg-[#121212]"
+            className="min-h-screen grid place-items-center"
         >
-            <span className="sr-only">Loading…</span>
-            <div className="flex items-center gap-3" aria-hidden="true">
-                <span className="w-6 h-6 rounded-full border-2 border-white/10 border-t-[#1ed760] animate-spin" />
-                <span className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-white/60">
-                    Decrypting
-                </span>
+            <span className="sr-only">Holding the slip — a moment</span>
+            <div className="flex flex-col items-center gap-5" aria-hidden="true">
+                <span
+                    className="ember-pulse h-[6px] w-[76px] rounded-[3px]"
+                    style={{
+                        background: 'linear-gradient(180deg,#c9a25a,#a4762f)',
+                        boxShadow: '0 0 14px rgba(201,162,90,.55)',
+                    }}
+                />
+                <span className="rune-muted text-[10.5px]">A CANDLE HOLDS THE DARK</span>
             </div>
         </div>
     );

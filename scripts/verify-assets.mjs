@@ -76,12 +76,16 @@ if (icon32) {
 }
 
 // Total of everything in public/ that ships to a browser.
-const { readdirSync } = await import('node:fs');
+const { readdirSync, statSync: stat } = await import('node:fs');
 const pubRoot = `${new URL('..', import.meta.url).pathname.replace(/\/$/, '')}/public`;
 let total = 0;
-for (const f of readdirSync(pubRoot)) {
-    if (/\.(png|jpe?g|svg|ico|webp)$/i.test(f)) total += statSync(`${pubRoot}/${f}`).size;
-}
+const walk = (dir) => {
+    for (const f of readdirSync(dir, { withFileTypes: true })) {
+        if (f.isDirectory()) walk(`${dir}/${f.name}`);
+        else if (/\.(png|jpe?g|svg|ico|webp)$/i.test(f.name)) total += stat(`${dir}/${f.name}`).size;
+    }
+};
+walk(pubRoot);
 checks.push({
     name: 'total public asset weight within budget',
     ok: total <= budget.publicAssetsBytes,
