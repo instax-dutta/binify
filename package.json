@@ -10,7 +10,8 @@
     "test": "tsx --test src/lib/*.test.ts",
     "test:integration": "tsx --test --test-concurrency=1 src/test/*.integration.test.ts",
     "migrate": "tsx scripts/migrate.ts",
-    "db:check": "tsx scripts/check-db.ts"
+    "db:check": "tsx scripts/check-db.ts",
+    "verify": "node scripts/verify-all.mjs"
   },
   "dependencies": {
     "@noble/hashes": "^2.4.0",
@@ -43,6 +44,14 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
     "tsx": "^4.23.15",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "@playwright/test": "^1.56.1",
+    "@axe-core/playwright": "^4.10.2"
+  },
+  "performanceBudget": {
+    "homepageJsGzipBytes": 327680,
+    "homepageTotalBytes": 430080,
+    "publicAssetsBytes": 262144,
+    "maxAssetBytes": 131072
   }
 }
