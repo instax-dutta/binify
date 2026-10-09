@@ -152,7 +152,7 @@ export default function PasteCreated({
                             )}
                         </button>
                     </div>
-                    <p className="text-[0.625rem] text-white/20 px-1">
+                    <p className="text-[0.625rem] text-white/50 px-1">
                         Use this at <a href="/revoke" className="underline hover:text-white transition-colors">/revoke</a> to delete or rotate your paste.
                     </p>
                 </div>
@@ -175,7 +175,7 @@ export default function PasteCreated({
                         </div>
                     ) : (
                         <div className="w-40 h-40 rounded-lg border border-dashed border-white/5 flex items-center justify-center">
-                            <QrCode size={28} className="text-white/5" />
+                            <QrCode size={28} aria-hidden="true" className="text-white/45" />
                         </div>
                     )}
                 </div>
@@ -202,7 +202,7 @@ export default function PasteCreated({
                                 <ExternalLink size={14} />
                                 VIEW PASTE
                             </span>
-                            <ArrowRight size={14} className="text-white/20" />
+                            <ArrowRight size={14} className="text-white/50" />
                         </a>
                         <button
                             onClick={onCreateAnother}
@@ -212,7 +212,7 @@ export default function PasteCreated({
                                 <Plus size={14} />
                                 NEW PASTE
                             </span>
-                            <ArrowRight size={14} className="text-white/20" />
+                            <ArrowRight size={14} className="text-white/50" />
                         </button>
                     </div>
                 </div>

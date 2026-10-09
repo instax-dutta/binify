@@ -203,14 +203,14 @@ export default function LuxurySelect({
                     isOpen && '!bg-[#252525]'
                 )}
             >
-                <span className={cn('truncate flex-1', !selectedOption && 'text-white/20')}>
+                <span className={cn('truncate flex-1', !selectedOption && 'text-white/50')}>
                     {selectedOption ? selectedOption.label : placeholder}
                 </span>
                 <ChevronDown
                     size={14}
                     aria-hidden="true"
                     className={cn(
-                        'text-white/20 transition-transform duration-300',
+                        'text-white/50 transition-transform duration-300',
                         isOpen && 'rotate-180 text-[#1ed760]'
                     )}
                 />
@@ -236,7 +236,7 @@ export default function LuxurySelect({
                                     setActiveIndex(0);
                                 }}
                                 onKeyDown={onSearchKeyDown}
-                                className="w-full bg-[#1f1f1f] border-none rounded-[9999px] px-3 py-2 text-xs outline-none text-white placeholder:text-white/20"
+                                className="w-full bg-[#1f1f1f] border-none rounded-[9999px] px-3 py-2 text-xs outline-none text-white placeholder:text-white/50"
                             />
                         </div>
                     )}
@@ -285,7 +285,7 @@ export default function LuxurySelect({
                                 );
                             })
                         ) : (
-                            <div className="px-4 py-8 text-center text-xs text-white/20" role="presentation">
+                            <div className="px-4 py-8 text-center text-xs text-white/50" role="presentation">
                                 No matches found
                             </div>
                         )}

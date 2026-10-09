@@ -154,7 +154,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 <div className="w-2.5 h-2.5 rounded-full bg-[#ffa42b]/60 group-hover:bg-[#ffa42b] transition-colors" />
                                 <div className="w-2.5 h-2.5 rounded-full bg-[#1ed760]/60 group-hover:bg-[#1ed760] transition-colors" />
                             </div>
-                            <span className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-white/20">
+                            <span className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-white/50">
                                 {viewMode === 'edit' ? 'EDITOR' : 'PREVIEW'}
                             </span>
                         </div>
@@ -167,7 +167,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                     aria-pressed={viewMode === 'edit'}
                                     className={cn(
                                         "px-3 py-1 text-[0.625rem] font-bold rounded-[9999px] transition-all uppercase tracking-[0.05em]",
-                                        viewMode === 'edit' ? "bg-[#1f1f1f] text-white" : "text-white/20 hover:text-white/40"
+                                        viewMode === 'edit' ? "bg-[#1f1f1f] text-white" : "text-white/50 hover:text-white/40"
                                     )}
                                 >
                                     EDIT
@@ -178,13 +178,13 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                     aria-pressed={viewMode === 'preview'}
                                     className={cn(
                                         "px-3 py-1 text-[0.625rem] font-bold rounded-[9999px] transition-all uppercase tracking-[0.05em]",
-                                        viewMode === 'preview' ? "bg-[#1f1f1f] text-white" : "text-white/20 hover:text-white/40"
+                                        viewMode === 'preview' ? "bg-[#1f1f1f] text-white" : "text-white/50 hover:text-white/40"
                                     )}
                                 >
                                     PREVIEW
                                 </button>
                             </div>
-                            <span className="text-[0.625rem] font-bold text-white/20 uppercase tracking-[0.1em]">
+                            <span className="text-[0.625rem] font-bold text-white/50 uppercase tracking-[0.1em]">
                                 {content.length.toLocaleString()} CHARS
                             </span>
                         </div>

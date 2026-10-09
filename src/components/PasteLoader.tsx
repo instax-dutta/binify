@@ -127,7 +127,7 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
                     <div className="relative">
                         <Loader2 size={36} className="text-[#1ed760] animate-spin mx-auto" />
                     </div>
-                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-white/30">Decrypting...</p>
+                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-white/60">Decrypting...</p>
                 </div>
             </div>
         );
@@ -202,7 +202,7 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
                         </div>
                         <span className="text-base font-bold tracking-tight text-white">Binify</span>
                     </a>
-                    <span className="text-[0.625rem] font-bold text-white/20 uppercase tracking-[0.2em]">DECRYPTED PAYLOAD</span>
+                    <span className="text-[0.625rem] font-bold text-white/50 uppercase tracking-[0.2em]">DECRYPTED PAYLOAD</span>
                 </div>
             </nav>
 

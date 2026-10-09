@@ -53,7 +53,7 @@ export default function Error({
                 </div>
 
                 {error.digest && (
-                    <p className="text-[0.625rem] font-mono text-white/20">
+                    <p className="text-[0.625rem] font-mono text-white/50">
                         Reference: {error.digest}
                     </p>
                 )}

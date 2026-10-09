@@ -31,7 +31,7 @@ export default function ErrorPage() {
                     </div>
                 </div>
 
-                <div className="flex justify-center gap-6 text-[0.5rem] font-bold uppercase tracking-[0.2em] text-white/20">
+                <div className="flex justify-center gap-6 text-[0.5rem] font-bold uppercase tracking-[0.2em] text-white/50">
                     <div className="flex items-center gap-1.5">
                         <div className="w-1 h-1 rounded-full bg-[#f3727f]" />
                         Link: Disconnected

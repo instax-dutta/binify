@@ -166,7 +166,7 @@ export default function PasteViewer({
 
                 {language && language !== 'plaintext' && (
                     <div className="flex items-center gap-3">
-                        <span className="text-[0.5rem] font-bold uppercase tracking-[0.15em] text-white/20">LANG</span>
+                        <span className="text-[0.5rem] font-bold uppercase tracking-[0.15em] text-white/50">LANG</span>
                         <span className="badge-spotify bg-[#1ed760]/10 text-[#1ed760] border border-[#1ed760]/20">
                             {language}
                         </span>
@@ -174,7 +174,7 @@ export default function PasteViewer({
                 )}
 
                 <div className="flex justify-end">
-                    <a href="/revoke" className="text-[0.5rem] font-bold text-white/10 hover:text-[#ffa42b]/60 transition-colors uppercase tracking-[0.15em] flex items-center gap-1">
+                    <a href="/revoke" className="text-[0.5rem] font-bold text-white/45 hover:text-[#ffa42b]/60 transition-colors uppercase tracking-[0.15em] flex items-center gap-1">
                         <AlertTriangle size={8} />
                         Revoke
                     </a>
@@ -189,7 +189,7 @@ export default function PasteViewer({
                         <div className="w-2.5 h-2.5 rounded-full bg-[#ffa42b]/60" />
                         <div className="w-2.5 h-2.5 rounded-full bg-[#1ed760]/60" />
                     </div>
-                    <span className="text-[0.625rem] font-bold text-white/10 uppercase tracking-[0.15em] flex items-center gap-1.5">
+                    <span className="text-[0.625rem] font-bold text-white/45 uppercase tracking-[0.15em] flex items-center gap-1.5">
                         <FileText size={11} />
                         OUTPUT
                     </span>
@@ -207,7 +207,7 @@ export default function PasteViewer({
             <div className="pt-6 text-center">
                 <a
                     href="/"
-                    className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-white/20 hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em]"
+                    className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-white/50 hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em]"
                 >
                     ENCRYPT NEW PAYLOAD
                     <ChevronRight size={12} />

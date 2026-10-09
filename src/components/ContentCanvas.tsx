@@ -6,7 +6,7 @@ import CodeBlock, { resolveLanguage } from './CodeBlock';
 
 const MarkdownPreview = dynamic(() => import('./MarkdownPreview'), {
     ssr: false,
-    loading: () => <div className="p-6 text-xs text-white/20">Loading preview…</div>,
+    loading: () => <div className="p-6 text-xs text-white/50">Loading preview…</div>,
 });
 
 const PLAIN =

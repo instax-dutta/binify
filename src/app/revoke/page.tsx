@@ -267,7 +267,7 @@ export default function RevokePage() {
                                     <AlertTriangle size={14} />
                                     <span className="text-[0.625rem] font-bold uppercase tracking-[0.1em]">Security Policy</span>
                                 </div>
-                                <div className="space-y-2 text-[0.625rem] text-white/20 leading-relaxed">
+                                <div className="space-y-2 text-[0.625rem] text-white/50 leading-relaxed">
                                     <p>Revocation is instant and final. The row is deleted in a single atomic statement.</p>
                                     <p>Rotation generates a new URL. The old link returns 404 immediately.</p>
                                     <p>Binify never stores your encryption key. These operations manage the paste ID only.</p>
