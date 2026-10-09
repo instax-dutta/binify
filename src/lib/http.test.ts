@@ -40,13 +40,12 @@ test('ApiError', async (t) => {
         assert.ok(err instanceof Error);
     });
 
-    await t.test('unauthorized, notFound and gone are distinct', () => {
+    await t.test('unauthorized and notFound are distinct', () => {
         const statuses = new Set([
             ApiError.unauthorized().status,
             ApiError.notFound().status,
-            ApiError.gone().status,
         ]);
-        assert.strictEqual(statuses.size, 3);
+        assert.strictEqual(statuses.size, 2);
     });
 });
 

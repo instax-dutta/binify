@@ -60,8 +60,9 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
             const response = await fetch(`/api/paste/${pasteId}`);
 
             if (!response.ok) {
-                if (response.status === 404) throw new Error('Data segment not found.');
-                if (response.status === 410) throw new Error('This session has already been purged or expired.');
+                // 404 covers unknown, expired, purged and exhausted alike. The
+                // server deliberately does not say which, so neither do we.
+                if (response.status === 404) throw new Error('This paste does not exist, or is no longer available.');
                 throw new Error('Failed to synchronize with server.');
             }
 

@@ -31,10 +31,6 @@ export class ApiError extends Error {
         return new ApiError(404, 'not_found', 'Not found.');
     }
 
-    static gone(): ApiError {
-        return new ApiError(410, 'gone', 'This paste is no longer available.');
-    }
-
     static rateLimited(resetIn: number): ApiError {
         return new ApiError(429, 'rate_limited', 'Rate limit exceeded. Try again later.');
     }

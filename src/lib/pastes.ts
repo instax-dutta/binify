@@ -135,33 +135,6 @@ export async function consumePaste(id: string): Promise<PasteRecord | null> {
 }
 
 /**
- * Read metadata only, without consuming a view. Used to distinguish a missing
- * paste from an expired or exhausted one.
- */
-export async function getPasteState(
-    id: string
-): Promise<{ expired: boolean; exhausted: boolean } | null> {
-    const row = await queryOne<{
-        expires_at: Date | null;
-        max_views: number | null;
-        view_count: number;
-        burned: boolean;
-    }>(
-        `SELECT expires_at, max_views, view_count, burned
-           FROM pastes
-          WHERE id = $1`,
-        [id]
-    );
-
-    if (!row) return null;
-
-    return {
-        expired: Boolean(row.expires_at && new Date(row.expires_at).getTime() <= Date.now()),
-        exhausted: Boolean(row.burned || (row.max_views !== null && row.view_count >= row.max_views)),
-    };
-}
-
-/**
  * Delete a paste whose view budget is now spent. Idempotent: a duplicate call
  * affects zero rows and does not error.
  */

@@ -231,8 +231,32 @@ test('GET /api/paste/[id]', { skip: hasDb ? false : 'DATABASE_URL not set' }, as
     await t.test('an expired paste is never served', async () => {
         const id = await seed({ expiresAt: Date.now() - 1000 });
         const res = await readRoute(get(`${ORIGIN}/api/paste/${id}`), readParams(id));
-        assert.ok(res.status === 410 || res.status === 404);
-        assert.notStrictEqual(res.status, 200);
+        assert.strictEqual(res.status, 404);
+    });
+
+    await t.test('an expired paste is indistinguishable from a never-existing one', async () => {
+        // Distinguishing the two would confirm that an id once held a paste.
+        const expired = await seed({ expiresAt: Date.now() - 1000 });
+        const unknown = generatePasteId();
+
+        const a = await readRoute(get(`${ORIGIN}/api/paste/${expired}`), readParams(expired));
+        const b = await readRoute(get(`${ORIGIN}/api/paste/${unknown}`), readParams(unknown));
+
+        assert.strictEqual(a.status, b.status);
+        assert.deepStrictEqual(await a.json(), await b.json());
+    });
+
+    await t.test('an exhausted paste is indistinguishable too', async () => {
+        const id = await seed({ maxViews: 1 });
+        await readRoute(get(`${ORIGIN}/api/paste/${id}`), readParams(id)); // consumes it
+
+        const exhausted = await readRoute(get(`${ORIGIN}/api/paste/${id}`), readParams(id));
+        const unknown = await readRoute(
+            get(`${ORIGIN}/api/paste/${generatePasteId()}`),
+            readParams(generatePasteId())
+        );
+        assert.strictEqual(exhausted.status, unknown.status);
+        assert.deepStrictEqual(await exhausted.json(), await unknown.json());
     });
 
     await t.test('rate limits reads per client', async () => {

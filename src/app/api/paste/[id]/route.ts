@@ -4,12 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import {
-    consumePaste,
-    getPasteState,
-    deleteIfExhausted,
-    revokePaste,
-} from '@/lib/pastes';
+import { consumePaste, deleteIfExhausted, revokePaste } from '@/lib/pastes';
 import { consumeRateLimit } from '@/lib/rate-limit';
 import { consumeLocalRateLimit, RATE_LIMITS } from '@/lib/limits';
 import { getClientIp } from '@/lib/ip';
@@ -42,11 +37,11 @@ export async function GET(
         const paste = await consumePaste(id);
 
         if (!paste) {
-            // Distinguish "gone" from "never existed" without leaking anything
-            // about rows that do exist.
-            const state = await getPasteState(id);
-            if (!state) throw ApiError.notFound();
-            if (state.expired || state.exhausted) throw ApiError.gone();
+            // One status for every way a read can fail: unknown id, expired,
+            // burned, or out of views. Reporting 410 for "expired" and 404 for
+            // "never existed" was an oracle — it confirmed that an id had once
+            // held a paste, which is itself sensitive for a tool built around
+            // secrecy. It also cost an extra query on every miss.
             throw ApiError.notFound();
         }
 
