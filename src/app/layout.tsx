@@ -1,31 +1,48 @@
 import type { Metadata } from 'next';
-import { DM_Sans, Figtree, JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import ClientLayout from '@/components/ClientLayout';
 
 /*
- * Fonts are downloaded and self-hosted at build time rather than pulled from
- * Google at runtime. That removes a render-blocking third-party stylesheet,
- * keeps the visitor's IP away from Google, and lets the CSP stay at 'self' for
- * styles and fonts.
+ * Fonts are committed to the repository rather than fetched from Google during
+ * the build. The files were taken from Google Fonts (all three are SIL Open Font
+ * License) and are served from this origin only.
+ *
+ * next/font/google downloads at build time, which makes every build depend on
+ * reaching fonts.googleapis.com. That is not a theoretical concern: a gate build
+ * failed on a transient network error and produced module-not-found for the font
+ * CSS. Committing the files makes the build hermetic, keeps the visitor's
+ * address away from Google, and lets the CSP stay at 'self' for styles and
+ * fonts.
  */
-const display = DM_Sans({
-    subsets: ['latin'],
-    weight: ['400', '500', '600', '700'],
+const display = localFont({
+    src: [
+        { path: './fonts/dm-sans-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/dm-sans-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/dm-sans-600.woff2', weight: '600', style: 'normal' },
+        { path: './fonts/dm-sans-700.woff2', weight: '700', style: 'normal' },
+    ],
     variable: '--font-display',
     display: 'swap',
 });
 
-const sans = Figtree({
-    subsets: ['latin'],
-    weight: ['400', '500', '600', '700'],
+const sans = localFont({
+    src: [
+        { path: './fonts/figtree-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/figtree-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/figtree-600.woff2', weight: '600', style: 'normal' },
+        { path: './fonts/figtree-700.woff2', weight: '700', style: 'normal' },
+    ],
     variable: '--font-sans',
     display: 'swap',
 });
 
-const mono = JetBrains_Mono({
-    subsets: ['latin'],
-    weight: ['400', '500', '600'],
+const mono = localFont({
+    src: [
+        { path: './fonts/jetbrains-mono-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/jetbrains-mono-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/jetbrains-mono-600.woff2', weight: '600', style: 'normal' },
+    ],
     variable: '--font-mono',
     display: 'swap',
 });
