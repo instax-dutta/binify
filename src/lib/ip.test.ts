@@ -17,7 +17,7 @@ class MockHeaders {
 }
 
 const req = (headers: Record<string, string>, ip?: string) =>
-    ({ ip, headers: new MockHeaders(headers) }) as any;
+    ({ ip, headers: new MockHeaders(headers) }) as unknown as Request;
 
 test('getClientIp prefers the platform-observed address', async (t) => {
     await t.test('uses request.ip when present', () => {

@@ -10,7 +10,7 @@ import { generatePasteId } from '@/lib/crypto';
 import { generateToken, hashDeletionToken } from '@/lib/security';
 import { createPaste, opportunisticPurge } from '@/lib/pastes';
 import { consumeRateLimit } from '@/lib/rate-limit';
-import { consumeLocalRateLimit, RATE_LIMITS } from '@/lib/limits';
+import { RATE_LIMITS } from '@/lib/limits';
 import { getClientIp } from '@/lib/ip';
 import {
     CreatePasteSchema,
@@ -18,7 +18,7 @@ import {
     validatePasteSize,
     MAX_PASTE_SIZE,
 } from '@/lib/validation';
-import { ApiError, apiHeaders, assertValidPasteId } from '@/lib/http';
+import { ApiError, apiHeaders } from '@/lib/http';
 import { errorResponse } from '@/lib/api';
 
 export async function POST(request: NextRequest) {

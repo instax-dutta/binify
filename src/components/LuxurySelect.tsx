@@ -70,10 +70,13 @@ export default function LuxurySelect({
     // Keep the highlighted option scrolled into view during keyboard navigation.
     useEffect(() => {
         if (!isOpen || activeIndex < 0) return;
+        // Derive the id here rather than depending on optionId, which is
+        // rebuilt every render and would re-run this effect each time.
+        const id = `option-${reactId}-${activeIndex}`;
         listRef.current
-            ?.querySelector<HTMLElement>(`#${CSS.escape(optionId(activeIndex))}`)
+            ?.querySelector<HTMLElement>(`#${CSS.escape(id)}`)
             ?.scrollIntoView({ block: 'nearest' });
-    }, [isOpen, activeIndex]);
+    }, [isOpen, activeIndex, reactId]);
 
     const open = (startIndex = 0) => {
         setIsOpen(true);

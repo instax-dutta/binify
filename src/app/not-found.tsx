@@ -1,6 +1,7 @@
 'use client';
 
 import { ShieldAlert, Book, ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ErrorPage() {
     return (
@@ -20,10 +21,10 @@ export default function ErrorPage() {
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                        <a href="/" className="btn-spotify-primary tracking-[0.05em]">
+                        <Link href="/" className="btn-spotify-primary tracking-[0.05em]">
                             <ChevronLeft size={14} />
                             RETURN HOME
-                        </a>
+                        </Link>
                         <a href="/docs" className="btn-spotify-secondary tracking-[0.05em]">
                             <Book size={14} />
                             DOCS

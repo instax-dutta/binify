@@ -15,6 +15,7 @@ import {
     Copy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 export default function RevokePage() {
     const [inputValue, setInputValue] = useState('');
@@ -34,7 +35,7 @@ export default function RevokePage() {
                 return pathParts[pIndex + 1];
             }
             return trimmed;
-        } catch (e) {
+        } catch {
             return trimmed;
         }
     };
@@ -56,7 +57,7 @@ export default function RevokePage() {
                 method: 'DELETE',
             });
 
-            let data: any = {};
+            let data: { error?: string; newId?: string } = {};
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 data = await response.json();
@@ -95,7 +96,7 @@ export default function RevokePage() {
                 body: JSON.stringify({ token }),
             });
 
-            let data: any = {};
+            let data: { error?: string; newId?: string } = {};
             const contentType = response.headers.get('content-type');
             if (contentType && contentType.includes('application/json')) {
                 data = await response.json();
@@ -105,7 +106,7 @@ export default function RevokePage() {
                 throw new Error(data.error || 'Rotation failed. Verify your ID and token.');
             }
 
-            setRotatedId(data.newId);
+            if (data.newId) setRotatedId(data.newId);
             setStatus('success');
             setMessage('Secure link rotation complete. The old ID is now invalid.');
         } catch (err) {
@@ -119,10 +120,10 @@ export default function RevokePage() {
     return (
         <main className="min-h-screen pt-20 pb-20 px-6 container mx-auto flex flex-col items-center">
             <div className="w-full max-w-2xl mb-10 flex items-center justify-between">
-                <a href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em] group">
+                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em] group">
                     <ArrowLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
                     BACK
-                </a>
+                </Link>
                 <div className="flex items-center gap-1.5 text-[0.5rem] font-bold text-[#1ed760] uppercase tracking-[0.15em] bg-[#1ed760]/5 px-2.5 py-1 rounded-[9999px] border border-[#1ed760]/10">
                     <ShieldAlert size={10} />
                     ADMIN

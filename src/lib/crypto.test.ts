@@ -51,13 +51,6 @@ async function buildLegacyPbkdf2Payload(
     password: string,
     iterations: number
 ) {
-    const b64uToBuf = (s: string) =>
-        Uint8Array.from(
-            Buffer.from(
-                s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (s.length % 4)) % 4),
-                'base64'
-            )
-        );
     const bufToB64u = (b: Uint8Array) =>
         Buffer.from(b)
             .toString('base64')

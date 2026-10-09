@@ -272,7 +272,7 @@ export async function decryptContent(
 
         const decoder = new TextDecoder();
         return decoder.decode(decryptedBuffer);
-    } catch (error) {
+    } catch {
         throw new Error('Decryption failed. Invalid key or password.');
     }
 }

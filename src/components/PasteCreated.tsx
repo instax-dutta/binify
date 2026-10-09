@@ -171,6 +171,10 @@ export default function PasteCreated({
                     {showQR && qrCodeUrl ? (
                         <div className="anim-rise p-3 bg-white rounded-lg shadow-[rgba(0,0,0,0.5)_0px_8px_24px]"
                         >
+                            {/* The QR code is a data: URL produced in the browser
+                                by toDataURL(). next/image cannot optimise data
+                                URLs, so the raw element is correct here. */}
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img src={qrCodeUrl} alt="QR Code" className="w-40 h-40" />
                         </div>
                     ) : (

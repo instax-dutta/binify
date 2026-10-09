@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Terminal, Lock, Loader2, ShieldAlert } from 'lucide-react';
 import { decryptContent, openSealed } from '@/lib/crypto';
 import PasteViewer from '@/components/PasteViewer';
+import Link from 'next/link';
 
 interface PasteMeta {
     ciphertext: string;
@@ -145,10 +146,10 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
                         <h2 className="text-xl font-bold text-white tracking-tight">Access Denied</h2>
                         <p className="text-sm text-[#b3b3b3] leading-relaxed">{error}</p>
                     </div>
-                    <a href="/" className="btn-spotify-primary inline-flex">
+                    <Link href="/" className="btn-spotify-primary inline-flex">
                         <Terminal size={14} />
                         RETURN HOME
-                    </a>
+                    </Link>
                 </div>
             </div>
         );
@@ -196,12 +197,12 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
         <div className="min-h-screen">
             <nav className="border-b border-white/5 bg-[#121212]/80 backdrop-blur-xl">
                 <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-                    <a href="/" className="flex items-center gap-3 group">
+                    <Link href="/" className="flex items-center gap-3 group">
                         <div className="w-8 h-8 rounded-full bg-[#1ed760] flex items-center justify-center">
                             <Terminal size={16} className="text-black" />
                         </div>
                         <span className="text-base font-bold tracking-tight text-white">Binify</span>
-                    </a>
+                    </Link>
                     <span className="text-[0.625rem] font-bold text-white/50 uppercase tracking-[0.2em]">DECRYPTED PAYLOAD</span>
                 </div>
             </nav>

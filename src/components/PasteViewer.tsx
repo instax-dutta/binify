@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import {
     Copy,
     Download,
@@ -205,13 +206,13 @@ export default function PasteViewer({
             </div>
 
             <div className="pt-6 text-center">
-                <a
+                <Link
                     href="/"
                     className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-white/50 hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em]"
                 >
                     ENCRYPT NEW PAYLOAD
                     <ChevronRight size={12} />
-                </a>
+                </Link>
             </div>
         </div>
     );

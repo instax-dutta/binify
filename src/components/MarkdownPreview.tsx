@@ -22,9 +22,9 @@ function MarkdownPreview({ content }: { content: string }) {
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeSanitize]}
                 components={{
-                    code({ node, inline, className, children, ...props }: any) {
+                    code({ className, children }) {
                         const match = /language-(\w+)/.exec(className || '');
-                        if (!inline && match) {
+                        if (match) {
                             return (
                                 <CodeBlock
                                     variant="panel"
@@ -39,7 +39,6 @@ function MarkdownPreview({ content }: { content: string }) {
                                     'bg-white/10 px-1.5 py-0.5 rounded text-[#539df5] font-mono text-xs',
                                     className
                                 )}
-                                {...props}
                             >
                                 {children}
                             </code>

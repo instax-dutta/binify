@@ -15,12 +15,20 @@
 export class ApiError extends Error {
     readonly status: number;
     readonly code: string;
+    /** Headers this failure requires, merged into the error response. */
+    readonly headers: Record<string, string>;
 
-    constructor(status: number, code: string, message: string) {
+    constructor(
+        status: number,
+        code: string,
+        message: string,
+        headers: Record<string, string> = {}
+    ) {
         super(message);
         this.name = 'ApiError';
         this.status = status;
         this.code = code;
+        this.headers = headers;
     }
 
     static unauthorized(): ApiError {
@@ -32,7 +40,13 @@ export class ApiError extends Error {
     }
 
     static rateLimited(resetIn: number): ApiError {
-        return new ApiError(429, 'rate_limited', 'Rate limit exceeded. Try again later.');
+        return new ApiError(
+            429,
+            'rate_limited',
+            'Rate limit exceeded. Try again later.',
+            // A client told how long to wait does not have to guess or poll.
+            { 'Retry-After': String(Math.max(1, Math.ceil(resetIn))) }
+        );
     }
 
     static badRequest(message = 'Invalid request payload.'): ApiError {

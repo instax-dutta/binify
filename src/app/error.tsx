@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 /**
  * Route-level error boundary.
@@ -62,9 +63,9 @@ export default function Error({
                     <button type="button" onClick={reset} className="btn-spotify-primary">
                         Try again
                     </button>
-                    <a href="/" className="btn-spotify-secondary">
+                    <Link href="/" className="btn-spotify-secondary">
                         Go home
-                    </a>
+                    </Link>
                 </div>
             </div>
         </main>

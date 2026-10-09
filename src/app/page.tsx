@@ -7,11 +7,11 @@ import {
   Lock,
   Terminal,
   Github,
-  Globe,
-  ChevronRight
+  Globe
 } from 'lucide-react';
 import PasteEditor from '@/components/PasteEditor';
 import PasteCreated from '@/components/PasteCreated';
+import Link from 'next/link';
 
 // Staggered reveal, expressed with CSS animation delays so the sequencing is
 // handled by the compositor instead of a JS animation runtime.
@@ -33,12 +33,12 @@ export default function HomePage() {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#121212]/80 backdrop-blur-2xl border-b border-white/5">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3 group cursor-pointer">
+          <Link href="/" className="flex items-center gap-3 group cursor-pointer">
             <div className="w-8 h-8 rounded-full bg-[#1ed760] flex items-center justify-center transition-all duration-300 group-hover:scale-105">
               <Terminal size={16} className="text-black" strokeWidth={2.5} />
             </div>
             <span className="text-base font-bold tracking-tight text-white group-hover:text-[#1ed760] transition-colors">Binify</span>
-          </a>
+          </Link>
           <div className="hidden md:flex items-center gap-6">
             <a href="/docs" className="nav-link-spotify-inactive text-sm">Docs</a>
             <a

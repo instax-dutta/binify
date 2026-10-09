@@ -1,14 +1,15 @@
 'use client';
 
 import { Shield, Lock, Eye, Terminal, ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
 
 export default function PrivacyPage() {
     return (
         <main className="min-h-screen pt-24 pb-20 px-6">
             <div className="container mx-auto max-w-4xl">
-                <a href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
+                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
                     <ChevronLeft size={12} /> BACK
-                </a>
+                </Link>
 
                 <div className="anim-rise space-y-10"
                 >
