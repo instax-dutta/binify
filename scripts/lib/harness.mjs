@@ -71,10 +71,16 @@ export async function withServer(fn, { timeoutMs = 90_000 } = {}) {
     }
 
     const port = await freePort();
+    // Its own process group. `next start` renames its process to "next-server"
+    // and keeps running after the launcher exits, so signalling the launcher
+    // alone leaves the server holding its port and its memory. That leak is
+    // what exhausted a small test machine: 49 orphaned servers holding 8 GB
+    // after a single run of the ledger.
     const child = spawn('node_modules/.bin/next', ['start', '-p', String(port)], {
         cwd: ROOT,
         env: { ...process.env, NODE_ENV: 'production' },
         stdio: ['ignore', 'pipe', 'pipe'],
+        detached: true,
     });
 
     let log = '';
@@ -99,9 +105,28 @@ export async function withServer(fn, { timeoutMs = 90_000 } = {}) {
         if (!up) fail(`server did not become ready on ${base}`, log.slice(-1500));
         return await fn(base, { port, log: () => log });
     } finally {
-        child.kill('SIGTERM');
-        await delay(300);
-        if (child.exitCode === null) child.kill('SIGKILL');
+        // Signal the whole group, not the launcher, so the renamed server dies
+        // with it. SIGKILL the group as a fallback because Next does not always
+        // shut down cleanly on SIGTERM.
+        const signalGroup = (signal) => {
+            try {
+                process.kill(-child.pid, signal);
+            } catch {
+                try {
+                    child.kill(signal);
+                } catch {
+                    /* already gone */
+                }
+            }
+        };
+        signalGroup('SIGTERM');
+        await delay(500);
+        signalGroup('SIGKILL');
+        try {
+            child.unref();
+        } catch {
+            /* nothing to do */
+        }
     }
 }
 
