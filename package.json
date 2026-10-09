@@ -11,6 +11,7 @@
     "test:integration": "tsx --test --test-concurrency=1 src/test/*.integration.test.ts",
     "migrate": "tsx scripts/migrate.ts",
     "db:check": "tsx scripts/check-db.ts",
+    "neon:compute": "tsx scripts/neon-compute.ts",
     "verify": "node scripts/verify-all.mjs"
   },
   "dependencies": {

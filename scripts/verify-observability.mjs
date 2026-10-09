@@ -7,7 +7,7 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { withServer, read, assertAll, pass } from './lib/harness.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '');

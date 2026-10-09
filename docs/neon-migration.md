@@ -134,3 +134,54 @@ consequences follow:
 application never needs the Neon owner role, and the owner password exists only
 for administration. If it is ever exposed, rotate it in the Neon console; the
 running application is unaffected because it does not use it.
+
+## Keeping the database available
+
+There are three ways this database becomes unavailable, and they need different
+answers. They are easy to conflate because they all present as "the site is
+down".
+
+| Cause | What actually happens | Fix |
+|---|---|---|
+| Scale to zero | Compute suspends after 5 idle minutes, resumes in a few hundred ms on the next connection | Nothing. It is not an outage |
+| Consumption quota | Computes suspend and stay suspended until the billing period resets. A new connection does **not** wake them | Raise the limits. Nothing keeps it alive |
+| Region or provider fault | Project is unreachable | Neon status page; PITR onto another region |
+
+### The setting that actually keeps it resident
+
+`/api/cron/keepalive` exists, but it is not the answer. The real control is one
+Neon compute setting, and it needs no traffic at all:
+
+```
+npm run neon:compute                    # report the current setting
+npm run neon:compute -- --timeout 0     # never suspend (paid plans only)
+```
+
+`suspend_timeout_seconds` accepts `0` for always on, `60` to `604800` for a
+custom idle window. The default is `300`, which is why the compute appears to
+"die" five minutes after you stop looking at it. At `0` it stays resident and
+bills compute time continuously, so it is only sensible on a paid plan when a
+cold start on the first visitor is worse than the compute cost. The script needs
+`NEON_API_KEY`, `NEON_PROJECT_ID` and `NEON_ENDPOINT_ID` — an administrator
+credential, never the one the application uses.
+
+### What the keepalive is actually for
+
+The probe runs `SELECT 1`, moves no rows and returns no payload. Scheduled, it
+turns "the database is unreachable" into a log line, which is useful. It does
+**not** prevent the quota failure, and it works against it: a keepalive spends
+compute time and egress, which are exactly what the quota limits.
+
+### Scheduling it
+
+`vercel.json` deliberately does not include a keepalive cron. Vercel rejects any
+expression that fires more than once a day on Hobby, at deploy time, so adding
+one breaks the deployment rather than warming anything. On Pro, add:
+
+```json
+{ "path": "/api/cron/keepalive", "schedule": "*/4 * * * *" }
+```
+
+Four minutes keeps a five-minute idle window closed. Note that a Vercel function
+invocation every four minutes is itself billed, and it is a far more expensive
+way to achieve what `--timeout 0` does for free.
