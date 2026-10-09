@@ -24,7 +24,12 @@ function structural() {
             problems.push(`${rel} must be a client component`);
         }
         if (!/export default/.test(src)) problems.push(`${rel} has no default export`);
-        if (!/reset\(\)/.test(src)) problems.push(`${rel} does not offer a reset()`);
+        // The boundary must accept Next's reset prop and wire it to a control,
+        // so a visitor can retry without a full page load.
+        const acceptsReset = /reset\s*[:,}]/.test(src) || /reset\s*=\s*\{/.test(src);
+        const wiresReset = /onClick=\{reset\}|onClick=\{\(\)\s*=>\s*reset\(\)/.test(src);
+        if (!acceptsReset) problems.push(`${rel} does not accept a reset prop`);
+        if (!wiresReset) problems.push(`${rel} does not wire reset to a control`);
         if (!/<html|<div/.test(src)) problems.push(`${rel} renders no markup`);
     }
     return problems;
