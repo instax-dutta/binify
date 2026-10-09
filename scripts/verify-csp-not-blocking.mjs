@@ -26,7 +26,7 @@ await withServer(async (base) => {
         page.on('requestfailed', (r) => failed.push(`${r.url()} ${r.failure()?.errorText ?? ''}`));
 
         const navRes = await page.goto(base + '/', { waitUntil: 'networkidle' });
-        const cspHeader = navRes?.headers()?.get('content-security-policy') ?? '';
+        const cspHeader = (await navRes?.headers())?.get?.('content-security-policy') ?? '';
 
         // A policy that blocks scripts still renders server HTML. Prove the
         // application actually hydrated by driving a real interaction.

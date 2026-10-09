@@ -34,8 +34,10 @@ await withServer(async (base) => {
             totalViolations += bad.length;
             for (const v of bad) {
                 problems.push(`${p}: [${v.impact}] ${v.id} — ${v.help} (${v.nodes.length} node(s))`);
-                for (const n of v.nodes.slice(0, 2)) {
+                for (const n of v.nodes.slice(0, 4)) {
+                    const summary = (n.failureSummary ?? '').replace(/\n+/g, ' ').trim();
                     problems.push(`      ${n.target.join(' ')}`);
+                    problems.push(`        ${summary.slice(0, 220)}`);
                 }
             }
             await page.close();
