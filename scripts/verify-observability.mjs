@@ -39,8 +39,17 @@ async function withFailingRoute(fn) {
     writeFileSync(
         `${PROBE}/route.ts`,
         `// Temporary route created by scripts/verify-observability.mjs.
+// Mirrors a real API route: the handler is wrapped so an unexpected throw goes
+// through the same errorResponse path as production.
+import { NextResponse } from 'next/server';
+import { errorResponse } from '@/lib/api';
+
 export async function GET() {
-    throw new Error('connection refused to db.internal.example.invalid');
+    try {
+        throw new Error('connection refused to db.internal.example.invalid');
+    } catch (err) {
+        return errorResponse(err, 'gate probe');
+    }
 }
 `
     );
