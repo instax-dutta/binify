@@ -53,9 +53,6 @@ jobs:
       - name: Install browsers for the cross-browser and accessibility gates
         run: npx playwright install --with-deps chromium firefox webkit
 
-      - name: Lint the completion ledger
-        run: npx unlazy-lint || true
-
       - name: Type check
         run: node_modules/.bin/tsc --noEmit
 

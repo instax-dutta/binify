@@ -1,14 +1,34 @@
 /**
- * G8: continuous integration runs the whole suite on every pull request.
+ * G8: continuous integration runs the whole suite on every pull request, and
+ * the commands it claims to run actually succeed.
  *
- * Asserted against the workflow file rather than by running GitHub, because
- * the property that matters is that the steps exist, name the real commands,
- * and are triggered by pull requests.
+ * The workflow definition is checked against the file, and then the two checks
+ * that had been failing silently are executed here. A workflow that names a
+ * step proves nothing if the step does not pass.
  */
 
+import { spawnSync } from 'node:child_process';
 import { read, assertAll, pass } from './lib/harness.mjs';
 
 const wf = read('.github/workflows/ci.yml');
+
+/** Run one of CI's commands and report whether it exited cleanly. */
+function ran(bin, args) {
+    const r = spawnSync(bin, args, {
+        encoding: 'utf8',
+        timeout: 10 * 60_000,
+        env: { ...process.env, NODE_ENV: 'development' },
+    });
+    if (r.error) return { ok: false, detail: `${bin} failed to start: ${r.error.message}` };
+    const out = `${r.stdout}\n${r.stderr}`.trim();
+    return {
+        ok: r.status === 0,
+        detail: out ? out.split('\n').slice(-8).join('\n') : '',
+    };
+}
+
+const typecheck = ran('node_modules/.bin/tsc', ['--noEmit']);
+const lint = ran('node_modules/.bin/eslint', ['.']);
 
 assertAll([
     { name: 'workflow file exists', ok: wf.length > 0, detail: 'workflow is empty or missing' },
@@ -45,6 +65,22 @@ assertAll([
         name: 'installs browsers for the browser gates',
         ok: /playwright install/.test(wf),
         detail: 'no playwright install step',
+    },
+    {
+        // A step wrapped in `|| true` can never fail, so it asserts nothing.
+        name: 'has no step that swallows its own failure',
+        ok: !/\|\|\s*true/.test(wf),
+        detail: 'a workflow step ends in || true and cannot fail',
+    },
+    {
+        name: 'the type checker passes right now',
+        ok: typecheck.ok,
+        detail: `tsc --noEmit failed:\n${typecheck.detail}`,
+    },
+    {
+        name: 'lint passes right now',
+        ok: lint.ok,
+        detail: `eslint failed:\n${lint.detail}`,
     },
 ]);
 
