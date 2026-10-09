@@ -22,7 +22,8 @@ await withServer(async (base) => {
 
     try {
         for (const p of PAGES) {
-            const page = await browser.newPage();
+            const context = await browser.newContext();
+            const page = await context.newPage();
             await page.goto(base + p, { waitUntil: 'networkidle' });
 
             const results = await new AxeBuilder({ page })
@@ -38,11 +39,13 @@ await withServer(async (base) => {
                 }
             }
             await page.close();
+            await context.close();
         }
 
         // Keyboard operability of the custom select, which replaced a native
         // <select> and therefore has to reimplement focus and activation.
-        const page = await browser.newPage();
+        const context = await browser.newContext();
+        const page = await context.newPage();
         await page.goto(base + '/', { waitUntil: 'networkidle' });
 
         const trigger = page.locator('#expiration-select');
@@ -77,6 +80,7 @@ await withServer(async (base) => {
         if (!escapeCloses) problems.push('Escape does not close the dropdown');
 
         await page.close();
+        await context.close();
     } finally {
         await browser.close();
     }

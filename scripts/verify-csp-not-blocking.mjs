@@ -25,11 +25,13 @@ await withServer(async (base) => {
         const failed = [];
         page.on('requestfailed', (r) => failed.push(`${r.url()} ${r.failure()?.errorText ?? ''}`));
 
-        await page.goto(base + '/', { waitUntil: 'networkidle' });
+        const navRes = await page.goto(base + '/', { waitUntil: 'networkidle' });
+        const cspHeader = navRes?.headers()?.get('content-security-policy') ?? '';
 
         // A policy that blocks scripts still renders server HTML. Prove the
         // application actually hydrated by driving a real interaction.
-        await page.fill('textarea', 'const hydrated = true;');
+        const PROBE = 'const hydrated = true;';
+        await page.fill('textarea', PROBE);
         await page.waitForTimeout(400);
         const counter = await page.evaluate(
             () => document.body.innerText.match(/(\d+) CHARS/)?.[1]
@@ -37,9 +39,9 @@ await withServer(async (base) => {
 
         const checks = [
             {
-                name: 'page reports a Content-Security-Policy',
-                ok: Boolean(await page.evaluate(() => document.policy)),
-                detail: 'document.policy was empty',
+                name: 'the response carries a Content-Security-Policy',
+                ok: Boolean(cspHeader),
+                detail: 'no CSP header on the document response',
             },
             {
                 name: 'no CSP console violations',
@@ -53,8 +55,8 @@ await withServer(async (base) => {
             },
             {
                 name: 'React hydrated (typing updates the char counter)',
-                ok: counter === '19',
-                detail: `counter read "${counter}", expected 19 from "const hydrated = true;"`,
+                ok: counter === String(PROBE.length),
+                detail: `counter read "${counter}", expected ${PROBE.length}`,
             },
         ];
 
