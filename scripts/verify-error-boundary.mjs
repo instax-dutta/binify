@@ -90,8 +90,10 @@ export default function Throws() {
 // withServer returns its callback's value; it must be returned onward or a
 // failure inside would be silently discarded and this gate would always pass.
 const result = await withProbeRoute(() =>
-    withServer(async (base) => {
-        await withBrowser(async (browser) => {
+    withServer((base) =>
+        // Both returns matter: withServer and withBrowser each hand back their
+        // callback's value, so discarding either would hide a failure.
+        withBrowser(async (browser) => {
             const page = await browser.newPage();
             const res = await page.goto(`${base}/gate-probe-throw`, { waitUntil: 'domcontentloaded' });
             await page.waitForTimeout(1500);
@@ -108,8 +110,8 @@ const result = await withProbeRoute(() =>
                 };
             }
             return { ok: true, detail: '' };
-        }, { name: 'chromium' });
-    })
+        }, { name: 'chromium' })
+    )
 );
 
 if (!result.ok) fail('the error boundary did not render', result.detail);
