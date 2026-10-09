@@ -20,7 +20,7 @@ const isProd = process.env.NODE_ENV === 'production';
  * cannot exfiltrate anywhere (connect-src is 'self'), and cannot be framed,
  * plugin-loaded, or used as a form target.
  */
-function buildCsp(): string {
+function buildCsp(isSecureRequest: boolean): string {
     const scriptSrc = isProd
         ? `'self' 'unsafe-inline'`
         : // The React Fast Refresh runtime evaluates source at runtime.
@@ -42,12 +42,25 @@ function buildCsp(): string {
         `form-action 'self'`,
         `base-uri 'none'`,
         `frame-ancestors 'none'`,
-        ...(isProd ? [`upgrade-insecure-requests`] : []),
+        // Only meaningful on an already-secure origin, where it stops
+        // mixed content. Emitting it on a plain-HTTP origin makes WebKit upgrade
+        // every subresource to https, which fails the handshake against an HTTP
+        // server and leaves Safari with an unstyled, unhydrated page. Chromium
+        // tolerates the same failure, so this is invisible without a WebKit test.
+        ...(isSecureRequest ? [`upgrade-insecure-requests`] : []),
     ].join('; ');
 }
 
+/** Whether this request already arrived over TLS, directly or via a proxy. */
+function isSecureRequest(request: NextRequest): boolean {
+    const forwarded = request.headers.get('x-forwarded-proto');
+    if (forwarded) return forwarded.split(',')[0].trim() === 'https';
+    return request.nextUrl.protocol === 'https:';
+}
+
 export function proxy(request: NextRequest) {
-    const csp = buildCsp();
+    const secure = isSecureRequest(request);
+    const csp = buildCsp(secure);
     const response = NextResponse.next();
 
     response.headers.set('Content-Security-Policy', csp);
@@ -57,7 +70,7 @@ export function proxy(request: NextRequest) {
     response.headers.set('X-Content-Type-Options', 'nosniff');
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-    if (isProd) {
+    if (isProd && secure) {
         // preload opts the domain into the browser's HSTS list.
         response.headers.set(
             'Strict-Transport-Security',

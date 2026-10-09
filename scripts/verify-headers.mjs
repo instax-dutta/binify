@@ -47,6 +47,13 @@ await withServer(async (base) => {
             detail: 'missing object-src none',
         },
         {
+            // upgrade-insecure-requests makes WebKit fail every subresource on
+            // an HTTP origin, so it must be absent here.
+            name: 'no upgrade-insecure-requests on a plain-HTTP response',
+            ok: !directives.has('upgrade-insecure-requests'),
+            detail: 'directive present over http',
+        },
+        {
             name: 'connect-src limited to self',
             ok: JSON.stringify(directives.get('connect-src')) === JSON.stringify(["'self'"]),
             detail: `connect-src: ${directives.get('connect-src')?.join(' ')}`,
@@ -67,9 +74,10 @@ await withServer(async (base) => {
             detail: `got ${h.get('x-content-type-options')}`,
         },
         {
-            name: 'Strict-Transport-Security with preload',
-            ok: /max-age=\d{7,}/.test(h.get('strict-transport-security') ?? '') &&
-                (h.get('strict-transport-security') ?? '').includes('preload'),
+            // HSTS must not be advertised on a plain-HTTP origin.
+            name: 'no HSTS on a plain-HTTP response',
+            ok: h.get('strict-transport-sransport-security') === null &&
+                h.get('strict-transport-security') === null,
             detail: `got ${h.get('strict-transport-security')}`,
         },
         {
@@ -94,6 +102,17 @@ await withServer(async (base) => {
             detail: `X-Powered-By: ${h.get('x-powered-by')}`,
         },
     ]);
+
+    // On a TLS-looking request the transport directives must appear.
+    const secureRes = await fetch(base + '/', { headers: { 'x-forwarded-proto': 'https' } });
+    const secureCsp = secureRes.headers.get('content-security-policy') ?? '';
+    if (!/upgrade-insecure-requests/.test(secureCsp)) {
+        fail('upgrade-insecure-requests missing on a TLS request');
+    }
+    const hsts = secureRes.headers.get('strict-transport-security') ?? '';
+    if (!/max-age=\d{7,}/.test(hsts) || !hsts.includes('preload')) {
+        fail(`HSTS missing or wrong on a TLS request: "${hsts}"`);
+    }
 
     // API responses must never be cached by an intermediary.
     const api = await fetch(base + '/api/paste/AAAAAAAAAAAAAAAAAAAAAA');
