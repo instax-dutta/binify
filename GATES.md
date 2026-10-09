@@ -1,8 +1,13 @@
 # Gates: binify production readiness
 
-OWNS: .github/workflows/**, scripts/verify-*.mjs, src/app/error.ts, src/app/global-error.ts, src/app/loading.tsx, src/components/ClientLayout.tsx, src/components/LuxurySelect.tsx, src/components/PasteEditor.tsx, src/components/PasteViewer.tsx, src/components/PasteCreated.tsx, src/components/PasteLoader.tsx, src/components/ContentCanvas.tsx, src/components/MarkdownPreview.tsx, src/components/CodeBlock.tsx, src/app/**, src/proxy.ts, src/lib/**
+OWNS: .github/workflows/**, scripts/verify-*.mjs, src/app/error.tsx, src/app/global-error.tsx, src/app/loading.tsx, src/components/ClientLayout.tsx, src/components/LuxurySelect.tsx, src/components/PasteEditor.tsx, src/components/PasteViewer.tsx, src/components/PasteCreated.tsx, src/components/PasteLoader.tsx, src/components/ContentCanvas.tsx, src/components/MarkdownPreview.tsx, src/components/CodeBlock.tsx, src/app/**, src/proxy.ts, src/lib/**, docs/**, tsconfig.json, tailwind.config.ts
 
 Scope: close every outstanding gap in the reliability, accessibility, crawler-control and payload budget of the application, and prove each one by re-measuring the built artifact.
+
+Two properties are decided here rather than measured, because a test cannot decide them. Both are recorded so they are not lost:
+
+- **Encryption stays as it is.** Pastes are sealed with a password-derived key (Argon2id, with PBKDF2 kept for reads of older pastes). No server-side recovery is possible by design; a paste whose password is lost is unreadable and unrecoverable. G9 measures the cost of that choice.
+- **Backups are Neon's point-in-time recovery, not logical dumps.** G13 requires the runbook to state the procedure and to mark the retention window as a property of the Neon plan, which only the account owner can confirm.
 
 - [ ] G0: this ledger states outcomes that can fail
   CHECK: node /Users/saiduttaabhishekdash/.agents/skills/unlazy/scripts/gate-lint.mjs GATES.md
@@ -63,3 +68,27 @@ Scope: close every outstanding gap in the reliability, accessibility, crawler-co
   CHECK: node scripts/verify-pending-ui.mjs
   EXPECT: PENDING-UI PASS
   EVIDENCE: pending
+
+- [ ] G12: a production failure can be diagnosed from outside, and no response identifies the infrastructure
+  CHECK: node scripts/verify-observability.mjs
+  EXPECT: OBSERVABILITY PASS
+  EVIDENCE: pending
+
+- [ ] G13: the runbook states every environment variable, the recovery procedure and the role split, and carries no credential
+  CHECK: node scripts/verify-docs.mjs
+  EXPECT: DOCS PASS
+  EVIDENCE: pending
+
+## Owner actions
+
+These cannot be verified from the repository, so they are listed rather than
+claimed as done. Each is a single step in a console, not a code change.
+
+1. **Rotate the Neon owner password.** It was shared in a chat transcript. The
+   running app is unaffected because it authenticates as `binify_app`, not the
+   owner. Confirm the app still works after the rotation.
+2. **Set the production environment in Vercel**: `DATABASE_URL` (pooled
+   `binify_app` URI), `TOKEN_PEPPER`, `INIT_SECRET`, `CRON_SECRET`, and
+   `MAX_PASTE_SIZE` if the default 4 MB is not wanted.
+3. **Confirm the Neon plan's PITR retention and backup window** and correct the
+   table in `docs/neon-migration.md` if it differs. The app cannot observe this.
