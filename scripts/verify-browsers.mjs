@@ -9,6 +9,18 @@ import { withServer, pass, fail } from './lib/harness.mjs';
 
 const BROWSERS = ['chromium', 'firefox', 'webkit'];
 
+/**
+ * A distinct client address per browser.
+ *
+ * Paste creation is limited to 10 per hour per address, which is a correct
+ * product limit and a nuisance for a test that creates one per browser. The app
+ * honours x-forwarded-for only when TRUST_PROXY is set, which is the case in CI
+ * and in the gate environment, so each browser gets its own bucket instead of
+ * competing with the previous run and failing for the wrong reason.
+ */
+const octet = () => 1 + Math.floor(Math.random() * 254);
+const clientIp = () => `10.${octet()}.${octet()}.${octet()}`;
+
 await withServer(async (base) => {
     const results = [];
 
@@ -29,9 +41,20 @@ await withServer(async (base) => {
         }
 
         try {
-            const page = await browser.newPage();
+            const ip = clientIp();
+            const context = await browser.newContext({
+                extraHTTPHeaders: { 'x-forwarded-for': ip },
+            });
+            const page = await context.newPage();
             const errors = [];
             page.on('pageerror', (e) => errors.push(e.message));
+
+            // If creation is refused the journey must say so plainly, rather
+            // than reporting a missing link and leaving the cause to be guessed.
+            let refused = null;
+            page.on('response', (r) => {
+                if (r.url().includes('/api/paste') && r.status() === 429) refused = 429;
+            });
 
             // Journey: land, type, confirm live state, encrypt, follow the link.
             await page.goto(base + '/', { waitUntil: 'networkidle' });
@@ -70,7 +93,7 @@ await withServer(async (base) => {
 
             let decrypted = false;
             if (shareLink) {
-                const viewer = await browser.newPage();
+                const viewer = await context.newPage();
                 await viewer.goto(shareLink, { waitUntil: 'networkidle' });
                 try {
                     await viewer.waitForFunction(
@@ -87,12 +110,18 @@ await withServer(async (base) => {
             const problems = [];
             if (counter !== expected) problems.push(`char counter ${counter} != ${expected}`);
             if (enabled !== true) problems.push('submit button stayed disabled');
-            if (!shareLink) problems.push('no share link produced');
+            if (!shareLink) {
+                problems.push(
+                    refused === 429
+                        ? 'paste creation was rate limited (HTTP 429)'
+                        : 'no share link produced'
+                );
+            }
             if (shareLink && !decrypted) problems.push('share link did not decrypt');
             if (errors.length) problems.push(`page errors: ${errors.join('; ')}`);
 
             results.push({ name, ok: problems.length === 0, detail: problems.join(' | ') });
-            await page.close();
+            await context.close();
         } catch (err) {
             results.push({ name, ok: false, detail: err.message.split('\n')[0] });
         } finally {

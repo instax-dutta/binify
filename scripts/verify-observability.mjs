@@ -7,13 +7,14 @@
  */
 
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { withServer, read, assertAll, pass } from './lib/harness.mjs';
 
 const ROOT = new URL('..', import.meta.url).pathname.replace(/\/$/, '');
 // Not underscore-prefixed: the App Router treats `_name` as a private folder and
 // never routes it, which would make this gate vacuous.
-const PROBE = `${ROOT}/src/app/gate-probe-500/api/blow-up`;
+const PROBE_TREE = `${ROOT}/src/app/gate-probe-500`;
+const PROBE = `${PROBE_TREE}/api/blow-up`;
 
 function build() {
     return spawnSync('node_modules/.bin/next', ['build'], {
@@ -58,7 +59,7 @@ export async function GET() {
     } catch (err) {
         outcome = { ok: false, detail: err instanceof Error ? err.message : String(err) };
     } finally {
-        rmSync(PROBE, { recursive: true, force: true });
+        rmSync(PROBE_TREE, { recursive: true, force: true });
         build();
     }
     return outcome;
@@ -69,7 +70,7 @@ const checks = [];
 const result = await withFailingRoute(() =>
     withServer(async (base, { log }) => {
         // ---- the unexpected-failure branch ------------------------------
-        const res = await fetch(`${base}/api/blow-up`);
+        const res = await fetch(`${base}/gate-probe-500/api/blow-up`);
         const text = await res.text();
         let body = {};
         try {
