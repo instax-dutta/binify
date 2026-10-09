@@ -16,7 +16,7 @@ await withServer(async (base) => {
     const robotsTxt = await robots.text();
 
     const sitemap = await fetch(base + '/sitemap.xml');
-    const sitemapBody = await sitemapBody(sitemap);
+    const sitemapXml = await sitemap.text();
 
     const marketingPages = ['/', '/docs', '/security', '/privacy', '/terms'];
 
@@ -71,12 +71,12 @@ await withServer(async (base) => {
         },
         {
             name: 'sitemap.xml is served',
-            ok: sitemap.ok && sitemapBody.includes('<urlset'),
+            ok: sitemap.ok && sitemapXml.includes('<urlset'),
             detail: `status ${sitemap.status}`,
         },
         {
             name: 'sitemap omits paste URLs',
-            ok: !sitemapBody.includes('/p/'),
+            ok: !sitemapXml.includes('/p/'),
             detail: 'sitemap lists /p/ URLs',
         },
         {
@@ -93,7 +93,3 @@ await withServer(async (base) => {
 
     pass('CRAWLER PASS');
 });
-
-async function sitemapBody(res) {
-    return res.text();
-}
