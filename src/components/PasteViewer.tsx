@@ -138,7 +138,7 @@ export default function PasteViewer({
 
                     <div className="flex items-center gap-4">
                         {language !== 'plaintext' && (
-                            <div className="flex gap-3" role="tablist" aria-label="Payload view">
+                            <div className="flex gap-3" role="group" aria-label="Payload view">
                                 <button
                                     type="button"
                                     aria-pressed={viewMode === 'formatted'}

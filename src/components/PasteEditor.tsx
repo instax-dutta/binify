@@ -145,7 +145,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                     voice carries prose, the data hand carries code. */}
                 <label htmlFor="editor-content" className="rune block mt-6 mb-2">The message</label>
                 <div className="flex items-center justify-between mb-2">
-                    <div className="flex gap-3" role="tablist" aria-label="Message view">
+                    <div className="flex gap-3" role="group" aria-label="Message view">
                         <button
                             type="button"
                             onClick={() => setViewMode('edit')}
@@ -270,7 +270,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                         aria-label="Press the seal to encrypt and share"
                         className="seal-press"
                     >
-                        <span className="sr-only">Encrypt and share</span>
+                        <span className="sr-only">ENCRYPT AND SHARE</span>
                         <WaxSeal
                             size={72}
                             className={cn('transition-transform', isCreating && 'press-depressed spin-slow')}
