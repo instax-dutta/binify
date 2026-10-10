@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo, useId, useCallback } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Option {
@@ -201,28 +200,25 @@ export default function LuxurySelect({
                 aria-controls={isOpen ? listboxId : undefined}
                 onClick={() => (isOpen ? close(false) : open(-1))}
                 onKeyDown={onTriggerKeyDown}
-                className={cn(
-                    'input-spotify flex items-center justify-between gap-3 text-left cursor-pointer',
-                    isOpen && '!bg-[#252525]'
-                )}
-            >
-                <span className={cn('truncate flex-1', !selectedOption && 'text-white/50')}>
-                    {selectedOption ? selectedOption.label : placeholder}
-                </span>
-                <ChevronDown
-                    size={14}
-                    aria-hidden="true"
-                    className={cn(
-                        'text-white/50 transition-transform duration-300',
-                        isOpen && 'rotate-180 text-[#1ed760]'
-                    )}
-                />
-            </button>
+                  className={cn(
+                      'paper-input font-data text-xs flex items-center justify-between gap-3 text-left cursor-pointer',
+                      isOpen && '[border-bottom-color:var(--wax)]'
+                  )}
+              >
+                  <span className={cn('truncate flex-1', !selectedOption && 'opacity-60')}>
+                      {selectedOption ? selectedOption.label : placeholder}
+                  </span>
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"
+                      className={cn('shrink-0 opacity-70 transition-transform duration-300', isOpen && 'rotate-180')}
+                  >
+                      <path d="M5 9 L12 16 L19 9" />
+                  </svg>
+              </button>
 
             {isOpen && (
-                <div className="anim-slide-down absolute z-[100] mt-2 w-full bg-[#181818] rounded-lg overflow-hidden shadow-[rgba(0,0,0,0.5)_0px_8px_24px] border border-white/5">
+                <div className="anim-fade absolute z-[100] mt-2 w-full slip overflow-hidden">
                     {options.length > 5 && (
-                        <div className="p-2 border-b border-white/5">
+                        <div className="p-2" style={{ borderBottom: '1px solid rgba(43,36,26,.22)' }}>
                             <input
                                 ref={inputRef}
                                 type="text"
@@ -239,7 +235,7 @@ export default function LuxurySelect({
                                     setActiveIndex(0);
                                 }}
                                 onKeyDown={onSearchKeyDown}
-                                className="w-full bg-[#1f1f1f] border-none rounded-[9999px] px-3 py-2 text-xs outline-none text-white placeholder:text-white/50"
+                                className="w-full bg-transparent px-2 py-1.5 text-xs outline-none text-ink placeholder:text-ink/50 font-data"
                             />
                         </div>
                     )}
@@ -258,7 +254,7 @@ export default function LuxurySelect({
                         }
                         tabIndex={-1}
                         onKeyDown={onListKeyDown}
-                        className="max-h-[240px] overflow-y-auto overflow-x-hidden p-1 scrollbar-hide"
+                        className="max-h-[240px] overflow-y-auto overflow-x-hidden py-1 custom-scrollbar"
                         style={{ overscrollBehavior: 'contain' }}
                     >
                         {filteredOptions.length > 0 ? (
@@ -283,12 +279,14 @@ export default function LuxurySelect({
                                         )}
                                     >
                                         <span>{option.label}</span>
-                                        {isSelected && <Check size={14} aria-hidden="true" className="shrink-0" />}
+                                        {isSelected && (
+                                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" className="shrink-0"><path d="M4.5 12.5 L9.5 17.5 L20 6.5"/></svg>
+                                          )}
                                     </button>
                                 );
                             })
                         ) : (
-                            <div className="px-4 py-8 text-center text-xs text-white/50" role="presentation">
+                            <div className="px-4 py-8 text-center text-xs text-ink/60" role="presentation">
                                 No matches found
                             </div>
                         )}

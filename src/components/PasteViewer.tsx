@@ -2,22 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-    Copy,
-    Download,
-    Flame,
-    Clock,
-    Eye,
-    Terminal,
-    CheckCircle2,
-    FileText,
-    ChevronRight,
-    AlertTriangle
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { logger } from '@/lib/logging';
-
 import ContentCanvas from './ContentCanvas';
+import { cn } from '@/lib/utils';
 
 interface PasteViewerProps {
     content: string;
@@ -34,7 +20,6 @@ export default function PasteViewer({
     content,
     language = 'plaintext',
     title,
-    createdAt,
     expiresAt,
     viewCount,
     maxViews,
@@ -52,7 +37,7 @@ export default function PasteViewer({
             const diff = expiresAt - now;
 
             if (diff <= 0) {
-                setTimeLeft('Expired');
+                setTimeLeft('due to return to ash');
                 return;
             }
 
@@ -60,11 +45,10 @@ export default function PasteViewer({
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            if (days > 0) setTimeLeft(`${days}d ${hours}h`);
-            else if (hours > 0) setTimeLeft(`${hours}h ${minutes}m`);
-            else if (minutes > 0) setTimeLeft(`${minutes}m ${seconds}s`);
-            else setTimeLeft(`${seconds}s`);
+            if (days > 0) setTimeLeft(`burns in ${days}d ${hours}h`);
+            else if (hours > 0) setTimeLeft(`burns in ${hours}h ${minutes}m`);
+            else if (minutes > 0) setTimeLeft(`burns in ${minutes}m ${seconds}s`);
+            else setTimeLeft(`burns in ${seconds}s`);
         };
 
         updateTimeLeft();
@@ -72,148 +56,120 @@ export default function PasteViewer({
         return () => clearInterval(interval);
     }, [expiresAt]);
 
-    const copyToClipboard = async () => {
+    const copyMessage = async () => {
         try {
             await navigator.clipboard.writeText(content);
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         } catch (err) {
-            logger.error('Failed to copy:', err);
+            void err;
         }
     };
 
-    const downloadPaste = () => {
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = title ? `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt` : 'binify_paste.txt';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
+    const readsLeft = maxViews
+        ? Math.max(0, maxViews - viewCount)
+        : undefined;
+    // The ember row for an uncounted slip shows four of four embers burning.
+    const emberCount = maxViews
+        ? Math.min(6, Math.max(2, Math.round((readsLeft ?? 0) / maxViews * 6)))
+        : 4;
 
     return (
-        <div className="anim-rise w-full max-w-6xl mx-auto space-y-5 pb-16">
-            {/* Burn Warning */}
-            {willBurn && (
-                <div className="bg-[#f3727f]/5 border border-[#f3727f]/15 rounded-lg p-4">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-[#f3727f]/15 flex items-center justify-center shrink-0">
-                            <Flame size={14} className="text-[#f3727f] animate-pulse" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold text-white uppercase tracking-[0.05em]">Burn after reading</p>
-                            <p className="text-xs text-[#b3b3b3]">This content will self-destruct after this session.</p>
-                        </div>
-                    </div>
-                </div>
-            )}
+        <div className="w-full max-w-[640px] mx-auto">
+            <div className="slip px-7 py-8 md:px-9 anim-rise">
+                <p className="rune text-center tracking-[0.4em] text-[11px] mb-6">
+                    {willBurn ? 'THIS READING BURNS IT' : 'ONE READING · THIS SLIP'}
+                </p>
 
-            {/* Meta Header */}
-            <div className="bg-[#181818] rounded-lg p-6 space-y-5">
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-5">
-                    <div className="space-y-3">
-                        <div className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-[#1ed760] flex items-center gap-2">
-                            <Terminal size={12} />
-                            PAYLOAD
-                        </div>
-                        <h1 className="title-lg text-white break-words max-w-2xl">
-                            {title || 'Untitled'}
+                {title && (
+                    <>
+                        <h1 className="font-voice font-semibold text-center text-[27px] leading-tight">
+                            {title}
                         </h1>
-                        <div className="flex flex-wrap gap-2">
-                            <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] bg-white/[0.03] px-2.5 py-1 rounded-[9999px]">
-                                <Clock size={11} />
-                                {new Date(createdAt).toLocaleDateString()}
-                            </span>
-                            {expiresAt && (
-                                <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] bg-white/[0.03] px-2.5 py-1 rounded-[9999px]">
-                                    <CheckCircle2 size={11} className="text-[#ffa42b]" />
-                                    {timeLeft}
-                                </span>
-                            )}
-                            {maxViews && (
-                                <span className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] bg-white/[0.03] px-2.5 py-1 rounded-[9999px]">
-                                    <Eye size={11} />
-                                    {viewCount} / {maxViews}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                        <button
-                            onClick={() => setViewMode(viewMode === 'formatted' ? 'raw' : 'formatted')}
-                            className="btn-spotify-secondary text-[0.625rem] tracking-[0.05em] h-9"
-                        >
-                            {viewMode === 'formatted' ? 'RAW' : 'FORMATTED'}
-                        </button>
-                        <button
-                            onClick={copyToClipboard}
-                            className={cn("btn-spotify-secondary text-[0.625rem] tracking-[0.05em] h-9", copied && "!text-[#1ed760]")}
-                        >
-                            {copied ? (
-                                <span className="flex items-center gap-1.5"><CheckCircle2 size={12} /> COPIED</span>
-                            ) : (
-                                <span className="flex items-center gap-1.5"><Copy size={12} /> COPY</span>
-                            )}
-                        </button>
-                        <button onClick={downloadPaste} className="btn-spotify-secondary h-9 px-3">
-                            <Download size={14} />
-                        </button>
-                    </div>
-                </div>
-
-                {language && language !== 'plaintext' && (
-                    <div className="flex items-center gap-3">
-                        <span className="text-[0.5rem] font-bold uppercase tracking-[0.15em] text-white/50">LANG</span>
-                        <span className="badge-spotify bg-[#1ed760]/10 text-[#1ed760] border border-[#1ed760]/20">
-                            {language}
-                        </span>
-                    </div>
+                        <div className="slip-rule" />
+                    </>
                 )}
 
-                <div className="flex justify-end">
-                    <a href="/revoke" className="text-[0.5rem] font-bold text-white/50 hover:text-[#ffa42b]/60 transition-colors uppercase tracking-[0.15em] flex items-center gap-1">
-                        <AlertTriangle size={8} />
-                        Revoke
-                    </a>
-                </div>
-            </div>
-
-            {/* Content Canvas */}
-            <div className="bg-[#181818] rounded-lg overflow-hidden border border-white/5">
-                <div className="flex items-center gap-3 px-4 py-2.5 bg-[#1f1f1f] border-b border-white/5">
-                    <div className="flex gap-1.5">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#f3727f]/60" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#ffa42b]/60" />
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#1ed760]/60" />
-                    </div>
-                    <span className="text-[0.625rem] font-bold text-white/50 uppercase tracking-[0.15em] flex items-center gap-1.5">
-                        <FileText size={11} />
-                        OUTPUT
-                    </span>
-                </div>
-
-                <div className="p-0 overflow-y-auto overflow-x-auto selection:bg-[#1ed760]/20 custom-scrollbar h-[650px]">
+                <div
+                    className={cn(
+                        'relative font-data',
+                        language === 'plaintext'
+                            ? 'text-[14.5px] leading-[1.75]'
+                            : 'text-[13.5px] leading-[1.7]'
+                    )}
+                    style={{ color: 'var(--ink)' }}
+                >
                     <ContentCanvas
                         content={content}
                         language={language}
                         forceRaw={viewMode === 'raw'}
                     />
                 </div>
+
+                <div className="slip-rule" />
+
+                {/* The ember line: time and readings drawn as a visible quantity. */}
+                <div className="flex flex-wrap items-center justify-between gap-y-3">
+                    <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-[5px]" aria-hidden="true">
+                            {Array.from({ length: maxViews ? 6 : 4 }).map((_, i) => (
+                                <span
+                                    key={i}
+                                    className={cn(
+                                        'ember-pulse h-[5px] w-[14px] rounded-[2px] transition-colors',
+                                        i < (maxViews ? emberCount : 4) ? '' : 'opacity-40'
+                                    )}
+                                    style={
+                                        i < (maxViews ? emberCount : 4)
+                                            ? { background: 'linear-gradient(180deg,#c9a25a,#a4762f)', boxShadow: '0 0 6px rgba(201,162,90,.55)' }
+                                            : { background: 'rgba(43,36,26,.18)' }
+                                    }
+                                />
+                            ))}
+                        </span>
+                        <span className="rune text-[11px]" style={{ color: 'var(--ink-soft)' }} aria-live="polite">
+                            {timeLeft
+                                ? timeLeft.toUpperCase()
+                                : readsLeft !== undefined
+                                    ? `${readsLeft} READING${readsLeft === 1 ? '' : 'S'} REMAIN`
+                                    : 'HELD FOR YOU ALONE'}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {language !== 'plaintext' && (
+                            <div className="flex gap-3" role="group" aria-label="Payload view">
+                                <button
+                                    type="button"
+                                    aria-pressed={viewMode === 'formatted'}
+                                    onClick={() => setViewMode('formatted')}
+                                    className={cn('rune text-[10px] pb-0.5 transition-colors', viewMode === 'formatted' ? 'text-wax border-b border-wax' : 'opacity-60')}
+                                >
+                                    PROOF
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-pressed={viewMode === 'raw'}
+                                    onClick={() => setViewMode('raw')}
+                                    className={cn('rune text-[10px] pb-0.5 transition-colors', viewMode === 'raw' ? 'text-wax border-b border-wax' : 'opacity-60')}
+                                >
+                                    RAW
+                                </button>
+                            </div>
+                        )}
+                        <button type="button" className="rune text-[10px] pb-0.5 transition-colors hover:text-wax" onClick={copyMessage} aria-live="polite">
+                            {copied ? 'COPIED' : 'COPY THE MESSAGE'}
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div className="pt-6 text-center">
-                <Link
-                    href="/"
-                    className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-white/50 hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em]"
-                >
-                    ENCRYPT NEW PAYLOAD
-                    <ChevronRight size={12} />
+            <p className="rune-muted text-center mt-6 text-[10.5px]">
+                HOLD THE BURN SLIP?{' '}
+                <Link href="/revoke" className="underline underline-offset-4 hover:text-amber" style={{ color: '#a4463f' }}>
+                    RECALL IT AT THE DESK
                 </Link>
-            </div>
+            </p>
         </div>
     );
 }

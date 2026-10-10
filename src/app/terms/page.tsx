@@ -1,63 +1,45 @@
-'use client';
+import Folio, { Chapter } from '@/components/Folio';
 
-import { Gavel, AlertTriangle, FileText, ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+export const metadata = { title: 'Terms' };
 
 export default function TermsPage() {
     return (
-        <main className="min-h-screen pt-24 pb-20 px-6">
-            <div className="container mx-auto max-w-4xl">
-                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
-                    <ChevronLeft size={12} /> BACK
-                </Link>
+        <Folio
+            eyebrow="THE TERMS OF THE ORDER"
+            title="Terms"
+            lede="Last updated: February 2026."
+        >
+            <Chapter mark="I" title="Acceptable use">
+                <p>
+                    Using Binify confirms you will not use it for anything unlawful -
+                    distributing malware, stolen data, or any content that breaks applicable
+                    law. The keeper may remove material that breaks these terms.
+                </p>
+            </Chapter>
 
-                <div className="anim-rise space-y-10"
-                >
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-[#1ed760]">
-                            <Gavel size={28} />
-                            <h1 className="title-xl">Terms of Service</h1>
-                        </div>
-                        <p className="text-caption">Last updated: December 2025</p>
-                    </div>
+            <Chapter mark="II" title="No promises except the ones stated">
+                <p>
+                    Binify is offered <strong>as is</strong>, without warranty. Because it is
+                    zero-knowledge, losing a link or a guard word is unrecoverable - the order
+                    has no back door and will not pretend otherwise. It is not responsible for
+                    data loss, downtime, or third-party misuse.
+                </p>
+            </Chapter>
 
-                    <div className="bg-[#181818] rounded-lg p-8 space-y-8">
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <FileText size={16} className="text-[#1ed760]" />
-                                Acceptable Use
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                By using Binify, you agree not to use the service for illegal activities. This includes distribution of malware, stolen data, or any content that violates applicable laws. We reserve the right to remove content that violates these terms.
-                            </p>
-                        </section>
+            <Chapter mark="III" title="Burning is final">
+                <p>
+                    Content is destroyed according to the terms chosen at sealing: a timer, a
+                    number of readings, or on first reading. Once burned, it is{' '}
+                    <strong>irrecoverable</strong> - by design, not by accident.
+                </p>
+            </Chapter>
 
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <AlertTriangle size={16} className="text-[#1ed760]" />
-                                Disclaimer of Warranty
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Binify is provided &quot;as is&quot; without warranties. As a zero-knowledge service, we cannot recover data if you lose your decryption key. We are not responsible for data loss, downtime, or third-party misuse.
-                            </p>
-                        </section>
-
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white">Expiration and Deletion</h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Content is automatically deleted based on your chosen expiration settings. &quot;Burn after reading&quot; pastes are purged immediately after first retrieval. Once deleted, data is irrecoverable.
-                            </p>
-                        </section>
-
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white">Modifications</h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                We reserve the right to modify these terms or the service at any time. Continued use after changes implies acceptance.
-                            </p>
-                        </section>
-                    </div>
-                </div>
-            </div>
-        </main>
+            <Chapter mark="IV" title="Changes">
+                <p>
+                    These terms and the service may change over time. Continued use after a
+                    change is acceptance of it.
+                </p>
+            </Chapter>
+        </Folio>
     );
 }

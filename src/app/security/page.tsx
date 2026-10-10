@@ -1,69 +1,49 @@
-'use client';
+import Folio, { Chapter } from '@/components/Folio';
 
-import { ShieldAlert, Fingerprint, Cpu, Lock, ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+export const metadata = { title: 'Security' };
 
 export default function SecurityPage() {
     return (
-        <main className="min-h-screen pt-24 pb-20 px-6">
-            <div className="container mx-auto max-w-4xl">
-                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
-                    <ChevronLeft size={12} /> BACK
-                </Link>
+        <Folio
+            eyebrow="HOW THE SECRET STAYS A SECRET"
+            title="Security"
+            lede="The cipher, the keys, and what stands between you and the drawer."
+        >
+            <Chapter mark="I" title="The cipher">
+                <p>
+                    Your message is sealed on your machine with the Web Crypto API -
+                    <strong> AES-256-GCM</strong>, an authenticated cipher. The six words
+                    under a slip are not decoration: the auth tag means even one altered byte
+                    anywhere in the envelope is detected, and nothing is shown but a refusal.
+                </p>
+            </Chapter>
 
-                <div className="anim-rise space-y-10"
-                >
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-[#1ed760]">
-                            <ShieldAlert size={28} />
-                            <h1 className="title-xl">Security Architecture</h1>
-                        </div>
-                        <p className="text-body max-w-2xl">Technical details on how your secrets stay secret.</p>
-                    </div>
+            <Chapter mark="II" title="Where the key lives">
+                <p>
+                    In the <strong>fragment</strong> - the part of the link after{' '}
+                    <code>#</code>. Your browser does not send fragments to servers, so the key
+                    never arrives here, never enters a log, and never reaches the database. A
+                    stolen drawer still yields nothing.
+                </p>
+            </Chapter>
 
-                    <div className="bg-[#181818] rounded-lg p-8 space-y-10">
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Cpu size={16} className="text-[#1ed760]" />
-                                Client-Side Cryptography
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                All encryption and decryption happens on your device using the <strong>Web Crypto API</strong>. We use <strong>AES-256-GCM</strong>, a military-grade authenticated encryption standard, ensuring both confidentiality and integrity.
-                            </p>
-                        </section>
+            <Chapter mark="III" title="When the two of you share a word">
+                <p>
+                    A guard word is worked into the derivation: new slips use{' '}
+                    <strong>Argon2id</strong>, a deliberately slow memory-hard function that
+                    punishes brute force; older slips sealed with <strong>PBKDF2</strong> still
+                    open exactly as they did the day they were written.
+                </p>
+            </Chapter>
 
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Lock size={16} className="text-[#1ed760]" />
-                                Key Management
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Your encryption keys are stored in the URL <strong>fragment</strong> (the part after the #). Browsers do not send fragments to the server. Even if our database is compromised, your data remains secure.
-                            </p>
-                        </section>
-
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Fingerprint size={16} className="text-[#1ed760]" />
-                                Secondary Protection (PBKDF2)
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                When you add a password, we use <strong>PBKDF2</strong> with 100,000 iterations and a unique salt per paste. This protects against brute-force attacks.
-                            </p>
-                        </section>
-
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white">Network Security</h2>
-                            <ul className="list-disc list-inside text-sm text-[#b3b3b3] space-y-1.5">
-                                <li>Strong Content Security Policy (CSP) headers to prevent XSS</li>
-                                <li>HSTS for forced HTTPS</li>
-                                <li>X-Frame-Options to prevent clickjacking</li>
-                                <li>Strict rate limiting enforced per route in the database</li>
-                            </ul>
-                        </section>
-                    </div>
-                </div>
-            </div>
-        </main>
+            <Chapter mark="IV" title="The walls around the desk">
+                <ul>
+                    <li><strong>Content Security Policy</strong> - every script and style is pinned to this origin; no third-party foot ever crosses.</li>
+                    <li><strong>HSTS</strong> - the desk demands TLS.</li>
+                    <li><strong>X-Frame-Options</strong> - the slipping may not be framed.</li>
+                    <li><strong>Durable rate limits</strong> - abuse is counted atomically in the ledger, not in memory that forgets.</li>
+                </ul>
+            </Chapter>
+        </Folio>
     );
 }

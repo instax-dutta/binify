@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Terminal, Lock, Loader2, ShieldAlert } from 'lucide-react';
 import { decryptContent, openSealed } from '@/lib/crypto';
 import PasteViewer from '@/components/PasteViewer';
+import { WaxSeal, WaxSealDefs } from '@/components/WaxSeal';
 import Link from 'next/link';
 
 interface PasteMeta {
@@ -116,19 +116,20 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
         void loadPaste();
     }, [loadPaste]);
 
-    const handlePasswordSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handlePasswordSubmit = () => {
         if (password) loadPaste(password);
     };
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-6">
-                <div className="text-center space-y-4">
-                    <div className="relative">
-                        <Loader2 size={36} className="text-[#1ed760] animate-spin mx-auto" />
-                    </div>
-                    <p className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-white/60">Decrypting...</p>
+            <div className="min-h-screen grid place-items-center">
+                <div className="flex flex-col items-center gap-6 anim-fade" aria-live="polite">
+                    <span
+                        className="ember-pulse h-[6px] w-[76px] rounded-[3px]"
+                        style={{ background: 'linear-gradient(180deg,#c9a25a,#a4762f)', boxShadow: '0 0 14px rgba(201,162,90,.55)' }}
+                        aria-hidden="true"
+                    />
+                    <p className="rune-muted">Decryption is worked by hand — a moment</p>
                 </div>
             </div>
         );
@@ -136,19 +137,27 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-6">
-                <div className="anim-pop max-w-md w-full bg-[#181818] rounded-lg p-8 text-center space-y-6 border border-[#f3727f]/15"
+            <div className="min-h-screen grid place-items-center">
+                <div
+                    role="alert"
+                    className="anim-rise text-center px-6"
                 >
-                    <div className="w-16 h-16 bg-[#f3727f]/10 rounded-full flex items-center justify-center mx-auto">
-                        <ShieldAlert size={32} className="text-[#f3727f]" />
+                    <div className="w-[74px] h-[74px] mx-auto mb-7 rounded-full grid place-items-center"
+                        style={{ border: '1px solid rgba(122,46,42,.5)', boxShadow: '0 0 40px rgba(122,46,42,.15) inset' }}>
+                        {/* the broken sigil: a key with a snapped stem */}
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#a4463f" strokeWidth="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="8" cy="8" r="4.2" />
+                            <path d="M11 11 L15 15" />
+                            <path d="M14.4 18.6 L18.8 14.2" />
+                            <path d="M16.2 13.4 L14 11" />
+                        </svg>
                     </div>
-                    <div className="space-y-2">
-                        <h2 className="text-xl font-bold text-white tracking-tight">Access Denied</h2>
-                        <p className="text-sm text-[#b3b3b3] leading-relaxed">{error}</p>
-                    </div>
-                    <Link href="/" className="btn-spotify-primary inline-flex">
-                        <Terminal size={14} />
-                        RETURN HOME
+                    <h2 className="font-voice font-semibold text-[24px]">The slip could not be opened</h2>
+                    <p className="rune-muted mt-3 leading-[1.9] px-2" style={{ fontSize: '11.5px', letterSpacing: '.18em' }}>
+                        {error.toUpperCase()}
+                    </p>
+                    <Link href="/" className="ghost inline-block mt-8 text-[10px]">
+                        RETURN TO THE NIGHT FOOTPATH
                     </Link>
                 </div>
             </div>
@@ -157,57 +166,49 @@ export default function PasteLoader({ pasteId }: PasteLoaderProps) {
 
     if (needsPassword) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-6">
-                <div className="anim-rise max-w-md w-full bg-[#181818] rounded-lg p-8 space-y-8"
+            <div className="min-h-screen grid place-items-center">
+                <WaxSealDefs />
+                <form onSubmit={(e) => { e.preventDefault(); handlePasswordSubmit(); }}
+                    className="slip px-7 py-9 anim-rise max-w-[420px] w-[88vw]"
                 >
-                    <div className="text-center space-y-3">
-                        <div className="w-14 h-14 rounded-full bg-[#1ed760]/10 flex items-center justify-center mx-auto">
-                            <Lock size={24} className="text-[#1ed760]" />
-                        </div>
-                        <div className="space-y-1">
-                            <h2 className="text-xl font-bold text-white tracking-tight">Password Required</h2>
-                            <p className="text-sm text-[#b3b3b3]">This paste is protected by an extra PBKDF2 layer.</p>
-                        </div>
-                    </div>
-
-                    <form onSubmit={handlePasswordSubmit} className="space-y-5">
-                        <div className="space-y-1.5">
-                            <label className="label-spotify justify-center">Password</label>
-                            <input
-                                type="password"
-                                placeholder="Enter password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="input-spotify text-center"
-                                autoFocus
-                                autoComplete="off"
-                            />
-                        </div>
-                        <button type="submit" className="btn-spotify-primary w-full h-12 tracking-[0.05em]">
-                            <Lock size={14} />
-                            UNLOCK
+                    <p className="rune text-center tracking-[0.4em] mb-6">A GUARDED SLIP</p>
+                    <h2 className="font-voice italic font-medium text-center text-[20px] leading-[1.55]" style={{ color: 'var(--ink)' }}>
+                        This slip answers only to the keeper&apos;s word. Speak it below.
+                    </h2>
+                    <div className="slip-rule" />
+                    <label htmlFor="guard-authority" className="rune block mb-2">The word</label>
+                    <input
+                        id="guard-authority"
+                        type="password"
+                        placeholder="What was agreed"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="paper-input font-data text-[13px] text-center"
+                        autoFocus
+                        autoComplete="off"
+                    />
+                    <div className="seal-zone flex flex-col items-center gap-3 mt-8">
+                        <button type="submit" aria-label="Decrypt with this word" className="seal-press">
+                            <span className="sr-only">UNLOCK</span>
+                            <WaxSeal size={64} />
                         </button>
-                    </form>
-                </div>
+                        <span className="rune text-[11px]" style={{ color: 'var(--ink)' }}>SPEAK THE WORD</span>
+                    </div>
+                </form>
             </div>
         );
     }
 
     return (
         <div className="min-h-screen">
-            <nav className="border-b border-white/5 bg-[#121212]/80 backdrop-blur-xl">
-                <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-8 h-8 rounded-full bg-[#1ed760] flex items-center justify-center">
-                            <Terminal size={16} className="text-black" />
-                        </div>
-                        <span className="text-base font-bold tracking-tight text-white">Binify</span>
-                    </Link>
-                    <span className="text-[0.625rem] font-bold text-white/50 uppercase tracking-[0.2em]">DECRYPTED PAYLOAD</span>
-                </div>
+            <nav className="flex items-center justify-between px-6 md:px-10 py-5">
+                <Link href="/" className="rune-muted tracking-[0.32em] hover:text-amber">
+                    THE <span style={{ color: 'var(--amber)' }}>BURN</span> ARCHIVE
+                </Link>
+                <span className="rune-muted text-[10px]">OPENED AT YOUR HAND</span>
             </nav>
 
-            <div className="container mx-auto px-6 pt-10">
+            <div className="px-6 pt-6 grid place-items-center">
                 <PasteViewer
                     content={content}
                     language={metadata?.language}

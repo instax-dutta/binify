@@ -1,96 +1,54 @@
-'use client';
+import Folio, { Chapter } from '@/components/Folio';
 
-import { Book, Code, Zap, Shield, ChevronLeft, Terminal, Info } from 'lucide-react';
-import Link from 'next/link';
+export const metadata = { title: 'Doctrine' };
 
 export default function DocsPage() {
     return (
-        <main className="min-h-screen pt-24 pb-20 px-6">
-            <div className="container mx-auto max-w-4xl">
-                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
-                    <ChevronLeft size={12} /> BACK
-                </Link>
+        <Folio
+            eyebrow="THE DOCTRINE"
+            title="How the order works"
+            lede="Everything between the seal and the silence, explained plainly."
+        >
+            <Chapter mark="I" title="Getting started">
+                <p>
+                    Write the message on the slip. Choose when it burns, add a guard word if
+                    the two of you share one, then press the seal. The cipher is worked on
+                    your machine before a single byte leaves it.
+                </p>
+            </Chapter>
 
-                <div className="anim-rise space-y-10"
-                >
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-[#1ed760]">
-                            <Book size={28} />
-                            <h1 className="title-xl">Documentation</h1>
-                        </div>
-                        <p className="text-body max-w-2xl">Everything you need to know about using Binify.</p>
-                    </div>
+            <Chapter mark="II" title="What the server knows">
+                <p>
+                    Nothing it can act on. The slip travels as ciphertext; the key never
+                    leaves the <strong>#</strong> part of your link, which browsers are told
+                    never to send. The server holds noise, unreadable to us and to anyone
+                    who takes the drawer.
+                </p>
+            </Chapter>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        <div className="bg-[#181818] rounded-lg p-6 space-y-3 hover:bg-[#1f1f1f] transition-colors">
-                            <Zap size={20} className="text-[#1ed760]" />
-                            <h3 className="title-md text-white">Getting Started</h3>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Enter your text or code into the editor. Choose expiration or view limits, and click &quot;Encrypt & Share&quot;. Your data is encrypted immediately in your browser.
-                            </p>
-                        </div>
-                        <div className="bg-[#181818] rounded-lg p-6 space-y-3 hover:bg-[#1f1f1f] transition-colors">
-                            <Code size={20} className="text-[#1ed760]" />
-                            <h3 className="title-md text-white">Syntax Highlighting</h3>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Binify supports 20+ languages with automatic detection. Select your language manually for perfect formatting.
-                            </p>
-                        </div>
-                    </div>
+            <Chapter mark="III" title="Burning">
+                <p>
+                    A slip is read as many times as its maker allows, then it is destroyed in
+                    one atomic stroke - not marked, not hidden, gone. A slip may also surrender
+                    on a timer, on first reading, or on a fixed number of readings.
+                </p>
+            </Chapter>
 
-                    <div className="bg-[#181818] rounded-lg p-8 space-y-10">
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Shield size={18} className="text-[#1ed760]" />
-                                Zero-Knowledge Design
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Binify follows the principle of <strong>Zero-Knowledge</strong>. The server is &quot;blind&quot; to your content. This is achieved by storing the decryption key in the URL fragment (the part after the #), which is never sent to our servers by your browser.
-                            </p>
-                        </section>
+            <Chapter mark="IV" title="The burn slip (recall)">
+                <p>
+                    Every sealed paste can also be issued a <strong>burn slip</strong>: a one-time
+                    string that lets its maker recall the paste from the desk at{' '}
+                    <code>/revoke</code>. Present the slip and the paste is destroyed wherever it
+                    still exists.
+                </p>
+            </Chapter>
 
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Terminal size={18} className="text-[#1ed760]" />
-                                Self-Destruction (Burn)
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                When &quot;Burn after reading&quot; is enabled, the server deletes the encrypted data immediately after it is retrieved for the first time. The secret exists only as long as it needs to be seen once.
-                            </p>
-                        </section>
-
-                        <section className="space-y-3">
-                            <div className="bg-[#1f1f1f] rounded-lg p-5 flex gap-3">
-                                <Info size={20} className="text-[#1ed760] shrink-0 mt-0.5" />
-                                <div className="space-y-1.5">
-                                    <h4 className="text-sm font-bold text-white uppercase tracking-[0.05em]">Important</h4>
-                                    <p className="text-xs text-[#b3b3b3] leading-relaxed">
-                                        If you lose the URL generated for your paste, the data is <strong>permanently gone</strong>. We have no way to recover it.
-                                    </p>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section className="space-y-4">
-                            <h2 className="title-md text-white">FAQs</h2>
-                            <div className="space-y-5">
-                                <div>
-                                    <h4 className="text-sm font-bold text-white mb-1">What is the maximum paste size?</h4>
-                                    <p className="text-sm text-[#b3b3b3]">The current limit is 1MB per paste.</p>
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-bold text-white mb-1">Does Binify store my IP?</h4>
-                                    <p className="text-sm text-[#b3b3b3]">IPs are temporarily hashed for rate limiting and purged regularly.</p>
-                                </div>
-                                <div>
-                                    <h4 className="text-sm font-bold text-white mb-1">Is Binify freely hostable?</h4>
-                                    <p className="text-sm text-[#b3b3b3]">Yes. Binify is designed to be self-hosted on platforms like Vercel.</p>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </div>
-        </main>
+            <Chapter mark="V" title="Questions asked at the door">
+                <p><strong>How large may a slip be?</strong> Deployments set their own ceiling;
+                this one accepts messages up to 1 MB of sealed ciphertext.</p>
+                <p className="mt-2"><strong>Am I recorded?</strong> Addresses are briefly hashed to slow abuse of the desk and are purged; nothing about your message is ever legible to us.</p>
+                <p className="mt-2"><strong>May I exchange at my own desk?</strong> Yes - Binify is open source and its doctrine runs wherever your own data store does.</p>
+            </Chapter>
+        </Folio>
     );
 }

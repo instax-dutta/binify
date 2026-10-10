@@ -1,66 +1,43 @@
-'use client';
+import Folio, { Chapter } from '@/components/Folio';
 
-import { Shield, Lock, Eye, Terminal, ChevronLeft } from 'lucide-react';
-import Link from 'next/link';
+export const metadata = { title: 'Privacy' };
 
 export default function PrivacyPage() {
     return (
-        <main className="min-h-screen pt-24 pb-20 px-6">
-            <div className="container mx-auto max-w-4xl">
-                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-white transition-colors mb-6 uppercase tracking-[0.15em]">
-                    <ChevronLeft size={12} /> BACK
-                </Link>
+        <Folio
+            eyebrow="THE ORDER'S WORD ON PRIVACY"
+            title="Privacy"
+            lede="Last updated: February 2026 — what we keep, which is almost nothing."
+        >
+            <Chapter mark="I" title="No plaintext, ever">
+                <p>
+                    The order is built so it <strong>cannot</strong> read your message.
+                    Encryption and decryption happen in your browser. What is stored after
+                    sealing is noise, and the key to it is never transmitted.
+                </p>
+            </Chapter>
 
-                <div className="anim-rise space-y-10"
-                >
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-[#1ed760]">
-                            <Shield size={28} />
-                            <h1 className="title-xl">Privacy Policy</h1>
-                        </div>
-                        <p className="text-caption">Last updated: December 2025</p>
-                    </div>
+            <Chapter mark="II" title="No cookies, no tracking">
+                <p>
+                    No analytics scripts, no third-party marketing, no tracking of any kind.
+                    Addresses are briefly hashed to slow abuse of the desk and are purged
+                    regularly.
+                </p>
+            </Chapter>
 
-                    <div className="bg-[#181818] rounded-lg p-8 space-y-8">
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Lock size={16} className="text-[#1ed760]" />
-                                No Data Collection
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Binify is designed with a zero-knowledge architecture. We do not collect, store, or have access to the plaintext content of your pastes. All encryption and decryption processes occur locally within your browser.
-                            </p>
-                        </section>
+            <Chapter mark="III" title="What is stored">
+                <p>
+                    Sealed ciphertext, and a small amount of operational metadata: when a slip
+                    should burn, how many readings it allows, whether a guard word exists.
+                    These columns describe the envelope, not the letter.
+                </p>
+            </Chapter>
 
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Eye size={16} className="text-[#1ed760]" />
-                                No Cookies or Tracking
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                We do not use tracking cookies, analytics scripts, or third-party marketing tools. IP addresses are hashed temporarily for rate-limiting only.
-                            </p>
-                        </section>
-
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white flex items-center gap-2">
-                                <Terminal size={16} className="text-[#1ed760]" />
-                                Infrastructure
-                            </h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                Encrypted payloads are stored in transient storage. Metadata (expiration, view counts) is stored in a structured database. Decryption keys are never transmitted.
-                            </p>
-                        </section>
-
-                        <section className="space-y-3">
-                            <h2 className="title-md text-white">Contact</h2>
-                            <p className="text-sm text-[#b3b3b3] leading-relaxed">
-                                For security-related inquiries, reach out via sdad.pro.
-                            </p>
-                        </section>
-                    </div>
-                </div>
-            </div>
-        </main>
+            <Chapter mark="IV" title="Contact">
+                <p>
+                    For security inquiries, reach the keeper via sdad.pro.
+                </p>
+            </Chapter>
+        </Folio>
     );
 }

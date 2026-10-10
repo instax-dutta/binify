@@ -15,35 +15,28 @@ import ClientLayout from '@/components/ClientLayout';
  * address away from Google, and lets the CSP stay at 'self' for styles and
  * fonts.
  */
-const display = localFont({
+/*
+ * Two voices, as committed in .design/round-01/SPEC.md: Cormorant Garamond is
+ * the order's voice (titles, mottos, message text) and IBM Plex Mono is the
+ * data hand (labels, hashes, links). Both are committed files, so the build
+ * stays hermetic and the CSP keeps font-src 'self'.
+ */
+const voice = localFont({
     src: [
-        { path: './fonts/dm-sans-400.woff2', weight: '400', style: 'normal' },
-        { path: './fonts/dm-sans-500.woff2', weight: '500', style: 'normal' },
-        { path: './fonts/dm-sans-600.woff2', weight: '600', style: 'normal' },
-        { path: './fonts/dm-sans-700.woff2', weight: '700', style: 'normal' },
+        { path: './fonts/cormorant-500.woff2', weight: '500', style: 'normal' },
+        { path: './fonts/cormorant-500-italic.woff2', weight: '500', style: 'italic' },
+        { path: './fonts/cormorant-600.woff2', weight: '600', style: 'normal' },
     ],
-    variable: '--font-display',
+    variable: '--font-voice',
     display: 'swap',
 });
 
-const sans = localFont({
+const data = localFont({
     src: [
-        { path: './fonts/figtree-400.woff2', weight: '400', style: 'normal' },
-        { path: './fonts/figtree-500.woff2', weight: '500', style: 'normal' },
-        { path: './fonts/figtree-600.woff2', weight: '600', style: 'normal' },
-        { path: './fonts/figtree-700.woff2', weight: '700', style: 'normal' },
+        { path: './fonts/plex-mono-400.woff2', weight: '400', style: 'normal' },
+        { path: './fonts/plex-mono-500.woff2', weight: '500', style: 'normal' },
     ],
-    variable: '--font-sans',
-    display: 'swap',
-});
-
-const mono = localFont({
-    src: [
-        { path: './fonts/jetbrains-mono-400.woff2', weight: '400', style: 'normal' },
-        { path: './fonts/jetbrains-mono-500.woff2', weight: '500', style: 'normal' },
-        { path: './fonts/jetbrains-mono-600.woff2', weight: '600', style: 'normal' },
-    ],
-    variable: '--font-mono',
+    variable: '--font-data',
     display: 'swap',
 });
 
@@ -69,14 +62,18 @@ export const metadata: Metadata = {
   creator: 'sdad.pro',
   metadataBase: new URL('https://bin.sdad.pro'),
   icons: {
-    // Served from this origin rather than as absolute bin.sdad.pro URLs, so
-    // the same markup is correct in preview deployments and on localhost.
+    /*
+     * The brand is the pressed wax seal, drawn in .design/round-01 and rendered
+     * under /brand/. Served from this origin so the markup is usable on
+     * previews and localhost alike.
+     */
     icon: [
-      { url: '/icon-32.png', type: 'image/png', sizes: '32x32' },
-      { url: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/brand/favicon.svg', type: 'image/svg+xml' },
+      { url: '/brand/favicon-32.png', type: 'image/png', sizes: '32x32' },
+      { url: '/brand/favicon-16.png', type: 'image/png', sizes: '16x16' },
     ],
     apple: [
-      { url: '/icon-180.png', sizes: '180x180', type: 'image/png' },
+      { url: '/brand/icon-180.png', sizes: '180x180', type: 'image/png' },
     ],
   },
   openGraph: {
@@ -86,13 +83,10 @@ export const metadata: Metadata = {
     siteName: 'Binify',
     images: [
       {
-        url: '/og-image.jpg',
-        // The real dimensions. They were previously declared as 1200x630
-        // while the file was 1024x1024, which made platforms crop a square
-        // image to a 1.91:1 box.
-        width: 1024,
-        height: 1024,
-        alt: 'Binify - Secure Encrypted Pastebin',
+        url: '/brand/og-sanctum.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Binify — a wax-sealed slip of vellum: Spoken once, then silence.',
       },
     ],
     locale: 'en_US',
@@ -103,7 +97,7 @@ export const metadata: Metadata = {
     title: 'Binify - Zero-Knowledge Encrypted Pastebin',
     description: 'Share secrets securely with end-to-end encryption. No keys ever touch the server.',
     creator: '@sdad_pro',
-    images: ['/og-image.jpg'],
+    images: ['/brand/og-sanctum.jpg'],
   },
   manifest: '/manifest.json',
   robots: {
@@ -113,7 +107,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: '#1ed760',
+  themeColor: '#0f0c09',
   width: 'device-width',
   initialScale: 1,
 };
@@ -124,8 +118,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}>
-      <body className="antialiased font-sans">
+    <html lang="en" className={`dark ${voice.variable} ${data.variable}`}>
+      <body className="antialiased">
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

@@ -1,22 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import {
-    ShieldAlert,
-    Trash2,
-    RefreshCw,
-    Terminal,
-    Key,
-    Link as LinkIcon,
-    Loader2,
-    CheckCircle2,
-    AlertTriangle,
-    ArrowLeft,
-    Copy
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
+/**
+ * The burn-slip desk. The keeper presents a paste address and the one-time slip
+ * that was issued with it, then recalls the paste or rotates its address.
+ * Contract: role="alert" on the error line.
+ */
 export default function RevokePage() {
     const [inputValue, setInputValue] = useState('');
     const [token, setToken] = useState('');
@@ -44,14 +35,12 @@ export default function RevokePage() {
         const id = extractPasteId(inputValue);
         if (!id || !token) {
             setStatus('error');
-            setMessage('Paste ID/URL and Authorization Token are required.');
+            setMessage('The address and the burn slip are both required.');
             return;
         }
-
         setIsProcessing(true);
         setStatus('idle');
         setMessage('');
-
         try {
             const response = await fetch(`/api/paste/${encodeURIComponent(id)}?token=${encodeURIComponent(token)}`, {
                 method: 'DELETE',
@@ -64,14 +53,14 @@ export default function RevokePage() {
             }
 
             if (!response.ok) {
-                throw new Error(data.error || 'Revocation failed. Verify your ID and token.');
+                throw new Error(data.error || 'Recall failed. Present the address and slip again.');
             }
 
             setStatus('success');
-            setMessage('Your paste has been securely purged from the server.');
+            setMessage('The paste has been recalled and purged. Nothing remains.');
         } catch (err) {
             setStatus('error');
-            setMessage(err instanceof Error ? err.message : 'Critical failure during revocation.');
+            setMessage(err instanceof Error ? err.message : 'The recall failed.');
         } finally {
             setIsProcessing(false);
         }
@@ -81,14 +70,12 @@ export default function RevokePage() {
         const id = extractPasteId(inputValue);
         if (!id || !token) {
             setStatus('error');
-            setMessage('Paste ID/URL and Authorization Token are required.');
+            setMessage('The address and the burn slip are both required.');
             return;
         }
-
         setIsProcessing(true);
         setStatus('idle');
         setMessage('');
-
         try {
             const response = await fetch(`/api/paste/${encodeURIComponent(id)}/rotate`, {
                 method: 'POST',
@@ -103,189 +90,150 @@ export default function RevokePage() {
             }
 
             if (!response.ok) {
-                throw new Error(data.error || 'Rotation failed. Verify your ID and token.');
+                throw new Error(data.error || 'Rotation failed. Present the address and slip again.');
             }
-
-            if (data.newId) setRotatedId(data.newId);
             setStatus('success');
-            setMessage('Secure link rotation complete. The old ID is now invalid.');
+            setMessage('A new address has been cut. The old one no longer answers.');
+            if (data.newId) setRotatedId(data.newId);
         } catch (err) {
             setStatus('error');
-            setMessage(err instanceof Error ? err.message : 'Critical failure during rotation.');
+            setMessage(err instanceof Error ? err.message : 'The rotation failed.');
         } finally {
             setIsProcessing(false);
         }
     };
 
     return (
-        <main className="min-h-screen pt-20 pb-20 px-6 container mx-auto flex flex-col items-center">
-            <div className="w-full max-w-2xl mb-10 flex items-center justify-between">
-                <Link href="/" className="inline-flex items-center gap-1.5 text-[0.625rem] font-bold text-[#b3b3b3] hover:text-[#1ed760] transition-colors uppercase tracking-[0.15em] group">
-                    <ArrowLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
-                    BACK
+        <main className="min-h-screen px-5 pb-24">
+            <nav className="flex items-center justify-between px-1 md:px-5 py-6">
+                <Link href="/" className="rune-muted tracking-[0.32em] text-[11px] hover:text-amber">
+                    THE <span style={{ color: 'var(--amber)' }}>BURN</span> ARCHIVE
                 </Link>
-                <div className="flex items-center gap-1.5 text-[0.5rem] font-bold text-[#1ed760] uppercase tracking-[0.15em] bg-[#1ed760]/5 px-2.5 py-1 rounded-[9999px] border border-[#1ed760]/10">
-                    <ShieldAlert size={10} />
-                    ADMIN
-                </div>
-            </div>
+                <span className="rune-muted text-[10px]" style={{ color: '#b98f65' }}>THE RECALL DESK</span>
+            </nav>
 
-            <div className="anim-rise w-full max-w-2xl space-y-6"
-            >
-                <div className="text-center space-y-3">
-                    <h1 className="title-xl text-white">
-                        Revoke &amp; <span className="text-[#1ed760]">Rotate</span>
-                    </h1>
-                    <p className="text-sm text-[#b3b3b3] max-w-lg mx-auto leading-relaxed">
-                        Use your admin token to purge content or rotate the access link.
+            <div className="grid place-items-center px-1 pt-6">
+                <div className="w-full max-w-[520px] anim-rise">
+                    <p className="rune-muted text-center text-[10.5px] tracking-[0.4em] mb-3">
+                        PRESENT THE SLIP, AND THE PAST OBEYS
                     </p>
-                </div>
+                    <h1 className="font-voice font-semibold text-center text-[30px] leading-tight">
+                        Recall &amp; Reform
+                    </h1>
+                    <p className="text-center mt-3 leading-[1.8]" style={{ color: 'rgba(236,225,203,.7)' }}>
+                        The burn slip is a one-time authority issued when a paste was sealed.
+                        With it, the keeper may destroy the paste or cut it a fresh address.
+                    </p>
 
-                    {status === 'success' ? (
-                        <div
-                            key="success"
-                            className="anim-pop bg-[#181818] rounded-lg p-8 space-y-6 text-center border border-[#1ed760]/15"
-                        >
-                            <div className="w-16 h-16 bg-[#1ed760]/10 rounded-full flex items-center justify-center mx-auto">
-                                <CheckCircle2 size={32} className="text-[#1ed760]" />
-                            </div>
-                            <div className="space-y-2">
-                                <h3 className="title-md text-white">Operation Successful</h3>
-                                <p className="text-sm text-[#b3b3b3] max-w-sm mx-auto">{message}</p>
-                            </div>
-
-                            {rotatedId && (
-                                <div className="space-y-4 pt-4">
-                                    <div className="text-[0.625rem] font-bold uppercase tracking-[0.15em] text-[#1ed760] text-left">
-                                        New ID
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            readOnly
-                                            value={rotatedId}
-                                            className="input-spotify text-xs font-mono text-[#1ed760]/80"
-                                        />
-                                        <button
-                                            onClick={() => navigator.clipboard.writeText(rotatedId)}
-                                            className="btn-spotify-secondary shrink-0 h-[44px] w-[44px] !p-0"
+                    <div className="mt-10">
+                        {status === 'success' ? (
+                            <div className="slip px-7 py-9 text-center anim-fade" role="status">
+                                <p className="rune text-center mb-4" style={{ color: 'var(--amber)' }}>
+                                    IT IS DONE
+                                </p>
+                                <p className="font-voice italic font-medium text-[20px] leading-[1.55]" style={{ color: 'var(--ink)' }}>
+                                    {message}
+                                </p>
+                                {rotatedId && (
+                                    <div className="mt-7">
+                                        <p className="rune-muted text-[10px] normal-case tracking-[0.2em] mb-2">
+                                            THE NEW SIGIL
+                                        </p>
+                                        <a
+                                            href={`/p/${rotatedId}${typeof window !== 'undefined' ? window.location.hash : ''}`}
+                                            className="font-data text-[13px] break-all"
+                                            style={{ color: 'var(--amber)' }}
                                         >
-                                            <Copy size={14} />
-                                        </button>
+                                            /p/{rotatedId}
+                                        </a>
                                     </div>
-                                    <a
-                                        href={`/p/${rotatedId}${typeof window !== 'undefined' ? window.location.hash : ''}`}
-                                        className="btn-spotify-primary w-full h-11 text-[0.625rem] tracking-[0.05em]"
-                                    >
-                                        <Terminal size={14} />
-                                        VIEW NEW LINK
-                                    </a>
-                                </div>
-                            )}
-
-                            {!rotatedId && (
+                                )}
                                 <button
-                                    onClick={() => { setStatus('idle'); setInputValue(''); setToken(''); }}
-                                    className="btn-spotify-secondary mt-2"
+                                    className="ghost mt-8 text-[10px] px-5"
+                                    onClick={() => { setStatus('idle'); setInputValue(''); setToken(''); setRotatedId(''); }}
                                 >
-                                    NEW OPERATION
+                                    ANOTHER DISPOSITION
                                 </button>
-                            )}
-                        </div>
-                    ) : (
-                        <div
-                            key="form"
-                            className="anim-fade space-y-5"
-                        >
-                            <div className="bg-[#181818] rounded-lg p-6 space-y-5">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-1.5">
-                                        <label className="label-spotify">
-                                            <LinkIcon size={12} /> Paste Link or ID
-                                        </label>
+                            </div>
+                        ) : (
+                            <div className="slip px-7 py-9 anim-fade">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                                    <div>
+                                        <label htmlFor="slip-address" className="rune block mb-2">The address</label>
                                         <input
+                                            id="slip-address"
                                             type="text"
-                                            placeholder="Full URL or just the ID"
+                                            placeholder="Full link or the sigil alone"
                                             value={inputValue}
                                             onChange={(e) => setInputValue(e.target.value)}
-                                            className="input-spotify text-sm font-mono"
+                                            className="paper-input font-data text-[12.5px]"
                                             autoComplete="off"
                                         />
                                     </div>
-                                    <div className="space-y-1.5">
-                                        <label className="label-spotify">
-                                            <Key size={12} /> Deletion Token
-                                        </label>
+                                    <div>
+                                        <label htmlFor="burn-slip" className="rune block mb-2">The burn slip</label>
                                         <input
+                                            id="burn-slip"
                                             type="text"
-                                            placeholder="Enter your private token"
+                                            placeholder="Issued when the paste was sealed"
                                             value={token}
                                             onChange={(e) => setToken(e.target.value)}
-                                            className="input-spotify text-sm font-mono"
+                                            className="paper-input font-data text-[12.5px]"
                                             autoComplete="off"
                                         />
                                     </div>
                                 </div>
 
                                 {status === 'error' && (
-                                    <div
+                                    <p
                                         role="alert"
-                                        className="anim-slide-down bg-[#f3727f]/10 border border-[#f3727f]/20 text-[#f3727f] p-3 rounded-lg text-xs"
+                                        className="anim-fade mt-6 text-center font-voice italic text-[16px]"
+                                        style={{ color: '#a4463f' }}
                                     >
                                         {message}
-                                    </div>
+                                    </p>
                                 )}
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                                    {/* Recall is severe: wax border, spoken plainly. */}
                                     <button
                                         onClick={handleRevoke}
                                         disabled={isProcessing || !inputValue || !token}
-                                        className="btn-spotify-secondary flex flex-col items-center gap-2 py-6 border border-[#ffa42b]/15 bg-[#ffa42b]/[0.01] hover:bg-[#ffa42b]/[0.03] hover:border-[#ffa42b]/30 disabled:opacity-30 disabled:cursor-not-allowed h-auto"
+                                        className="ghost flex flex-col items-center gap-1.5 py-5 px-4"
+                                        style={{ borderColor: 'rgba(122,46,42,.6)', color: '#c98780' }}
                                     >
-                                        <Trash2 size={20} className="text-[#ffa42b]" />
-                                        <div className="text-center">
-                                            <span className="block text-xs font-bold uppercase tracking-[0.05em] text-white">Revoke</span>
-                                            <span className="block text-[0.5rem] text-[#b3b3b3] mt-0.5 uppercase tracking-[0.1em]">Permanently delete</span>
-                                        </div>
+                                        <span className="rune text-[11px] tracking-[0.3em]">RECALL</span>
+                                        <span className="rune text-[9px] opacity-80 normal-case tracking-[0.16em]">
+                                            DESTROY IT EVERYWHERE
+                                        </span>
                                     </button>
-
                                     <button
                                         onClick={handleRotate}
                                         disabled={isProcessing || !inputValue || !token}
-                                        className="btn-spotify-secondary flex flex-col items-center gap-2 py-6 border border-[#1ed760]/15 bg-[#1ed760]/[0.01] hover:bg-[#1ed760]/[0.03] hover:border-[#1ed760]/30 disabled:opacity-30 disabled:cursor-not-allowed h-auto"
+                                        className="ghost flex flex-col items-center gap-1.5 py-5 px-4"
                                     >
-                                        <RefreshCw size={20} className={cn("text-[#1ed760]", isProcessing && "animate-spin")} />
-                                        <div className="text-center">
-                                            <span className="block text-xs font-bold uppercase tracking-[0.05em] text-white">Rotate</span>
-                                            <span className="block text-[0.5rem] text-[#b3b3b3] mt-0.5 uppercase tracking-[0.1em]">New access link</span>
-                                        </div>
+                                        <span className="rune text-[11px] tracking-[0.3em]">REFORM</span>
+                                        <span className="rune text-[9px] opacity-80 normal-case tracking-[0.16em]">
+                                            CUT THE SLIP A NEW ADDRESS
+                                        </span>
                                     </button>
                                 </div>
-                            </div>
-
-                            <div className="bg-[#1f1f1f] rounded-lg p-5 space-y-3">
-                                <div className="flex items-center gap-2 text-[#b3b3b3]">
-                                    <AlertTriangle size={14} />
-                                    <span className="text-[0.625rem] font-bold uppercase tracking-[0.1em]">Security Policy</span>
+                                {isProcessing && (
+                                    <p className="rune-muted text-center text-[10px] mt-6" aria-live="polite">
+                                        THE DESK IS WORKING…
+                                    </p>
+                                )}
+                                <div className="slip-rule" />
+                                <div className="leading-[2]" style={{ color: 'var(--ink-soft)', fontSize: '11.5px' }}>
+                                    <p>Recall is instant and final — one atomic stroke, nothing marked.</p>
+                                    <p className="mt-1.5">Reform cuts a fresh address; the old sigil answers nothing.</p>
+                                    <p className="mt-1.5">The cipher key is never stored. This desk governs the paste alone.</p>
                                 </div>
-                                <div className="space-y-2 text-[0.625rem] text-white/50 leading-relaxed">
-                                    <p>Revocation is instant and final. The row is deleted in a single atomic statement.</p>
-                                    <p>Rotation generates a new URL. The old link returns 404 immediately.</p>
-                                    <p>Binify never stores your encryption key. These operations manage the paste ID only.</p>
-                                </div>
                             </div>
-                        </div>
-                    )}
-            </div>
-
-            {isProcessing && (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center">
-                    <div className="text-center space-y-4">
-                        <Loader2 size={36} className="text-[#1ed760] animate-spin mx-auto" />
-                        <p className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-white animate-pulse">Processing...</p>
+                        )}
                     </div>
                 </div>
-            )}
+            </div>
         </main>
     );
 }

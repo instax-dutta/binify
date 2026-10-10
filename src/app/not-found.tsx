@@ -1,46 +1,40 @@
 'use client';
 
-import { ShieldAlert, Book, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export default function ErrorPage() {
+/**
+ * 404. The slip was never filed, or it was already burned. The regulator says
+ * the page must explain itself rather than show a bare frame.
+ */export default function NotFound() {
     return (
-        <main className="min-h-screen pt-32 pb-20 px-6 overflow-hidden">
-            <div className="container mx-auto max-w-2xl text-center space-y-10">
-                <div className="anim-pop bg-[#181818] rounded-lg p-10 space-y-6"
+        <main className="min-h-screen grid place-items-center px-6 text-center">
+            <div className="anim-rise max-w-[440px]">
+                <div
+                    className="w-[74px] h-[74px] mx-auto mb-7 rounded-full grid place-items-center"
+                    style={{ border: '1px solid var(--hair-soft)', boxShadow: '0 0 40px rgba(201,162,90,.08) inset' }}
+                    aria-hidden="true"
                 >
-                    <div className="w-20 h-20 bg-[#f3727f]/10 rounded-full flex items-center justify-center mx-auto">
-                        <ShieldAlert size={36} className="text-[#f3727f]" />
-                    </div>
-
-                    <div className="space-y-3">
-                        <h1 className="title-xl text-white">404</h1>
-                        <p className="text-sm text-[#b3b3b3] leading-relaxed max-w-md mx-auto">
-                            The payload you are looking for has been purged, burned, or never existed.
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-                        <Link href="/" className="btn-spotify-primary tracking-[0.05em]">
-                            <ChevronLeft size={14} />
-                            RETURN HOME
-                        </Link>
-                        <a href="/docs" className="btn-spotify-secondary tracking-[0.05em]">
-                            <Book size={14} />
-                            DOCS
-                        </a>
-                    </div>
+                    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="rgba(236,225,203,.7)" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                        <circle cx="8" cy="8" r="4.2" />
+                        <path d="M11 11 L15 15" />
+                        <path d="M14.4 18.6 L18.8 14.2" />
+                        <path d="M16.2 13.4 L14 11" />
+                    </svg>
                 </div>
-
-                <div className="flex justify-center gap-6 text-[0.5rem] font-bold uppercase tracking-[0.2em] text-white/50">
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-1 h-1 rounded-full bg-[#f3727f]" />
-                        Link: Disconnected
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                        <div className="w-1 h-1 rounded-full bg-[#1ed760]" />
-                        Encryption: Active
-                    </div>
+                <h1 className="font-voice font-semibold text-[25px] leading-snug">
+                    Nothing came to hand
+                </h1>
+                <p className="rune-muted mt-4 leading-[1.9]" style={{ fontSize: '11.5px', letterSpacing: '.18em' }}>
+                    THIS SLIP DOES NOT EXIST, OR IT IS NO LONGER AVAILABLE.
+                    <span className="block mt-2">THE ORDER KEEPS NO RECORD OF WHAT BURNS.</span>
+                </p>
+                <div className="flex flex-wrap justify-center gap-3 mt-8">
+                    <Link href="/" className="ghost text-[10px] px-5">
+                        RETURN TO THE NIGHT
+                    </Link>
+                    <a href="/docs" className="ghost text-[10px] px-5" style={{ color: 'rgba(236,225,203,.72)' }}>
+                        THE DOCTRINE
+                    </a>
                 </div>
             </div>
         </main>

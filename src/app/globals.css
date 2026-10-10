@@ -2,273 +2,293 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Sanctum. The tokens were derived in .design/round-01/SPEC.md, and every
+ * value below is traceable there. Dark is a material (night), not a default;
+ * paper is vellum, text on paper is ink, amber is the only accent and is
+ * budgeted to stay under ~5% of any screen.
+ */
 :root {
-  --background: #121212;
-  --foreground: #ffffff;
-  --card: #181818;
-  --card-hover: #1f1f1f;
-  --surface: #1f1f1f;
-  --accent: #1ed760;
-  --accent-secondary: #539df5;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
-  --text-secondary: #b3b3b3;
-  --text-negative: #f3727f;
-  --text-warning: #ffa42b;
-  --font-ui: 'Figtree', 'Helvetica Neue', helvetica, arial, sans-serif;
-  --font-display: 'DM Sans', 'Figtree', sans-serif;
-  --shadow-heavy: rgba(0, 0, 0, 0.5) 0px 8px 24px;
-  --shadow-medium: rgba(0, 0, 0, 0.3) 0px 8px 8px;
+  --night: #0f0c09;
+  --night-hi: #171310;
+  --vellum: #ece1cb;
+  --vellum-dim: #e2d5bc;
+  --ink: #2b241a;
+  --ink-soft: #4f4637;
+  --amber: #c9a25a;
+  --wax: #7a2e2a;
+  --wax-deep: #4d1d1a;
+  --hair: rgba(236, 225, 203, 0.3);
+  --hair-soft: rgba(236, 225, 203, 0.16);
+  --ink-rule: rgba(43, 36, 26, 0.45);
+  --shadow-slip: 0 40px 80px rgba(0, 0, 0, 0.6), 0 6px 18px rgba(0, 0, 0, 0.35);
+  --font-voice-family: var(--font-voice);
+  --font-data-family: var(--font-data);
   color-scheme: dark;
+}
+
+/* Vellum grain, shared by every paper surface. Declared at :root so any rule
+   may compose it into its own background; an undefined var() inside a
+   background shorthand would invalidate the whole declaration. */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='v'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23v)' opacity='0.055'/%3E%3C/svg%3E");
 }
 
 @layer base {
   body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-ui);
+    background:
+      radial-gradient(70% 46% at 50% -8%, rgba(201, 162, 90, 0.14) 0%, transparent 60%),
+      radial-gradient(90% 60% at 50% 108%, rgba(201, 162, 90, 0.05) 0%, transparent 55%),
+      var(--night);
+    color: var(--vellum);
+    font-family: var(--font-data-family);
+    font-size: 14px;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
-    font-size: 16px;
-    font-weight: 400;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
-  }
-
-  * {
-    @apply border-white/5;
+  h1, h2, h3, h4 {
+    font-family: var(--font-voice-family);
   }
 
   ::selection {
-    background-color: rgba(30, 215, 96, 0.25);
-    color: #ffffff;
+    background-color: rgba(201, 162, 90, 0.3);
+    color: #f6efdf;
+  }
+
+  :focus-visible {
+    outline: 1px solid var(--amber);
+    outline-offset: 3px;
   }
 }
 
 @layer components {
-  .card-spotify {
-    @apply bg-[#181818] rounded-lg transition-all duration-200;
+  /* --- the paper --- */
+  .slip {
+    --grain-it: var(--grain);
+    background:
+      var(--grain-it),
+      linear-gradient(178deg, var(--vellum) 0%, var(--vellum-dim) 100%);
+    color: var(--ink);
+    box-shadow:
+      var(--shadow-slip),
+      inset 0 0 0 1px rgba(43, 36, 26, 0.14),
+      inset 0 0 34px rgba(43, 36, 26, 0.09);
   }
 
-  .card-spotify:hover {
-    background-color: #1f1f1f;
+  .slip-rule {
+    height: 1px;
+    background: rgba(43, 36, 26, 0.28);
+    margin: 22px 0;
   }
 
-  .card-spotify-elevated {
-    @apply bg-[#181818] rounded-lg shadow-[rgba(0,0,0,0.3)_0px_8px_8px] transition-all duration-200;
+  .rune {
+    font-family: var(--font-data-family);
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
   }
 
-  .card-spotify-elevated:hover {
-    background-color: #1f1f1f;
-    box-shadow: rgba(0, 0, 0, 0.5) 0px 8px 24px;
+  .rune-muted {
+    font-family: var(--font-data-family);
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: rgba(236, 225, 203, 0.66);
   }
 
-  .btn-spotify {
-    @apply relative inline-flex items-center justify-center gap-2 font-[family-name:var(--font-ui)] text-sm font-bold uppercase tracking-[0.0875rem] transition-all duration-200 select-none;
+  /* Data hand on paper: hairline underlines are the only boxes. */
+  .paper-input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--ink-rule);
+    outline: none;
+    color: var(--ink);
+    padding: 3px 0 7px;
+  }
+  .paper-input:focus { border-bottom-color: var(--wax); }
+  .paper-input::placeholder { color: rgba(43, 36, 26, 0.52); }
+
+  /* --- controls on night --- */
+  .ghost {
+    background: transparent;
+    border: 1px solid var(--hair);
+    color: var(--vellum);
+    font-family: var(--font-data-family);
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    padding: 12px 26px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .ghost:hover { border-color: var(--amber); color: var(--amber); }
+  .ghost:active { transform: translateY(1px); }
+  .ghost:disabled { opacity: 0.45; cursor: not-allowed; border-color: var(--hair-soft); color: rgba(236,225,203,0.5); }
+  .ghost:disabled:hover { border-color: var(--hair-soft); color: rgba(236,225,203,0.5); }
+
+  .ghost-danger {
+    background: transparent;
+    border: 1px solid rgba(122, 46, 42, 0.55);
+    color: var(--wax);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .ghost-danger:hover { border-style: solid; background: rgba(122, 46, 42, 0.08); color: #a4463f; }
+
+  /* --- the pressed seal, as a control ---
+     An impression, not a button: flat, matte, deboss poured by <use href="#sealface">.
+     The melt skirt is the wax bleeding a little of itself into the paper. */
+  .seal-press {
+    position: relative;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    display: inline-grid;
+    place-items: center;
+    transition: transform 0.14s ease;
+  }
+  .seal-press::before {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(122, 46, 42, 0.38) 0%, rgba(122, 46, 42, 0.16) 58%, transparent 72%);
+    filter: blur(3px);
+  }
+  .seal-press > svg { position: relative; display: block; }
+  .seal-press:hover { transform: scale(1.04); }
+  .seal-press:active { transform: scale(0.94); }
+  .seal-press:disabled { cursor: not-allowed; opacity: 0.55; }
+  .seal-press:disabled:hover { transform: none; }
+
+  .press-depressed { transform: scale(0.92); }
+
+  /* Charred paper: the top edge burned to ash, the rest still vellum. */
+  .charred-paper {
+    --grain-it: var(--grain);
+    background:
+      var(--grain-it),
+      linear-gradient(180deg, #23150c 0%, #58402a 4%, #7c6044 8%, var(--vellum) 14%, var(--vellum-dim) 100%);
+    box-shadow: 0 26px 50px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(43, 36, 26, 0.12);
   }
 
-  .btn-spotify-primary {
-    @apply btn-spotify bg-[#1ed760] text-black rounded-[500px] px-8 py-3 hover:scale-[1.02] hover:brightness-110 active:scale-[0.98];
+  /* Error runs on wax: same grammar, switched hue. */
+  .wax-reveal {
+    background: rgba(122, 46, 42, 0.07);
+    border: 1px solid rgba(122, 46, 42, 0.5);
+    color: #c98780;
   }
 
-  .btn-spotify-primary:disabled {
-    @apply opacity-40 cursor-not-allowed hover:scale-100 hover:brightness-100 active:scale-100;
+  /* Document pages (docs/privacy/security/terms): a widened slip. */
+  .folio {
+    max-width: 720px;
   }
-
-  .btn-spotify-secondary {
-    @apply btn-spotify bg-[#1f1f1f] text-white rounded-[9999px] px-6 py-2.5 hover:bg-white/10 active:scale-[0.98];
+  .folio h2 {
+    font-family: var(--font-voice-family);
+    font-weight: 600;
+    font-size: 26px;
+    color: var(--vellum);
+    margin: 44px 0 10px;
   }
-
-  .btn-spotify-secondary:disabled {
-    @apply opacity-40 cursor-not-allowed hover:bg-[#1f1f1f] active:scale-100;
+  .folio p, .folio li {
+    font-family: var(--font-data-family);
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: rgba(236, 225, 203, 0.82);
   }
-
-  .btn-spotify-ghost {
-    @apply btn-spotify text-[#b3b3b3] rounded-[9999px] px-4 py-2 hover:text-white;
-  }
-
-  .input-spotify {
-    @apply w-full bg-[#1f1f1f] text-white rounded-[500px] px-4 py-3 outline-none transition-all duration-200 font-[family-name:var(--font-ui)] text-sm;
-    box-shadow: rgb(18, 18, 18) 0px 1px 0px, rgb(124, 124, 124) 0px 0px 0px 1px inset;
-  }
-
-  .input-spotify::placeholder {
-    color: rgba(255, 255, 255, 0.2);
-  }
-
-  .input-spotify:focus {
-    background-color: #252525;
-    box-shadow: rgb(18, 18, 18) 0px 1px 0px, rgb(30, 215, 96) 0px 0px 0px 1px inset;
-  }
-
-  .textarea-spotify {
-    @apply w-full bg-transparent text-white font-mono text-sm leading-relaxed resize-none outline-none;
-  }
-
-  .textarea-spotify::placeholder {
-    color: rgba(255, 255, 255, 0.15);
-  }
-
-  .label-spotify {
-    @apply flex items-center gap-2 text-[0.66rem] font-bold uppercase tracking-[0.05em] text-[#b3b3b3];
-  }
-
-  .badge-spotify {
-    @apply inline-flex items-center px-3 py-1 rounded-[9999px] text-[0.66rem] font-semibold capitalize;
-  }
-
-  .divider-spotify {
-    @apply h-px bg-gradient-to-r from-transparent via-white/5 to-transparent;
-  }
-
-  .nav-link-spotify {
-    @apply text-sm font-[family-name:var(--font-ui)] transition-colors duration-200;
-  }
-
-  .nav-link-spotify-active {
-    @apply nav-link-spotify text-white font-bold;
-  }
-
-  .nav-link-spotify-inactive {
-    @apply nav-link-spotify text-[#b3b3b3] font-normal hover:text-white;
-  }
-
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-white/10 rounded-full hover:bg-white/20 transition-colors;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .title-xl {
-    @apply font-[family-name:var(--font-display)] text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter leading-[1.05];
-  }
-
-  .title-lg {
-    @apply font-[family-name:var(--font-display)] text-2xl md:text-3xl font-bold tracking-tight leading-[1.1];
-  }
-
-  .title-md {
-    @apply font-[family-name:var(--font-display)] text-xl font-bold tracking-tight;
-  }
-
-  .text-body {
-    @apply text-base font-normal text-white/60 leading-relaxed;
-  }
-
-  .text-caption {
-    @apply text-sm text-[#b3b3b3] font-normal;
-  }
-
-  .text-micro {
-    @apply text-[0.625rem] font-bold uppercase tracking-[0.2em] text-[#b3b3b3];
-  }
-}
-
-:root {
-  --black: #121212;
-}
-
-/*
- * Entry animations. These replace a JS animation runtime: the browser
- * compositor drives them off the main thread, so they cost no bundle weight
- * and do not compete with decryption for main-thread time.
- */
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 20px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes pop {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -6px, 0) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes slide-down {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -8px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+  .folio ul { margin: 12px 0 12px 20px; list-style: none; }
+  .folio li::before { content: "· "; color: var(--amber); }
+  .folio strong { color: var(--vellum); font-weight: 500; }
+  .folio code {
+    font-family: var(--font-data-family);
+    background: rgba(236, 225, 203, 0.08);
+    padding: 1px 6px;
   }
 }
 
 @layer utilities {
+  .font-voice { font-family: var(--font-voice-family); }
+  .font-data { font-family: var(--font-data-family); }
+
   .anim-rise {
-    animation: rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: rise 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-
   .anim-fade {
-    animation: fade 0.3s ease-out both;
+    animation: fade 0.4s ease-out both;
   }
+  .anim-seal {
+    animation: seal-press 0.55s cubic-bezier(0.2, 1.5, 0.4, 1) 0.2s both;
+  }
+  .anim-dissolve {
+    animation: dissolve 0.7s ease-out both;
+  }
+  .ember-pulse {
+    animation: ember 2.6s ease-in-out infinite;
+  }
+  .spin-slow { animation: spin 3s linear infinite; }
+}
 
-  .anim-pop {
-    animation: pop 0.15s ease-out both;
-  }
+/*
+ * The three basics: enter, transition, and the burn. All transform/opacity so
+ * the compositor drives them; reduced-motion switches to opacity only.
+ */
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
 
-  .anim-slide-down {
-    animation: slide-down 0.18s ease-out both;
-  }
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes seal-press {
+  0% { opacity: 0; transform: scale(1.5) rotate(4deg); }
+  100% { opacity: 1; transform: scale(1) rotate(4deg); }
+}
+
+@keyframes dissolve {
+  from { opacity: 1; transform: translate3d(0, 0, 0); filter: blur(0); }
+  to { opacity: 0; transform: translate3d(0, -18px, 0); filter: blur(5px); }
+}
+
+@keyframes ember {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .anim-rise,
   .anim-fade,
-  .anim-pop,
-  .anim-slide-down {
-    animation: none;
+  .anim-seal,
+  .anim-dissolve,
+  .ember-pulse {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
-
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Scrollrails: paper on paper, no colors. */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(43, 36, 26, 0.3) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(43, 36, 26, 0.3);
+  border-radius: 0;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(43, 36, 26, 0.5); }
