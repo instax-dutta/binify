@@ -1,9 +1,0 @@
-/* Shared @font-face declarations for all three candidates. */
-@font-face { font-family: 'Special Elite'; src: url('fonts/special-elite-400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Cormorant Garamond'; src: url('fonts/cormorant-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Cormorant Garamond'; src: url('fonts/cormorant-600.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
-@font-face { font-family: 'IBM Plex Mono'; src: url('fonts/plex-mono-400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: 'IBM Plex Mono'; src: url('fonts/plex-mono-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Oswald'; src: url('fonts/oswald-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Oswald'; src: url('fonts/oswald-600.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
-@font-face { font-family: 'Saira Stencil One'; src: url('fonts/saira-stencil-400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
