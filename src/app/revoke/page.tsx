@@ -128,7 +128,7 @@ export default function RevokePage() {
                     <div className="mt-10">
                         {status === 'success' ? (
                             <div className="slip px-7 py-9 text-center anim-fade" role="status">
-                                <p className="rune text-center mb-4" style={{ color: 'var(--amber)' }}>
+                                <p className="rune text-center mb-4" style={{ color: 'var(--wax)' }}>
                                     IT IS DONE
                                 </p>
                                 <p className="font-voice italic font-medium text-[20px] leading-[1.55]" style={{ color: 'var(--ink)' }}>
@@ -136,7 +136,7 @@ export default function RevokePage() {
                                 </p>
                                 {rotatedId && (
                                     <div className="mt-7">
-                                        <p className="rune-muted text-[10px] normal-case tracking-[0.2em] mb-2">
+                                        <p className="rune text-[10px] tracking-[0.2em] mb-2" style={{ color: 'var(--ink-soft)' }}>
                                             THE NEW SIGIL
                                         </p>
                                         <a
@@ -149,7 +149,7 @@ export default function RevokePage() {
                                     </div>
                                 )}
                                 <button
-                                    className="ghost mt-8 text-[10px] px-5"
+                                    className="ghost-paper mt-8 text-[10px] px-5"
                                     onClick={() => { setStatus('idle'); setInputValue(''); setToken(''); setRotatedId(''); }}
                                 >
                                     ANOTHER DISPOSITION
@@ -199,8 +199,7 @@ export default function RevokePage() {
                                     <button
                                         onClick={handleRevoke}
                                         disabled={isProcessing || !inputValue || !token}
-                                        className="ghost flex flex-col items-center gap-1.5 py-5 px-4"
-                                        style={{ borderColor: 'rgba(122,46,42,.6)', color: '#c98780' }}
+                                        className="ghost-paper-danger flex flex-col items-center gap-1.5 py-5 px-4"
                                     >
                                         <span className="rune text-[11px] tracking-[0.3em]">RECALL</span>
                                         <span className="rune text-[9px] opacity-80 normal-case tracking-[0.16em]">
@@ -210,7 +209,7 @@ export default function RevokePage() {
                                     <button
                                         onClick={handleRotate}
                                         disabled={isProcessing || !inputValue || !token}
-                                        className="ghost flex flex-col items-center gap-1.5 py-5 px-4"
+                                        className="ghost-paper flex flex-col items-center gap-1.5 py-5 px-4"
                                     >
                                         <span className="rune text-[11px] tracking-[0.3em]">REFORM</span>
                                         <span className="rune text-[9px] opacity-80 normal-case tracking-[0.16em]">
@@ -219,7 +218,7 @@ export default function RevokePage() {
                                     </button>
                                 </div>
                                 {isProcessing && (
-                                    <p className="rune-muted text-center text-[10px] mt-6" aria-live="polite">
+                                    <p className="rune text-center text-[10px] mt-6" aria-live="polite" style={{ color: 'var(--ink-soft)' }}>
                                         THE DESK IS WORKING…
                                     </p>
                                 )}

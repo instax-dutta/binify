@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import type { CSSProperties } from 'react';
 
 import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
 import c from 'react-syntax-highlighter/dist/esm/languages/prism/c';
@@ -26,6 +26,73 @@ import swift from 'react-syntax-highlighter/dist/esm/languages/prism/swift';
 import toml from 'react-syntax-highlighter/dist/esm/languages/prism/toml';
 import typescript from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
 import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml';
+
+/*
+ * A Prism theme drawn for vellum, in the Sanctum palette rather than a stock
+ * light theme: ink for the code, wax for keywords and tags, bronze for values,
+ * ink-soft for punctuation, faded ink for comments. Four hues and no more, so a
+ * payload reads like part of the slip instead of a foreign window.
+ */
+const sanctumPaper: Record<string, CSSProperties> = {
+    'code[class*="language-"]': {
+        color: '#2b241a',
+        background: 'none',
+        fontFamily: 'var(--font-data)',
+        textShadow: 'none',
+        textAlign: 'left',
+        whiteSpace: 'pre',
+        wordSpacing: 'normal',
+        wordBreak: 'normal',
+        lineHeight: '1.7',
+        tabSize: 4,
+        hyphens: 'none',
+    },
+    'pre[class*="language-"]': {
+        color: '#2b241a',
+        background: 'transparent',
+        fontFamily: 'var(--font-data)',
+        textShadow: 'none',
+        textAlign: 'left',
+        whiteSpace: 'pre',
+        wordSpacing: 'normal',
+        wordBreak: 'normal',
+        lineHeight: '1.7',
+        tabSize: 4,
+        hyphens: 'none',
+    },
+    comment: { color: '#6f665b', fontStyle: 'italic' },
+    prolog: { color: '#6f665b' },
+    doctype: { color: '#6f665b' },
+    cdata: { color: '#6f665b' },
+    punctuation: { color: '#5b5040' },
+    operator: { color: '#5b5040' },
+    property: { color: '#5b5040' },
+    'attr-name': { color: '#5b5040' },
+    entity: { color: '#5b5040' },
+    url: { color: '#5b5040' },
+    tag: { color: '#7a2e2a' },
+    selector: { color: '#7a2e2a' },
+    keyword: { color: '#7a2e2a' },
+    atrule: { color: '#7a2e2a' },
+    important: { color: '#7a2e2a', fontWeight: 'bold' },
+    deleted: { color: '#7a2e2a', textDecoration: 'line-through' },
+    string: { color: '#8a6420' },
+    char: { color: '#8a6420' },
+    'attr-value': { color: '#8a6420' },
+    inserted: { color: '#8a6420' },
+    regex: { color: '#8a6420' },
+    number: { color: '#8a6420' },
+    boolean: { color: '#8a6420' },
+    constant: { color: '#8a6420' },
+    symbol: { color: '#8a6420' },
+    function: { color: '#2b241a', fontWeight: 'bold' },
+    'class-name': { color: '#2b241a', fontWeight: 'bold' },
+    builtin: { color: '#2b241a', fontWeight: 'bold' },
+    variable: { color: '#2b241a' },
+    bold: { fontWeight: 'bold' },
+    italic: { fontStyle: 'italic' },
+    namespace: { opacity: 0.8 },
+};
 
 // Only the languages the editor actually offers are registered. The full
 // Prism build ships ~300 grammars; registering just these keeps the grammar
@@ -70,7 +137,7 @@ export function resolveLanguage(language?: string): string | null {
 }
 
 const PLAIN_PROSE =
-    'p-6 text-sm font-mono text-white/60 whitespace-pre-wrap break-words leading-relaxed';
+    'p-6 text-sm font-mono text-ink whitespace-pre-wrap break-words leading-relaxed opacity-90';
 
 interface CodeBlockProps {
     code: string;
@@ -99,7 +166,7 @@ function CodeBlock({
     return (
         <SyntaxHighlighter
             language={id}
-            style={vscDarkPlus}
+            style={sanctumPaper}
             PreTag="div"
             customStyle={
                 variant === 'panel'
