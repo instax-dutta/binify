@@ -116,7 +116,7 @@ export default function PasteCreated({
                         <button className="ghost text-[10px] px-4 py-2" onClick={copyToken} aria-live="polite">
                             {copiedToken ? 'SLIP COPIED' : 'COPY THE SLIP'}
                         </button>
-                        <a href="/revoke" className="ghost text-[10px] px-4 py-2" className="ghost wax-lit-border text-[10px] px-4 py-2" style={{ color: 'var(--wax-lit, #c9877f)' }}>
+                        <a href="/revoke" className="ghost wax-lit wax-lit-border text-[10px] px-4 py-2">
                             RECALL AT THE DESK
                         </a>
                     </div>
