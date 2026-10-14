@@ -90,9 +90,11 @@ export default function PasteViewer({
                     </>
                 )}
 
+                {/* Long lines scroll inside the slip rather than spilling past
+                    its edge into the night: the paper is the container. */}
                 <div
                     className={cn(
-                        'relative font-data',
+                        'relative font-data max-w-full overflow-x-auto overflow-y-auto max-h-[60vh]',
                         language === 'plaintext'
                             ? 'text-[14.5px] leading-[1.75]'
                             : 'text-[13.5px] leading-[1.7]'
