@@ -216,30 +216,30 @@
   .folio {
     max-width: 720px;
   }
-  .folio h2 {
+  .folio .slip h2 {
     font-family: var(--font-voice-family);
     font-weight: 600;
     font-size: 26px;
     color: var(--ink);
     margin: 44px 0 10px;
   }
-  .folio p, .folio li {
+  .folio .slip p, .folio .slip li {
     font-family: var(--font-data-family);
     font-size: 13.5px;
     line-height: 1.8;
     color: rgba(43, 36, 26, 0.88);
   }
-  .folio ul { margin: 12px 0 12px 20px; list-style: none; }
-  .folio li::before { content: "· "; color: var(--wax); }
-  .folio strong { color: var(--ink); font-weight: 500; }
-  .folio em { color: var(--ink-soft); }
-  .folio code {
+  .folio .slip ul { margin: 12px 0 12px 20px; list-style: none; }
+  .folio .slip li::before { content: "· "; color: var(--wax); }
+  .folio .slip strong { color: var(--ink); font-weight: 500; }
+  .folio .slip em { color: var(--ink-soft); }
+  .folio .slip code {
     font-family: var(--font-data-family);
     color: var(--ink);
     background: rgba(43, 36, 26, 0.07);
     padding: 1px 6px;
   }
-  .folio a {
+  .folio .slip a {
     color: var(--wax);
     text-decoration: underline;
     text-underline-offset: 3px;
