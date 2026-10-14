@@ -57,6 +57,69 @@ await withServer(async (base) => {
             await context.close();
         }
 
+    /*
+     * Surface polarity.
+     *
+     * axe cannot evaluate colour contrast over a gradient or a background
+     * image, and every slip carries both (vellum gradient + grain). It reports
+     * those nodes "incomplete" rather than violated, so this gate stayed green
+     * while paper surfaces rendered vellum-on-vellum - text at roughly 1:1 that
+     * a person cannot read at all.
+     *
+     * Contrast on the two surfaces is therefore asserted directly: paper must
+     * carry dark text, night must carry light text. A hand-written check is
+     * worth more here than a tool that declines to answer.
+     */
+    const probeContext = await browser.newContext();
+    for (const path of PAGES) {
+        const probe = await probeContext.newPage();
+        await probe.goto(base + path, { waitUntil: 'networkidle' });
+
+        const polarity = await probe.evaluate(() => {
+            const directText = (el) =>
+                [...el.childNodes]
+                    .filter((n) => n.nodeType === 3)
+                    .map((n) => n.textContent.trim())
+                    .join(' ')
+                    .trim();
+
+            const luminance = (el) => {
+                const parts = getComputedStyle(el).color.match(/[\d.]+/g);
+                if (!parts || parts.length < 3) return null;
+                const [r, g, b, a] = parts.map(Number);
+                if (a !== undefined && a < 0.05) return null;
+                return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+            };
+
+            const wrong = [];
+            const nodes = document.querySelectorAll(
+                'p, li, h1, h2, h3, h4, span, a, code, td, th, strong, em, button, label'
+            );
+
+            for (const el of nodes) {
+                const text = directText(el);
+                if (text.length < 2) continue;
+                if (!el.offsetParent && getComputedStyle(el).position !== 'fixed') continue;
+                const L = luminance(el);
+                if (L === null) continue;
+                const onPaper = !!el.closest('.slip, .charred-paper');
+                // Paper is light: its text must be dark. Night is dark: its
+                // text must be light. 0.5 is mid-grey, well clear of both.
+                if (onPaper && L > 0.5) wrong.push('paper|' + text.slice(0, 44));
+                if (!onPaper && L < 0.5) wrong.push('night|' + text.slice(0, 44));
+            }
+            return [...new Set(wrong)];
+        });
+
+        for (const w of polarity.slice(0, 6)) {
+            problems.push(
+                `${path}: ${w.startsWith('paper|') ? 'dark text needed on paper' : 'light text needed on night'}: "${w.split('|')[1]}"`
+            );
+        }
+        await probe.close();
+    }
+    await probeContext.close();
+
         // Keyboard operability of the custom select, which replaced a native
         // <select> and therefore has to reimplement focus and activation.
         const context = await browser.newContext();

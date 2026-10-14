@@ -271,11 +271,11 @@ export default function LuxurySelect({
                                         onClick={() => commit(option.value)}
                                         onMouseEnter={() => setActiveIndex(i)}
                                         className={cn(
-                                            'w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors duration-150 rounded-[9999px] text-left',
+                                            'w-full flex items-center justify-between px-4 py-2.5 text-xs transition-colors duration-150 text-left font-data',
                                             isSelected
-                                                ? 'bg-[#1ed760]/10 text-[#1ed760] font-bold'
-                                                : 'text-[#b3b3b3] hover:bg-white/5 hover:text-white',
-                                            isActive && !isSelected && 'bg-white/5 text-white'
+                                                  ? 'bg-wax/10 text-wax'
+                                                  : 'text-ink hover:bg-ink/5',
+                                              isActive && !isSelected && 'bg-ink/5'
                                         )}
                                     >
                                         <span>{option.label}</span>

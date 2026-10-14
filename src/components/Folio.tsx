@@ -50,7 +50,7 @@ export default function Folio({
 export function Chapter({ mark, title, children }: { mark: string; title: string; children: React.ReactNode }) {
     return (
         <section className="mt-10 first:mt-0">
-            <p className="rune text-[10px] tracking-[0.32em] mb-1.5" style={{ color: 'var(--amber)' }}>
+            <p className="rune text-[10px] tracking-[0.32em] mb-1.5" style={{ color: 'var(--wax)' }}>
                 {mark}
             </p>
             <h2>{title}</h2>

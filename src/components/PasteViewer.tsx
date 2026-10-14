@@ -90,9 +90,11 @@ export default function PasteViewer({
                     </>
                 )}
 
+                {/* Long lines scroll inside the slip rather than spilling past
+                    its edge into the night: the paper is the container. */}
                 <div
                     className={cn(
-                        'relative font-data',
+                        'relative font-data max-w-full overflow-x-auto overflow-y-auto max-h-[60vh]',
                         language === 'plaintext'
                             ? 'text-[14.5px] leading-[1.75]'
                             : 'text-[13.5px] leading-[1.7]'
@@ -143,7 +145,7 @@ export default function PasteViewer({
                                     type="button"
                                     aria-pressed={viewMode === 'formatted'}
                                     onClick={() => setViewMode('formatted')}
-                                    className={cn('rune text-[10px] pb-0.5 transition-colors', viewMode === 'formatted' ? 'text-wax border-b border-wax' : 'opacity-60')}
+                                    className={cn('rune text-[10px] pb-0.5 transition-colors', viewMode === 'formatted' ? 'text-wax border-b border-wax' : 'opacity-75')}
                                 >
                                     PROOF
                                 </button>
@@ -151,7 +153,7 @@ export default function PasteViewer({
                                     type="button"
                                     aria-pressed={viewMode === 'raw'}
                                     onClick={() => setViewMode('raw')}
-                                    className={cn('rune text-[10px] pb-0.5 transition-colors', viewMode === 'raw' ? 'text-wax border-b border-wax' : 'opacity-60')}
+                                    className={cn('rune text-[10px] pb-0.5 transition-colors', viewMode === 'raw' ? 'text-wax border-b border-wax' : 'opacity-75')}
                                 >
                                     RAW
                                 </button>
@@ -166,7 +168,7 @@ export default function PasteViewer({
 
             <p className="rune-muted text-center mt-6 text-[10.5px]">
                 HOLD THE BURN SLIP?{' '}
-                <Link href="/revoke" className="underline underline-offset-4 hover:text-amber" style={{ color: '#a4463f' }}>
+                <Link href="/revoke" className="underline underline-offset-4 hover:text-amber" style={{ color: '#c9877f' }}>
                     RECALL IT AT THE DESK
                 </Link>
             </p>

@@ -6,11 +6,12 @@ import CodeBlock, { resolveLanguage } from './CodeBlock';
 
 const MarkdownPreview = dynamic(() => import('./MarkdownPreview'), {
     ssr: false,
-    loading: () => <div className="p-6 text-xs text-white/50">Loading preview…</div>,
+    loading: () => <div className="p-6 text-xs text-ink/60">Loading preview…</div>,
 });
 
+// Paper surface: the payload is ink, never the night's vellum.
 const PLAIN =
-    'p-6 text-sm font-mono text-white/60 whitespace-pre-wrap break-words leading-relaxed';
+    'p-6 text-sm font-mono text-ink whitespace-pre-wrap break-words leading-relaxed opacity-90';
 
 interface ContentCanvasProps {
     content: string;

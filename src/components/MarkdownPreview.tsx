@@ -15,8 +15,26 @@ import CodeBlock from './CodeBlock';
 function MarkdownPreview({ content }: { content: string }) {
     return (
         <div
-            className="prose prose-invert max-w-none p-6 text-white/80 overflow-x-auto"
-            style={{ '--tw-prose-pre-bg': 'transparent' } as React.CSSProperties}
+            className="prose max-w-none p-6 text-ink overflow-x-auto"
+            style={{
+                // Tailwind typography reads these; pointing them at the paper
+                // palette is what keeps prose legible on vellum.
+                '--tw-prose-body': 'rgba(43, 36, 26, 0.9)',
+                '--tw-prose-headings': '#2b241a',
+                '--tw-prose-lead': '#4f4637',
+                '--tw-prose-links': '#7a2e2a',
+                '--tw-prose-bold': '#2b241a',
+                '--tw-prose-counters': '#7a2e2a',
+                '--tw-prose-bullets': '#7a2e2a',
+                '--tw-prose-hr': 'rgba(43, 36, 26, 0.25)',
+                '--tw-prose-quotes': '#4f4637',
+                '--tw-prose-quote-borders': 'rgba(122, 46, 42, 0.4)',
+                '--tw-prose-code': '#2b241a',
+                '--tw-prose-pre-code': '#2b241a',
+                '--tw-prose-pre-bg': 'transparent',
+                '--tw-prose-th-borders': 'rgba(43, 36, 26, 0.2)',
+                '--tw-prose-td-borders': 'rgba(43, 36, 26, 0.15)',
+            } as React.CSSProperties}
         >
             <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
@@ -35,44 +53,42 @@ function MarkdownPreview({ content }: { content: string }) {
                         }
                         return (
                             <code
-                                className={cn(
-                                    'bg-white/10 px-1.5 py-0.5 rounded text-[#539df5] font-mono text-xs',
-                                    className
-                                )}
-                            >
+                                  className={cn('px-1.5 py-0.5 font-mono text-xs', className)}
+                                  style={{ background: 'rgba(43,36,26,.08)', color: '#7a2e2a' }}
+                              >
                                 {children}
                             </code>
                         );
                     },
                     table({ children }) {
                         return (
-                            <div className="overflow-x-auto my-8 bg-white/[0.02] rounded-lg border border-white/5">
-                                <table className="min-w-full divide-y divide-white/5">
+                            <div className="overflow-x-auto my-8" style={{ background: 'rgba(43,36,26,.03)', border: '1px solid rgba(43,36,26,.15)' }}>
+                                <table className="min-w-full" style={{ borderCollapse: 'collapse' }}>
                                     {children}
                                 </table>
                             </div>
                         );
                     },
                     thead({ children }) {
-                        return <thead className="bg-white/[0.03]">{children}</thead>;
+                        return <thead style={{ background: 'rgba(43,36,26,.05)' }}>{children}</thead>;
                     },
                     th({ children }) {
                         return (
-                            <th className="px-5 py-3 text-left text-[0.625rem] font-bold uppercase tracking-[0.1em] text-white/40 border-b border-white/5">
+                            <th className="px-5 py-3 text-left text-[0.625rem] font-bold uppercase tracking-[0.1em]" style={{ color: 'rgba(43,36,26,.7)', borderBottom: '1px solid rgba(43,36,26,.2)' }}>
                                 {children}
                             </th>
                         );
                     },
                     td({ children }) {
                         return (
-                            <td className="px-5 py-3 text-sm border-b border-white/5 text-white/60">
+                            <td className="px-5 py-3 text-sm" style={{ color: 'rgba(43,36,26,.85)', borderBottom: '1px solid rgba(43,36,26,.15)' }}>
                                 {children}
                             </td>
                         );
                     },
                     tr({ children }) {
                         return (
-                            <tr className="hover:bg-white/[0.01] transition-colors">
+                            <tr>
                                 {children}
                             </tr>
                         );

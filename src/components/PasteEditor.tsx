@@ -154,7 +154,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 'rune pb-1 transition-colors',
                                 viewMode === 'edit'
                                     ? 'text-wax border-b border-wax'
-                                    : 'opacity-60 hover:opacity-90'
+                                    : 'opacity-75 hover:opacity-100'
                             )}
                         >
                             Write
@@ -167,7 +167,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                                 'rune pb-1 transition-colors',
                                 viewMode === 'preview'
                                     ? 'text-wax border-b border-wax'
-                                    : 'opacity-60 hover:opacity-90'
+                                    : 'opacity-75 hover:opacity-100'
                             )}
                         >
                             Proof
@@ -279,7 +279,7 @@ export default function PasteEditor({ onPasteCreated }: PasteEditorProps) {
                     <span className="rune text-ink tracking-[0.32em]" style={{ color: 'var(--ink)' }}>
                         {isCreating ? 'SEALING…' : 'PRESS THE SEAL'}
                     </span>
-                    <span className="rune text-[10px] opacity-70">
+                    <span className="rune text-[10px]" style={{ color: 'var(--ink-soft)' }}>
                         ONE READING · THE SERVER HOLDS NOISE
                     </span>
                 </div>
