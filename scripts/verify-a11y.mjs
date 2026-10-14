@@ -57,49 +57,6 @@ await withServer(async (base) => {
             await context.close();
         }
 
-        // Keyboard operability of the custom select, which replaced a native
-        // <select> and therefore has to reimplement focus and activation.
-        const context = await browser.newContext();
-        const page = await context.newPage();
-        await page.goto(base + '/', { waitUntil: 'networkidle' });
-
-        const trigger = page.locator('#expiration-select');
-        await trigger.focus();
-        const focusable = await trigger.evaluate((el) => el === document.activeElement);
-
-        await page.keyboard.press('Enter');
-        await page.waitForTimeout(300);
-        const opened = await page.locator('[role="option"]').count();
-
-        let choseByKeyboard = false;
-        if (opened > 0) {
-            await page.keyboard.press('ArrowDown');
-            await page.keyboard.press('Enter');
-            await page.waitForTimeout(300);
-            const label = await trigger.innerText();
-            choseByKeyboard = /hour|day|minute|never|views|burn/i.test(label);
-            if (!choseByKeyboard) problems.push(`select label after keyboard use was "${label}"`);
-        } else {
-            problems.push('select did not expose options after Enter');
-        }
-
-        const escapeCloses = await (async () => {
-            await trigger.click();
-            await page.waitForTimeout(200);
-            await page.keyboard.press('Escape');
-            await page.waitForTimeout(300);
-            return (await page.locator('[role="option"]').count()) === 0;
-        })();
-
-        if (!focusable) problems.push('select trigger cannot receive focus');
-        if (!escapeCloses) problems.push('Escape does not close the dropdown');
-
-        await page.close();
-        await context.close();
-    } finally {
-        await browser.close();
-    }
-
     /*
      * Surface polarity.
      *
@@ -113,8 +70,9 @@ await withServer(async (base) => {
      * carry dark text, night must carry light text. A hand-written check is
      * worth more here than a tool that declines to answer.
      */
+    const probeContext = await browser.newContext();
     for (const path of PAGES) {
-        const probe = await context.newPage();
+        const probe = await probeContext.newPage();
         await probe.goto(base + path, { waitUntil: 'networkidle' });
 
         const polarity = await probe.evaluate(() => {
@@ -160,7 +118,50 @@ await withServer(async (base) => {
         }
         await probe.close();
     }
+    await probeContext.close();
 
+        // Keyboard operability of the custom select, which replaced a native
+        // <select> and therefore has to reimplement focus and activation.
+        const context = await browser.newContext();
+        const page = await context.newPage();
+        await page.goto(base + '/', { waitUntil: 'networkidle' });
+
+        const trigger = page.locator('#expiration-select');
+        await trigger.focus();
+        const focusable = await trigger.evaluate((el) => el === document.activeElement);
+
+        await page.keyboard.press('Enter');
+        await page.waitForTimeout(300);
+        const opened = await page.locator('[role="option"]').count();
+
+        let choseByKeyboard = false;
+        if (opened > 0) {
+            await page.keyboard.press('ArrowDown');
+            await page.keyboard.press('Enter');
+            await page.waitForTimeout(300);
+            const label = await trigger.innerText();
+            choseByKeyboard = /hour|day|minute|never|views|burn/i.test(label);
+            if (!choseByKeyboard) problems.push(`select label after keyboard use was "${label}"`);
+        } else {
+            problems.push('select did not expose options after Enter');
+        }
+
+        const escapeCloses = await (async () => {
+            await trigger.click();
+            await page.waitForTimeout(200);
+            await page.keyboard.press('Escape');
+            await page.waitForTimeout(300);
+            return (await page.locator('[role="option"]').count()) === 0;
+        })();
+
+        if (!focusable) problems.push('select trigger cannot receive focus');
+        if (!escapeCloses) problems.push('Escape does not close the dropdown');
+
+        await page.close();
+        await context.close();
+    } finally {
+        await browser.close();
+    }
 
     console.error(`  axe: ${totalViolations} serious/critical violation(s) across ${PAGES.length} pages`);
     for (const p of problems) console.error(`  ✗ ${p}`);
