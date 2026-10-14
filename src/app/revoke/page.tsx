@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { handleResponse } from '@/lib/utils';
 
 /**
  * The burn-slip desk. The keeper presents a paste address and the one-time slip
@@ -46,15 +47,7 @@ export default function RevokePage() {
                 method: 'DELETE',
             });
 
-            let data: { error?: string; newId?: string } = {};
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                data = await response.json();
-            }
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Recall failed. Present the address and slip again.');
-            }
+            await handleResponse<{ newId?: string }>(response, 'Recall failed. Present the address and slip again.');
 
             setStatus('success');
             setMessage('The paste has been recalled and purged. Nothing remains.');
@@ -83,15 +76,10 @@ export default function RevokePage() {
                 body: JSON.stringify({ token }),
             });
 
-            let data: { error?: string; newId?: string } = {};
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                data = await response.json();
-            }
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Rotation failed. Present the address and slip again.');
-            }
+            const data = await handleResponse<{ newId?: string }>(
+                response,
+                'Rotation failed. Present the address and slip again.'
+            );
             setStatus('success');
             setMessage('A new address has been cut. The old one no longer answers.');
             if (data.newId) setRotatedId(data.newId);
